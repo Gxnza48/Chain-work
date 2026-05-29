@@ -111,8 +111,8 @@ export function Footer() {
             opacity: wordmarkOpacity,
             fontSize: 'clamp(3rem, 16vw, 15rem)',
             marginBottom: '-0.1em',
-            color: 'rgb(var(--fg) / 0.05)',
-            WebkitTextStroke: '2px rgb(var(--fg) / 0.4)',
+            color: 'var(--wordmark-fill)',
+            WebkitTextStroke: '2px var(--wordmark-stroke)',
           }}
           className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.8] tracking-[-0.04em]"
         >

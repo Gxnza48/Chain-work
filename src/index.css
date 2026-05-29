@@ -20,6 +20,10 @@
     --accent-emerald: 5 150 105;
     --accent-amber: 217 119 6;
     --accent-rose: 225 29 72;
+
+    /* Giant footer wordmark — darker outline in light mode so it stays legible */
+    --wordmark-stroke: rgba(10, 10, 10, 0.62);
+    --wordmark-fill: rgba(10, 10, 10, 0.05);
   }
 
   .dark {
@@ -35,6 +39,9 @@
     --accent-emerald: 5 150 105;
     --accent-amber: 217 119 6;
     --accent-rose: 225 29 72;
+
+    --wordmark-stroke: rgba(255, 255, 255, 0.42);
+    --wordmark-fill: rgba(255, 255, 255, 0.06);
   }
 
   * {
