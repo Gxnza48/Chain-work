@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   ChainWork — Neo-brutalist tokens (rgb triplets so Tailwind alpha works)
+   =========================================================================== */
+@layer base {
+  :root,
+  .light {
+    --bg: 250 250 245;
+    --surface: 255 255 255;
+    --surface-2: 242 242 236;
+    --fg: 10 10 10;
+    --fg-muted: 85 85 85;
+    --border: 10 10 10;
+
+    --accent-blue: 37 99 235;
+    --accent-violet: 124 58 237;
+    --accent-emerald: 5 150 105;
+    --accent-amber: 217 119 6;
+    --accent-rose: 225 29 72;
+  }
+
+  .dark {
+    --bg: 10 10 10;
+    --surface: 20 20 20;
+    --surface-2: 28 28 28;
+    --fg: 255 255 255;
+    --fg-muted: 138 138 138;
+    --border: 255 255 255;
+
+    --accent-blue: 37 99 235;
+    --accent-violet: 124 58 237;
+    --accent-emerald: 5 150 105;
+    --accent-amber: 217 119 6;
+    --accent-rose: 225 29 72;
+  }
+
+  * {
+    border-color: rgb(var(--border));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--fg));
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100%;
+  }
+
+  html {
+    /* disable native smooth-scroll so Lenis can take over */
+    scroll-behavior: auto;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  /* Focus rings — brutalist hard square */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent-blue));
+    outline-offset: 2px;
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: rgb(var(--accent-blue));
+    color: rgb(255 255 255);
+  }
+}
+
+/* ===========================================================================
+   Utility helpers
+   =========================================================================== */
+@layer utilities {
+  .brut-card {
+    @apply rounded-lg border-2 border-fg bg-surface shadow-brut;
+  }
+
+  .brut-press {
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .brut-press:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 rgb(var(--border));
+  }
+
+  .brut-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 rgb(var(--border));
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(var(--fg) / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--fg) / 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .dot-bg {
+    background-image: radial-gradient(rgb(var(--fg) / 0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .noise {
+    position: relative;
+  }
+
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+
+  .scroll-fade {
+    will-change: transform, opacity;
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

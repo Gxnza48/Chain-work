@@ -1,0 +1,48 @@
+import { AppShell } from '@/components/layout/AppShell';
+import { ProfileCard } from '@/components/dashboard/ProfileCard';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+
+export default function Settings() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await signOut();
+    navigate('/', { replace: true });
+  }
+
+  return (
+    <AppShell>
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 md:py-10 flex flex-col gap-8">
+        <header>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-sm text-fg-muted">Manage your profile and account.</p>
+        </header>
+
+        <section>
+          <h2 className="mb-3 font-display text-lg font-bold tracking-tight">Profile</h2>
+          <ProfileCard />
+        </section>
+
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+              <CardDescription>Signed in as your ChainWork account.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="danger" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+    </AppShell>
+  );
+}
