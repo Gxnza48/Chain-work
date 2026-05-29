@@ -1,4 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/Accordion';
+import { motion, popVariants, staggerContainer, Reveal, VIEWPORT } from './Motion';
 
 interface QA {
   q: string;
@@ -40,22 +41,33 @@ export function FAQ() {
   return (
     <section id="faq" className="relative scroll-mt-28 py-24 md:py-32">
       <div className="mx-auto max-w-3xl px-6">
-        <div className="text-center">
+        <Reveal className="text-center">
           <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-accent-emerald">
             FAQ
           </p>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
             Honest answers.
           </h2>
-        </div>
-        <Accordion type="single" collapsible defaultValue="q-0" className="mt-10">
-          {QUESTIONS.map((qa, i) => (
-            <AccordionItem key={qa.q} value={`q-${i}`}>
-              <AccordionTrigger>{qa.q}</AccordionTrigger>
-              <AccordionContent>{qa.a}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        </Reveal>
+
+        <motion.div
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={VIEWPORT}
+          className="mt-10"
+        >
+          <Accordion type="single" collapsible defaultValue="q-0">
+            {QUESTIONS.map((qa, i) => (
+              <motion.div key={qa.q} variants={popVariants}>
+                <AccordionItem value={`q-${i}`}>
+                  <AccordionTrigger>{qa.q}</AccordionTrigger>
+                  <AccordionContent>{qa.a}</AccordionContent>
+                </AccordionItem>
+              </motion.div>
+            ))}
+          </Accordion>
+        </motion.div>
       </div>
     </section>
   );

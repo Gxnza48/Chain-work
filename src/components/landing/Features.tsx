@@ -1,7 +1,5 @@
-import { useEffect, useRef } from 'react';
 import { Activity, Folders, Lightbulb, ListChecks, Paperclip, type LucideIcon } from 'lucide-react';
-import { gsap, ScrollTrigger, registerGsap } from '@/lib/gsap';
-import { prefersReducedMotion } from '@/lib/utils';
+import { motion, popVariants, staggerContainer, Reveal, VIEWPORT } from './Motion';
 import { cn } from '@/lib/utils';
 
 interface FeatureCard {
@@ -55,32 +53,10 @@ const ACCENT_BG: Record<FeatureCard['accent'], string> = {
 };
 
 export function Features() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    registerGsap();
-    if (prefersReducedMotion()) return;
-    const ctx = gsap.context(() => {
-      const cards = sectionRef.current?.querySelectorAll<HTMLElement>('[data-feature]') ?? [];
-      gsap.from(cards, {
-        opacity: 0,
-        y: 30,
-        duration: 0.6,
-        ease: 'power3.out',
-        stagger: 0.08,
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
-      });
-    }, sectionRef);
-    return () => {
-      ctx.revert();
-      ScrollTrigger.refresh();
-    };
-  }, []);
-
   return (
-    <section id="features" ref={sectionRef} className="relative scroll-mt-28 py-24 md:py-32 bg-surface border-y-2 border-fg">
+    <section id="features" className="relative scroll-mt-28 py-24 md:py-32 bg-surface border-y-2 border-fg">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-3xl text-center">
+        <Reveal className="mx-auto max-w-3xl text-center">
           <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-accent-violet">
             What's inside
           </p>
@@ -91,19 +67,23 @@ export function Features() {
             Chains, members, projects, todos, ideas, attachments, presence. We made deliberate choices about what
             <em> not</em> to build.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+        <motion.div
+          className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={VIEWPORT}
+        >
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <article
+              <motion.article
                 key={f.title}
-                data-feature
-                className={cn(
-                  'brut-card p-6 flex flex-col gap-4 will-change-transform',
-                  f.span ? 'md:col-span-2' : '',
-                )}
+                variants={popVariants}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 18 } }}
+                className={cn('brut-card p-6 flex flex-col gap-4', f.span ? 'md:col-span-2' : '')}
               >
                 <span
                   className={cn(
@@ -115,10 +95,10 @@ export function Features() {
                 </span>
                 <h3 className="font-display text-2xl font-bold tracking-tight">{f.title}</h3>
                 <p className="text-base leading-relaxed text-fg-muted">{f.body}</p>
-              </article>
+              </motion.article>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

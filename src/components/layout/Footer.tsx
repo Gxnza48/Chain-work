@@ -1,11 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Github } from 'lucide-react';
-import { gsap, ScrollTrigger, registerGsap } from '@/lib/gsap';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
-import { prefersReducedMotion } from '@/lib/utils';
 
 const LINK_GROUPS: { heading: string; links: { label: string; href: string; external?: boolean }[] }[] = [
   {
@@ -28,34 +27,13 @@ const LINK_GROUPS: { heading: string; links: { label: string; href: string; exte
 
 export function Footer() {
   const { user, loading } = useAuth();
-  const wordmarkRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    registerGsap();
-    if (prefersReducedMotion()) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        wordmarkRef.current,
-        { yPercent: 28, opacity: 0.2 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: rootRef.current,
-            start: 'top 90%',
-            end: 'bottom bottom',
-            scrub: 0.6,
-          },
-        },
-      );
-    }, rootRef);
-    return () => {
-      ctx.revert();
-      ScrollTrigger.refresh();
-    };
-  }, []);
+  const { scrollYProgress } = useScroll({
+    target: rootRef,
+    offset: ['start end', 'end end'],
+  });
+  const wordmarkY = useTransform(scrollYProgress, [0, 1], ['30%', '0%']);
+  const wordmarkOpacity = useTransform(scrollYProgress, [0, 0.6], [0.15, 1]);
 
   return (
     <footer ref={rootRef} className="relative overflow-hidden border-t-2 border-fg bg-surface">
@@ -125,14 +103,18 @@ export function Footer() {
       {/* Giant wordmark — centered, full-bleed, clipped at the bottom edge
           like Discord's landing. */}
       <div className="relative -mt-4 w-full overflow-hidden">
-        <div
-          ref={wordmarkRef}
+        <motion.div
           aria-hidden
-          className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.78] tracking-[-0.04em] text-fg/[0.07]"
-          style={{ fontSize: 'clamp(2.75rem, 15vw, 14rem)', marginBottom: '-0.14em' }}
+          style={{
+            y: wordmarkY,
+            opacity: wordmarkOpacity,
+            fontSize: 'clamp(2.75rem, 15vw, 14rem)',
+            marginBottom: '-0.14em',
+          }}
+          className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.78] tracking-[-0.04em] text-fg/[0.08]"
         >
           ChainWork.
-        </div>
+        </motion.div>
       </div>
 
       <div className="border-t-2 border-fg/30">

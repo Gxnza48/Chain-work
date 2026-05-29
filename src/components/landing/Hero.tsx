@@ -1,71 +1,36 @@
-import { Fragment, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { gsap, ScrollTrigger, registerGsap } from '@/lib/gsap';
+import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { prefersReducedMotion } from '@/lib/utils';
 
 const HEADLINE = 'Build together in shared chains.';
 const HEADLINE_WORDS = HEADLINE.split(' ');
 
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+};
+
+const rise: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 22 } },
+};
+
+const word: Variants = {
+  hidden: { opacity: 0, y: '105%' },
+  show: { opacity: 1, y: '0%', transition: { type: 'spring', stiffness: 200, damping: 24 } },
+};
+
 export function Hero() {
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const headRef = useRef<HTMLHeadingElement | null>(null);
-  const subRef = useRef<HTMLParagraphElement | null>(null);
-  const ctaRef = useRef<HTMLDivElement | null>(null);
-  const eyebrowRef = useRef<HTMLDivElement | null>(null);
-  const mockupRef = useRef<HTMLDivElement | null>(null);
-  const parallaxRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    registerGsap();
-
-    const reveal = (el: Element | null) => {
-      if (!el) return;
-      gsap.set(el, { clearProps: 'all' });
-      (el as HTMLElement).style.opacity = '1';
-    };
-
-    if (prefersReducedMotion()) {
-      [eyebrowRef.current, subRef.current, ctaRef.current, mockupRef.current].forEach(reveal);
-      headRef.current?.querySelectorAll<HTMLSpanElement>('[data-word]').forEach((w) => reveal(w));
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      const words = headRef.current?.querySelectorAll<HTMLSpanElement>('[data-word]') ?? [];
-      gsap.set(words, { yPercent: 110, opacity: 0 });
-      gsap.set([eyebrowRef.current, subRef.current, ctaRef.current], { y: 18, opacity: 0 });
-      gsap.set(mockupRef.current, { y: 30, opacity: 0 });
-
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      tl.to(eyebrowRef.current, { y: 0, opacity: 1, duration: 0.5 })
-        .to(words, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.08 }, '-=0.25')
-        .to(subRef.current, { y: 0, opacity: 1, duration: 0.5 }, '-=0.2')
-        .to(ctaRef.current, { y: 0, opacity: 1, duration: 0.5 }, '-=0.3')
-        .to(mockupRef.current, { y: 0, opacity: 1, duration: 0.7 }, '-=0.4');
-
-      // Scroll-driven parallax: the mockup drifts up and recedes slightly as
-      // you scroll past the hero, adding depth without harming layout.
-      gsap.to(parallaxRef.current, {
-        yPercent: -12,
-        scale: 0.97,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: rootRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.5,
-        },
-      });
-    }, rootRef);
-
-    return () => {
-      ctx.revert();
-      ScrollTrigger.refresh();
-    };
-  }, []);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+  const mockupY = useTransform(scrollYProgress, [0, 1], [0, -90]);
+  const mockupScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
   function handleSeeHow(e: React.MouseEvent) {
     e.preventDefault();
@@ -75,43 +40,47 @@ export function Hero() {
   return (
     <section
       aria-label="Hero"
-      ref={rootRef}
+      ref={sectionRef}
       className="relative isolate overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 grid-bg noise"
     >
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div ref={eyebrowRef} className="mb-6 inline-flex opacity-0">
+      <FloatingShapes />
+
+      <motion.div
+        className="relative mx-auto max-w-7xl px-6"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={rise} className="mb-6 inline-flex">
           <Badge variant="blue" className="border-fg shadow-brut-sm">
             <Sparkles className="h-3 w-3" />
             Now in beta · realtime collaboration
           </Badge>
-        </div>
+        </motion.div>
 
         <h1
-          ref={headRef}
           className="font-display text-5xl font-bold tracking-tight text-fg leading-[0.95] sm:text-6xl md:text-7xl lg:text-[7rem]"
           style={{ letterSpacing: '-0.04em' }}
         >
           {HEADLINE_WORDS.map((w, i) => (
-            <Fragment key={`${w}-${i}`}>
-              <span className="inline-block overflow-hidden align-bottom">
-                <span data-word className="inline-block will-change-transform opacity-0">
-                  {w}
-                </span>
-              </span>
-              {i < HEADLINE_WORDS.length - 1 ? <span> </span> : null}
-            </Fragment>
+            <span key={`${w}-${i}`} className="inline-block overflow-hidden align-bottom">
+              <motion.span variants={word} className="inline-block">
+                {w}
+              </motion.span>
+              {i < HEADLINE_WORDS.length - 1 ? <span>&nbsp;</span> : null}
+            </span>
           ))}
         </h1>
 
-        <p
-          ref={subRef}
-          className="mt-6 max-w-2xl text-lg leading-relaxed text-fg-muted md:text-xl opacity-0"
+        <motion.p
+          variants={rise}
+          className="mt-6 max-w-2xl text-lg leading-relaxed text-fg-muted md:text-xl"
         >
           A web app where small teams build together, in shared chains. Between Notion's flexibility and
           Linear's structure — clean, fast, modern.
-        </p>
+        </motion.p>
 
-        <div ref={ctaRef} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center opacity-0">
+        <motion.div variants={rise} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button asChild size="lg">
             <Link to="/auth?mode=register">
               Get Started Free
@@ -121,15 +90,45 @@ export function Hero() {
           <Button asChild variant="secondary" size="lg" onClick={handleSeeHow}>
             <a href="#how-it-works">See how it works</a>
           </Button>
-        </div>
+        </motion.div>
 
-        <div ref={mockupRef} className="mt-16 md:mt-24 opacity-0">
-          <div ref={parallaxRef} className="will-change-transform">
-            <HeroMockup />
-          </div>
-        </div>
-      </div>
+        <motion.div
+          variants={rise}
+          style={{ y: mockupY, scale: mockupScale }}
+          className="mt-16 md:mt-24 will-change-transform"
+        >
+          <HeroMockup />
+        </motion.div>
+      </motion.div>
     </section>
+  );
+}
+
+/** Decorative brutalist shapes drifting behind the hero — pure motion-graphics flair. */
+function FloatingShapes() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <motion.div
+        className="absolute left-[6%] top-[18%] h-16 w-16 rounded-lg border-2 border-fg bg-accent-amber/80 shadow-brut"
+        animate={{ y: [0, -22, 0], rotate: [0, 8, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute right-[10%] top-[24%] h-20 w-20 rounded-full border-2 border-fg bg-accent-violet/70 shadow-brut"
+        animate={{ y: [0, 26, 0], x: [0, -10, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute right-[22%] top-[8%] h-10 w-10 rotate-45 border-2 border-fg bg-accent-emerald/70 shadow-brut-sm"
+        animate={{ y: [0, -16, 0], rotate: [45, 70, 45] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute left-[16%] bottom-[20%] h-12 w-12 rounded-md border-2 border-fg bg-accent-rose/70 shadow-brut-sm"
+        animate={{ y: [0, 18, 0], rotate: [0, -10, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </div>
   );
 }
 
