@@ -100,28 +100,24 @@ export function Footer() {
         ))}
       </div>
 
-      {/* Giant wordmark — centered, full-bleed, clipped at the bottom edge
-          like Discord's landing. */}
-      <div className="relative -mt-4 w-full overflow-hidden">
+      {/* Giant wordmark — the closing flourish of the page. Centered, full-bleed,
+          outlined + faintly filled so it reads clearly in both light and dark,
+          and clipped at the bottom edge like Discord's landing. */}
+      <div className="relative -mt-2 w-full overflow-hidden">
         <motion.div
           aria-hidden
           style={{
             y: wordmarkY,
             opacity: wordmarkOpacity,
-            fontSize: 'clamp(2.75rem, 15vw, 14rem)',
-            marginBottom: '-0.14em',
+            fontSize: 'clamp(3rem, 16vw, 15rem)',
+            marginBottom: '-0.1em',
+            color: 'rgb(var(--fg) / 0.05)',
+            WebkitTextStroke: '2px rgb(var(--fg) / 0.4)',
           }}
-          className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.78] tracking-[-0.04em] text-fg/[0.08]"
+          className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.8] tracking-[-0.04em]"
         >
           ChainWork.
         </motion.div>
-      </div>
-
-      <div className="border-t-2 border-fg/30">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-5 text-xs text-fg-muted sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} ChainWork. Built for small teams.</span>
-          <span className="font-mono">Made with chains, not meetings.</span>
-        </div>
       </div>
     </footer>
   );
