@@ -2,6 +2,7 @@
 
 export type TodoStatus = 'pending' | 'in_progress' | 'done';
 export type AttachmentType = 'repo' | 'image' | 'video' | 'link';
+export type ChainRole = 'owner' | 'member';
 
 export type Json =
   | string
@@ -20,6 +21,7 @@ export interface Database {
           username: string;
           display_name: string;
           bio: string | null;
+          website: string | null;
           avatar_url: string | null;
           last_seen: string | null;
           created_at: string;
@@ -29,6 +31,7 @@ export interface Database {
           username: string;
           display_name: string;
           bio?: string | null;
+          website?: string | null;
           avatar_url?: string | null;
           last_seen?: string | null;
           created_at?: string;
@@ -38,6 +41,7 @@ export interface Database {
           username?: string;
           display_name?: string;
           bio?: string | null;
+          website?: string | null;
           avatar_url?: string | null;
           last_seen?: string | null;
           created_at?: string;
@@ -73,18 +77,21 @@ export interface Database {
           id: string;
           chain_id: string;
           user_id: string;
+          role: ChainRole;
           joined_at: string;
         };
         Insert: {
           id?: string;
           chain_id: string;
           user_id: string;
+          role?: ChainRole;
           joined_at?: string;
         };
         Update: {
           id?: string;
           chain_id?: string;
           user_id?: string;
+          role?: ChainRole;
           joined_at?: string;
         };
         Relationships: [];
@@ -255,6 +262,10 @@ export interface Database {
         Returns: string;
       };
       is_chain_member: {
+        Args: { target_chain: string };
+        Returns: boolean;
+      };
+      is_chain_owner: {
         Args: { target_chain: string };
         Returns: boolean;
       };

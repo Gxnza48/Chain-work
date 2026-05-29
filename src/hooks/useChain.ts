@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { ChainRow, UserRow } from '@/types';
+import { useAuthStore } from '@/store/auth';
+import type { ChainMemberProfile, ChainRole, ChainRow, UserRow } from '@/types';
 
 interface ChainData {
   chain: ChainRow | null;
-  members: UserRow[];
+  members: ChainMemberProfile[];
+  myRole: ChainRole | null;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
 }
 
 export function useChain(chainId: string | undefined): ChainData {
+  const userId = useAuthStore((s) => s.user?.id ?? null);
   const [chain, setChain] = useState<ChainRow | null>(null);
-  const [members, setMembers] = useState<UserRow[]>([]);
+  const [members, setMembers] = useState<ChainMemberProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
+  async function load(opts?: { silent?: boolean }) {
     if (!chainId) return;
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     setError(null);
     const { data: chainData, error: chainErr } = await supabase
       .from('chains')
@@ -37,19 +40,23 @@ export function useChain(chainId: string | undefined): ChainData {
 
     const { data: memberData } = await supabase
       .from('chain_members')
-      .select('user_id, joined_at, users(*)')
+      .select('user_id, role, joined_at, users(*)')
       .eq('chain_id', chainId);
 
-    const memberList: UserRow[] = (memberData ?? [])
-      .map((m) => (m as unknown as { users: UserRow }).users)
-      .filter(Boolean);
+    const memberList: ChainMemberProfile[] = (memberData ?? [])
+      .map((m) => {
+        const row = m as unknown as { role: ChainRole; users: UserRow };
+        if (!row.users) return null;
+        return { ...row.users, role: row.role ?? 'member' };
+      })
+      .filter((m): m is ChainMemberProfile => Boolean(m));
     setMembers(memberList);
     setLoading(false);
   }
 
   useEffect(() => {
     load();
-    // also subscribe to membership inserts/deletes
+    // also subscribe to membership inserts/updates/deletes
     if (!chainId) return;
     const channel = supabase
       .channel(`chain-members:${chainId}`)
@@ -57,7 +64,7 @@ export function useChain(chainId: string | undefined): ChainData {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chain_members', filter: `chain_id=eq.${chainId}` },
         () => {
-          load();
+          load({ silent: true });
         },
       )
       .subscribe();
@@ -67,5 +74,9 @@ export function useChain(chainId: string | undefined): ChainData {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId]);
 
-  return { chain, members, loading, error, refresh: load };
+  const myRole: ChainRole | null = userId
+    ? members.find((m) => m.id === userId)?.role ?? null
+    : null;
+
+  return { chain, members, myRole, loading, error, refresh: () => load({ silent: true }) };
 }

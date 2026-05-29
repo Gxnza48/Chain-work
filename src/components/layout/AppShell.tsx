@@ -46,7 +46,7 @@ export function AppShell({ children }: AppShellProps) {
         )}
       >
         <div className="mb-6 flex items-center justify-between">
-          <Logo to="/dashboard" />
+          <Logo to="/" />
           <button
             className="rounded-md p-1 text-fg-muted hover:bg-surface-2 lg:hidden"
             onClick={() => setOpen(false)}
@@ -111,7 +111,7 @@ export function AppShell({ children }: AppShellProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Logo size="sm" to="/dashboard" />
+        <Logo size="sm" to="/" />
         <ThemeToggle />
       </div>
 

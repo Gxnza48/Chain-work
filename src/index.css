@@ -73,6 +73,35 @@
     background-color: rgb(var(--accent-blue));
     color: rgb(255 255 255);
   }
+
+  /* ====== Custom scrollbar — brutalist, matches the design tokens ====== */
+  /* Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--fg) / 0.35) transparent;
+  }
+
+  /* WebKit / Chromium / Safari */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--surface-2));
+    border-left: 2px solid rgb(var(--fg) / 0.12);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--fg) / 0.55);
+    border: 3px solid rgb(var(--surface-2));
+    border-radius: 999px;
+    transition: background-color 150ms ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--accent-blue));
+  }
+  ::-webkit-scrollbar-corner {
+    background: rgb(var(--surface-2));
+  }
 }
 
 /* ===========================================================================
@@ -127,6 +156,27 @@
 
   .scroll-fade {
     will-change: transform, opacity;
+  }
+
+  /* ====== Smooth skeleton — a soft gradient sweep instead of a hard pulse ====== */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(var(--surface-2));
+    border-radius: 6px;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--fg) / 0.08),
+      transparent
+    );
+    animation: shimmer 1.6s ease-in-out infinite;
   }
 }
 

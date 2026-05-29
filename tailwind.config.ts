@@ -49,11 +49,23 @@ const config: Config = {
         'spin-slow': {
           to: { transform: 'rotate(360deg)' },
         },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'fade-rise': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        // Override the built-in fast 1s spinner so every <Loader2 className="animate-spin" />
+        // across the app rotates at a calmer, smoother pace.
+        spin: 'spin 1.4s linear infinite',
         'spin-slow': 'spin 1.8s linear infinite',
+        shimmer: 'shimmer 1.6s ease-in-out infinite',
+        'fade-rise': 'fade-rise 0.4s ease-out both',
       },
     },
   },

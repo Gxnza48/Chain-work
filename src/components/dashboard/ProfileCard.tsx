@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Camera, Loader2, Pencil, Save, X } from 'lucide-react';
+import { Camera, Link2, Loader2, Pencil, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -10,11 +10,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { initials } from '@/lib/utils';
 
+/** Strip the protocol / trailing slash so the link reads cleanly in the UI. */
+function prettyLink(url: string): string {
+  return url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+}
+
 export function ProfileCard() {
   const { user, profile, refreshProfile } = useAuth();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
+  const [website, setWebsite] = useState(profile?.website ?? '');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -24,7 +30,22 @@ export function ProfileCard() {
   function startEdit() {
     setDisplayName(profile?.display_name ?? '');
     setBio(profile?.bio ?? '');
+    setWebsite(profile?.website ?? '');
     setEditing(true);
+  }
+
+  function normalizeUrl(raw: string): string | null {
+    const v = raw.trim();
+    if (!v) return null;
+    const withProto = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    try {
+      // validate; throws on garbage
+      // eslint-disable-next-line no-new
+      new URL(withProto);
+      return withProto;
+    } catch {
+      return null;
+    }
   }
 
   async function save() {
@@ -33,10 +54,18 @@ export function ProfileCard() {
       toast.error('Display name cannot be empty');
       return;
     }
+    let websiteValue: string | null = null;
+    if (website.trim()) {
+      websiteValue = normalizeUrl(website);
+      if (!websiteValue) {
+        toast.error('That link doesn’t look like a valid URL');
+        return;
+      }
+    }
     setSaving(true);
     const { error } = await supabase
       .from('users')
-      .update({ display_name: displayName.trim(), bio: bio.trim() || null })
+      .update({ display_name: displayName.trim(), bio: bio.trim() || null, website: websiteValue })
       .eq('id', profile.id);
     setSaving(false);
     if (error) {
@@ -122,6 +151,18 @@ export function ProfileCard() {
                 placeholder="A short bio…"
                 rows={3}
               />
+              <div className="relative">
+                <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-muted" />
+                <Input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="your-portfolio.com"
+                  type="url"
+                  inputMode="url"
+                  className="pl-9"
+                  aria-label="Website or portfolio link"
+                />
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={save} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -148,6 +189,17 @@ export function ProfileCard() {
               <p className="mt-3 text-base leading-relaxed text-fg-muted">
                 {profile.bio || 'Add a short bio to introduce yourself to teammates.'}
               </p>
+              {profile.website ? (
+                <a
+                  href={profile.website}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold text-fg shadow-brut-sm transition-colors hover:bg-surface"
+                >
+                  <Link2 className="h-4 w-4 shrink-0 text-accent-blue" />
+                  <span className="truncate">{prettyLink(profile.website)}</span>
+                </a>
+              ) : null}
             </>
           )}
         </div>

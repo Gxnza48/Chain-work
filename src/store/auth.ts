@@ -51,16 +51,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       loading: false,
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    // IMPORTANT: do NOT `await` Supabase queries inside this callback. supabase-js
+    // holds an internal auth lock while the callback runs; awaiting a DB query
+    // (which also needs that lock) here deadlocks every request until it times
+    // out — that was the cause of "nothing loads until I refresh". We update the
+    // session synchronously and defer the profile fetch to a microtask outside
+    // the lock.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       const nextUser = newSession?.user ?? null;
-      const nextProfile = nextUser ? await fetchProfile(nextUser.id) : null;
       set({
         session: newSession,
         user: nextUser,
-        profile: nextProfile,
         emailConfirmed: Boolean(nextUser?.email_confirmed_at),
         loading: false,
       });
+      if (!nextUser) {
+        set({ profile: null });
+        return;
+      }
+      setTimeout(() => {
+        fetchProfile(nextUser.id).then((nextProfile) => {
+          // guard against a race where the user changed while fetching
+          if (get().user?.id === nextUser.id) {
+            set({ profile: nextProfile });
+          }
+        });
+      }, 0);
     });
 
     return () => {

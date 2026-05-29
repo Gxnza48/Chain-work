@@ -14,10 +14,11 @@ const PROJECT_CAP = 25;
 interface Props {
   chainId: string;
   members: UserRow[];
+  canManage?: boolean;
   onOpen: (projectId: string) => void;
 }
 
-export function ProjectListView({ chainId, members, onOpen }: Props) {
+export function ProjectListView({ chainId, members, canManage, onOpen }: Props) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -138,7 +139,7 @@ export function ProjectListView({ chainId, members, onOpen }: Props) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <ProjectCard key={p.id} project={p} onOpen={onOpen} />
+            <ProjectCard key={p.id} project={p} canManage={canManage} onOpen={onOpen} onRenamed={load} />
           ))}
         </div>
       )}

@@ -1,43 +1,144 @@
-import { Github } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Github } from 'lucide-react';
+import { gsap, ScrollTrigger, registerGsap } from '@/lib/gsap';
 import { Logo } from './Logo';
+import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/useAuth';
+import { prefersReducedMotion } from '@/lib/utils';
+
+const LINK_GROUPS: { heading: string; links: { label: string; href: string; external?: boolean }[] }[] = [
+  {
+    heading: 'Product',
+    links: [
+      { label: 'How it works', href: '#how-it-works' },
+      { label: 'Features', href: '#features' },
+      { label: 'FAQ', href: '#faq' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'Privacy', href: '#' },
+      { label: 'Terms', href: '#' },
+      { label: 'GitHub', href: 'https://github.com/Gxnza48/Chain-work', external: true },
+    ],
+  },
+];
 
 export function Footer() {
+  const { user, loading } = useAuth();
+  const wordmarkRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    registerGsap();
+    if (prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        wordmarkRef.current,
+        { yPercent: 28, opacity: 0.2 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: rootRef.current,
+            start: 'top 90%',
+            end: 'bottom bottom',
+            scrub: 0.6,
+          },
+        },
+      );
+    }, rootRef);
+    return () => {
+      ctx.revert();
+      ScrollTrigger.refresh();
+    };
+  }, []);
+
   return (
-    <footer className="border-t-2 border-fg bg-surface">
-      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-12 md:flex-row md:items-center">
-        <div className="flex flex-col gap-2">
-          <Logo size="md" />
+    <footer ref={rootRef} className="relative overflow-hidden border-t-2 border-fg bg-surface">
+      {/* CTA band */}
+      <div className="border-b-2 border-fg/30">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-12 md:flex-row md:items-center">
+          <div>
+            <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+              Ready to build together?
+            </h2>
+            <p className="mt-2 max-w-md text-fg-muted">
+              Spin up a chain, share the code, and start shipping with your team in minutes.
+            </p>
+          </div>
+          {loading ? null : (
+            <Button asChild size="lg">
+              <Link to={user ? '/dashboard' : '/auth?mode=register'}>
+                {user ? 'Open dashboard' : 'Get started free'}
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Links */}
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 py-12 sm:grid-cols-3 md:grid-cols-4">
+        <div className="col-span-2 flex flex-col gap-3 sm:col-span-1">
+          <Logo size="md" to="/" />
           <p className="max-w-sm text-sm text-fg-muted">
             A web app where small teams build together, in shared chains.
           </p>
-        </div>
-        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold">
-          <a href="#features" className="text-fg-muted hover:text-fg transition-colors">
-            Features
-          </a>
-          <a href="#faq" className="text-fg-muted hover:text-fg transition-colors">
-            FAQ
-          </a>
-          <a href="#" className="text-fg-muted hover:text-fg transition-colors">
-            Privacy
-          </a>
-          <a href="#" className="text-fg-muted hover:text-fg transition-colors">
-            Terms
-          </a>
           <a
             href="https://github.com/Gxnza48/Chain-work"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-fg-muted hover:text-fg transition-colors"
+            className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm transition-colors hover:bg-surface"
           >
             <Github className="h-4 w-4" />
-            GitHub
+            Star on GitHub
           </a>
-        </nav>
+        </div>
+
+        {LINK_GROUPS.map((group) => (
+          <nav key={group.heading} className="flex flex-col gap-3">
+            <h3 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
+              {group.heading}
+            </h3>
+            <ul className="flex flex-col gap-2 text-sm font-semibold">
+              {group.links.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target={link.external ? '_blank' : undefined}
+                    rel={link.external ? 'noreferrer' : undefined}
+                    className="text-fg-muted transition-colors hover:text-fg"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
       </div>
-      <div className="border-t-2 border-fg/40">
-        <div className="mx-auto max-w-7xl px-6 py-4 text-xs text-fg-muted">
-          © {new Date().getFullYear()} ChainWork. Built for small teams.
+
+      {/* Giant wordmark — centered, full-bleed, clipped at the bottom edge
+          like Discord's landing. */}
+      <div className="relative -mt-4 w-full overflow-hidden">
+        <div
+          ref={wordmarkRef}
+          aria-hidden
+          className="pointer-events-none w-full select-none whitespace-nowrap text-center font-display font-bold leading-[0.78] tracking-[-0.04em] text-fg/[0.07]"
+          style={{ fontSize: 'clamp(2.75rem, 15vw, 14rem)', marginBottom: '-0.14em' }}
+        >
+          ChainWork.
+        </div>
+      </div>
+
+      <div className="border-t-2 border-fg/30">
+        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-5 text-xs text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} ChainWork. Built for small teams.</span>
+          <span className="font-mono">Made with chains, not meetings.</span>
         </div>
       </div>
     </footer>

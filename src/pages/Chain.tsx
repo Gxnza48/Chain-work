@@ -15,7 +15,7 @@ type Tab = 'projects' | 'ideas' | 'todos';
 
 export default function ChainPage() {
   const { chainId } = useParams<{ chainId: string }>();
-  const { chain, members, loading, error } = useChain(chainId);
+  const { chain, members, myRole, loading, error, refresh } = useChain(chainId);
 
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [openProject, setOpenProject] = useState<string | null>(null);
@@ -42,7 +42,13 @@ export default function ChainPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-fg">
-      <ChainHeader chain={chain} memberCount={members.length} onOpenMembers={() => setMembersOpen(true)} />
+      <ChainHeader
+        chain={chain}
+        memberCount={members.length}
+        canEdit={myRole === 'owner'}
+        onRenamed={refresh}
+        onOpenMembers={() => setMembersOpen(true)}
+      />
 
       <div className="flex flex-1 min-h-0">
         {/* Left rail */}
@@ -111,7 +117,12 @@ export default function ChainPage() {
         {/* Main content */}
         <main className="flex-1 min-w-0 p-4 pt-16 lg:pt-6 sm:p-6 overflow-x-hidden">
           {activeTab === 'projects' && !openProject ? (
-            <ProjectListView chainId={chain.id} members={members} onOpen={(id) => setOpenProject(id)} />
+            <ProjectListView
+              chainId={chain.id}
+              members={members}
+              canManage={myRole === 'owner'}
+              onOpen={(id) => setOpenProject(id)}
+            />
           ) : null}
           {activeTab === 'projects' && openProject ? (
             <ProjectView
@@ -135,7 +146,7 @@ export default function ChainPage() {
 
         {/* Right rail: members */}
         <aside className="hidden w-72 shrink-0 border-l-2 border-fg bg-surface lg:block">
-          <MembersPanel chainId={chain.id} members={members} />
+          <MembersPanel chainId={chain.id} members={members} myRole={myRole} onChanged={refresh} />
         </aside>
       </div>
 
@@ -145,7 +156,7 @@ export default function ChainPage() {
           <SheetHeader>
             <SheetTitle>Members</SheetTitle>
           </SheetHeader>
-          <MembersPanel chainId={chain.id} members={members} />
+          <MembersPanel chainId={chain.id} members={members} myRole={myRole} onChanged={refresh} />
         </SheetContent>
       </Sheet>
     </div>

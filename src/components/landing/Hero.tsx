@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { gsap, registerGsap } from '@/lib/gsap';
+import { gsap, ScrollTrigger, registerGsap } from '@/lib/gsap';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { prefersReducedMotion } from '@/lib/utils';
@@ -16,6 +16,7 @@ export function Hero() {
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const eyebrowRef = useRef<HTMLDivElement | null>(null);
   const mockupRef = useRef<HTMLDivElement | null>(null);
+  const parallaxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     registerGsap();
@@ -44,10 +45,25 @@ export function Hero() {
         .to(subRef.current, { y: 0, opacity: 1, duration: 0.5 }, '-=0.2')
         .to(ctaRef.current, { y: 0, opacity: 1, duration: 0.5 }, '-=0.3')
         .to(mockupRef.current, { y: 0, opacity: 1, duration: 0.7 }, '-=0.4');
+
+      // Scroll-driven parallax: the mockup drifts up and recedes slightly as
+      // you scroll past the hero, adding depth without harming layout.
+      gsap.to(parallaxRef.current, {
+        yPercent: -12,
+        scale: 0.97,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.5,
+        },
+      });
     }, rootRef);
 
     return () => {
       ctx.revert();
+      ScrollTrigger.refresh();
     };
   }, []);
 
@@ -108,7 +124,9 @@ export function Hero() {
         </div>
 
         <div ref={mockupRef} className="mt-16 md:mt-24 opacity-0">
-          <HeroMockup />
+          <div ref={parallaxRef} className="will-change-transform">
+            <HeroMockup />
+          </div>
         </div>
       </div>
     </section>

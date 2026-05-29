@@ -1,6 +1,6 @@
-import type { Database, TodoStatus, AttachmentType } from './database';
+import type { Database, TodoStatus, AttachmentType, ChainRole } from './database';
 
-export type { Database, TodoStatus, AttachmentType };
+export type { Database, TodoStatus, AttachmentType, ChainRole };
 
 type T = Database['public']['Tables'];
 
@@ -14,6 +14,11 @@ export type IdeaVoteRow = T['idea_votes']['Row'];
 export type AttachmentRow = T['attachments']['Row'];
 
 export type Theme = 'dark' | 'light';
+
+/** A chain member's public profile plus their role in that chain. */
+export interface ChainMemberProfile extends UserRow {
+  role: ChainRole;
+}
 
 export interface PresenceMember {
   user_id: string;

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Copy, LogOut, Settings, Users } from 'lucide-react';
+import { ArrowLeft, Check, Copy, Loader2, LogOut, Pencil, Settings, Users, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { Logo } from '@/components/layout/Logo';
-import { copyToClipboard } from '@/lib/utils';
+import { cn, copyToClipboard } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,19 +23,60 @@ import type { ChainRow } from '@/types';
 interface Props {
   chain: ChainRow;
   memberCount: number;
+  canEdit?: boolean;
+  onRenamed?: () => void;
   onOpenMembers?: () => void;
 }
 
-export function ChainHeader({ chain, memberCount, onOpenMembers }: Props) {
+export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMembers }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(chain.name);
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setName(chain.name);
+  }, [chain.name]);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
 
   async function copyCode() {
     const ok = await copyToClipboard(chain.code);
     setCopied(ok);
     if (ok) toast.success('Chain code copied!');
     window.setTimeout(() => setCopied(false), 1500);
+  }
+
+  async function saveName() {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error('Chain name cannot be empty');
+      return;
+    }
+    if (trimmed === chain.name) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from('chains').update({ name: trimmed }).eq('id', chain.id);
+    setSaving(false);
+    if (error) {
+      toast.error('Could not rename chain', { description: error.message });
+      return;
+    }
+    toast.success('Chain renamed');
+    setEditing(false);
+    onRenamed?.();
+  }
+
+  function startEdit() {
+    setName(chain.name);
+    setEditing(true);
   }
 
   async function leaveChain() {
@@ -53,6 +95,10 @@ export function ChainHeader({ chain, memberCount, onOpenMembers }: Props) {
     navigate('/dashboard', { replace: true });
   }
 
+  const nameMenuItems: ContextMenuItem[] = canEdit
+    ? [{ label: 'Rename chain', icon: <Pencil className="h-4 w-4" />, onSelect: startEdit }]
+    : [];
+
   return (
     <header className="sticky top-0 z-20 border-b-2 border-fg bg-bg/90 backdrop-blur-md">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
@@ -66,12 +112,76 @@ export function ChainHeader({ chain, memberCount, onOpenMembers }: Props) {
         <div className="hidden h-6 w-px bg-fg/20 sm:block" />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="font-display text-lg font-bold tracking-tight truncate">{chain.name}</h1>
-            <Badge variant="neutral">
-              <Users className="h-3 w-3" /> {memberCount}
-            </Badge>
-          </div>
+          {editing ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveName();
+              }}
+              className="flex items-center gap-2"
+            >
+              <Input
+                ref={inputRef}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setName(chain.name);
+                    setEditing(false);
+                  }
+                }}
+                className="h-9 max-w-xs font-display text-lg font-bold"
+                aria-label="Chain name"
+              />
+              <button
+                type="submit"
+                disabled={saving}
+                aria-label="Save name"
+                className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setName(chain.name);
+                  setEditing(false);
+                }}
+                aria-label="Cancel rename"
+                className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </form>
+          ) : (
+            <ContextMenu items={nameMenuItems} disabled={!canEdit}>
+              <div className="flex items-center gap-2">
+                <h1
+                  onDoubleClick={canEdit ? startEdit : undefined}
+                  className={cn(
+                    'font-display text-lg font-bold tracking-tight truncate',
+                    canEdit ? 'cursor-text' : '',
+                  )}
+                  title={canEdit ? 'Double-click or right-click to rename' : undefined}
+                >
+                  {chain.name}
+                </h1>
+                {canEdit ? (
+                  <button
+                    type="button"
+                    onClick={startEdit}
+                    aria-label="Rename chain"
+                    className="hidden rounded-md p-1 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:inline-grid"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+                <Badge variant="neutral">
+                  <Users className="h-3 w-3" /> {memberCount}
+                </Badge>
+              </div>
+            </ContextMenu>
+          )}
         </div>
 
         <button
@@ -105,6 +215,12 @@ export function ChainHeader({ chain, memberCount, onOpenMembers }: Props) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {canEdit ? (
+              <DropdownMenuItem onSelect={startEdit}>
+                <Pencil className="h-4 w-4" />
+                Rename chain
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem onSelect={copyCode}>
               <Copy className="h-4 w-4" />
               Copy chain code
@@ -116,10 +232,6 @@ export function ChainHeader({ chain, memberCount, onOpenMembers }: Props) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <div className="hidden sm:block">
-          <Logo size="sm" to="/dashboard" className="hidden" />
-        </div>
       </div>
     </header>
   );

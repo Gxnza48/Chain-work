@@ -32,30 +32,34 @@ export default function Dashboard() {
       return;
     }
 
-    const summaries: ChainSummary[] = [];
-    for (const row of memberships ?? []) {
-      const chain = (row as unknown as { chains: ChainRow }).chains;
-      if (!chain) continue;
+    const chainRows = (memberships ?? [])
+      .map((row) => (row as unknown as { chains: ChainRow }).chains)
+      .filter((c): c is ChainRow => Boolean(c));
 
-      const [{ count: memberCount }, { data: latest }] = await Promise.all([
-        supabase
-          .from('chain_members')
-          .select('id', { count: 'exact', head: true })
-          .eq('chain_id', chain.id),
-        supabase
-          .from('todos')
-          .select('created_at')
-          .eq('chain_id', chain.id)
-          .order('created_at', { ascending: false })
-          .limit(1),
-      ]);
+    // Resolve every chain's member count + last activity in parallel rather than
+    // serially in a for-loop — this was the main cause of slow dashboard loads.
+    const summaries: ChainSummary[] = await Promise.all(
+      chainRows.map(async (chain) => {
+        const [{ count: memberCount }, { data: latest }] = await Promise.all([
+          supabase
+            .from('chain_members')
+            .select('id', { count: 'exact', head: true })
+            .eq('chain_id', chain.id),
+          supabase
+            .from('todos')
+            .select('created_at')
+            .eq('chain_id', chain.id)
+            .order('created_at', { ascending: false })
+            .limit(1),
+        ]);
+        return {
+          ...chain,
+          member_count: memberCount ?? 0,
+          last_activity: latest?.[0]?.created_at ?? chain.created_at,
+        };
+      }),
+    );
 
-      summaries.push({
-        ...chain,
-        member_count: memberCount ?? 0,
-        last_activity: latest?.[0]?.created_at ?? chain.created_at,
-      });
-    }
     summaries.sort((a, b) => (b.last_activity ?? '').localeCompare(a.last_activity ?? ''));
     setChains(summaries);
   }, [user]);
