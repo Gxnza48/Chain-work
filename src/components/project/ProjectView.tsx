@@ -76,7 +76,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
   if (loading || !project) {
     return (
       <div className="grid place-items-center p-12 text-fg-muted">
-        <Loader2 className="h-5 w-5 animate-spin" />
+        <Loader2 className="h-5 w-5 animate-spin-slow" />
       </div>
     );
   }

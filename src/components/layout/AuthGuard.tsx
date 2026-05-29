@@ -18,7 +18,7 @@ export function AuthGuard({ children }: Props) {
     return (
       <div className="grid min-h-screen place-items-center">
         <div className="flex items-center gap-3 text-fg-muted">
-          <RefreshCw className="h-4 w-4 animate-spin" />
+          <RefreshCw className="h-4 w-4 animate-spin-slow" />
           <span className="font-medium">Loading…</span>
         </div>
       </div>

@@ -258,6 +258,14 @@ export interface Database {
         Args: { target_chain: string };
         Returns: boolean;
       };
+      create_chain: {
+        Args: { p_name: string };
+        Returns: {
+          chain_id: string;
+          chain_name: string;
+          chain_code: string;
+        }[];
+      };
     };
     Enums: {
       todo_status: TodoStatus;

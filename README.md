@@ -57,6 +57,7 @@ Visit <http://localhost:5173>.
    3. `supabase/migrations/0003_rls.sql` — row-level security (enables RLS on every table)
    4. `supabase/migrations/0004_join_rpc.sql` — idempotent `join_chain_by_code` RPC
    5. `supabase/migrations/0005_storage.sql` — `avatars`, `attachments`, `videos` buckets + policies
+   6. `supabase/migrations/0006_create_chain_rpc.sql` — atomic `create_chain` RPC (server-side code generation + creator membership in one transaction)
 3. **Authentication settings** (Dashboard → Authentication → Providers):
    - Enable **Email** provider.
    - Disable every OAuth provider.
@@ -146,6 +147,18 @@ chainwork/
   them from the Roadmap until they're completed again.
 - **Project cap of 25 per chain** — enforced both client-side (UX) and server-side
   (DB trigger).
+
+## Design intelligence
+
+This repo ships with the [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
+Claude Code skill pre-installed at `.claude/skills/ui-ux-pro-max/`. Any Claude Code session
+opened on this repo activates the skill automatically on design keywords (build, design, fix,
+improve, etc.). To reinstall or update:
+
+```bash
+npm install -g uipro-cli
+uipro init --ai claude
+```
 
 ## License
 

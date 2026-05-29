@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
-import { copyToClipboard, generateChainCode } from '@/lib/utils';
+import { copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
@@ -47,48 +47,39 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    if (!name.trim()) {
+    const trimmed = name.trim();
+    if (!trimmed) {
       toast.error('Give your chain a name');
       return;
     }
     setSubmitting(true);
 
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const code = generateChainCode(8);
-      const { data, error } = await supabase
-        .from('chains')
-        .insert({ name: name.trim(), code, created_by: user.id })
-        .select()
-        .single();
+    const { data, error } = await supabase.rpc('create_chain', { p_name: trimmed });
 
-      if (!error && data) {
-        // Insert membership for the creator (RLS allows self-insert)
-        await supabase.from('chain_members').insert({ chain_id: data.id, user_id: user.id });
-
-        const ok = await copyToClipboard(data.code);
-        setCopied(ok);
-        if (ok) {
-          toast.success('Chain code copied!', {
-            description: 'Share it with your team.',
-          });
-        }
-        setCreated({ id: data.id, name: data.name, code: data.code });
-        setSubmitting(false);
-        onCreated?.();
-        return;
+    if (error || !data || data.length === 0) {
+      const msg = error?.message ?? 'Unknown error';
+      if (/NOT_AUTHENTICATED/.test(msg)) {
+        toast.error('Session expired', { description: 'Please sign in again.' });
+      } else if (/CODE_COLLISION/.test(msg)) {
+        toast.error('Could not generate a unique chain code. Please try again.');
+      } else {
+        toast.error('Could not create chain', { description: msg });
       }
-
-      // unique violation on code -> retry, otherwise bail
-      const code23505 = error && (error.code === '23505' || /duplicate key/.test(error.message));
-      if (!code23505) {
-        toast.error('Could not create chain', { description: error?.message });
-        setSubmitting(false);
-        return;
-      }
+      setSubmitting(false);
+      return;
     }
 
-    toast.error('Could not generate a unique chain code. Please try again.');
+    const row = data[0]!;
+    const chain: Created = { id: row.chain_id, name: row.chain_name, code: row.chain_code };
+
+    const ok = await copyToClipboard(chain.code);
+    setCopied(ok);
+    if (ok) {
+      toast.success('Chain code copied!', { description: 'Share it with your team.' });
+    }
+    setCreated(chain);
     setSubmitting(false);
+    onCreated?.();
   }
 
   async function copyAgain() {
@@ -130,7 +121,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
                 Cancel
               </Button>
               <Button type="submit" disabled={submitting || !name.trim()}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin-slow" /> : null}
                 Create chain
               </Button>
             </DialogFooter>

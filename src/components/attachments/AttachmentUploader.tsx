@@ -149,7 +149,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
           />
           {submitting ? (
             <p className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin" /> Uploading…
+              <Loader2 className="h-3 w-3 animate-spin-slow" /> Uploading…
             </p>
           ) : (
             <p className="text-xs text-fg-muted">

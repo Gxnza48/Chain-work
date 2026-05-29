@@ -30,7 +30,7 @@ export default function ChainPage() {
     return (
       <div className="grid min-h-screen place-items-center text-fg-muted">
         <span className="flex items-center gap-2">
-          <RefreshCw className="h-4 w-4 animate-spin" /> Loading chain…
+          <RefreshCw className="h-4 w-4 animate-spin-slow" /> Loading chain…
         </span>
       </div>
     );

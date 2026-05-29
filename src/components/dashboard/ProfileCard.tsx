@@ -96,7 +96,7 @@ export function ProfileCard() {
             className="absolute -bottom-1 -right-1 inline-grid h-8 w-8 place-items-center rounded-full border-2 border-fg bg-accent-blue text-white shadow-brut-sm disabled:opacity-50"
             aria-label="Change avatar"
           >
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin-slow" /> : <Camera className="h-4 w-4" />}
           </button>
           <input
             ref={fileRef}

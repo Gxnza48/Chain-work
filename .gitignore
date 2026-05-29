@@ -39,3 +39,7 @@ coverage/
 
 # misc
 .turbo/
+
+# python __pycache__ from installed skills
+**/__pycache__/
+*.pyc
