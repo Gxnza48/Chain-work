@@ -1,6 +1,7 @@
 // ChainWork — Supabase schema types. Generated from supabase/migrations/0001_schema.sql.
 
 export type TodoStatus = 'pending' | 'in_progress' | 'done';
+export type TodoPriority = 'low' | 'medium' | 'high' | 'critical';
 export type AttachmentType = 'repo' | 'image' | 'video' | 'link';
 export type ChainRole = 'owner' | 'member';
 
@@ -131,6 +132,7 @@ export interface Database {
           title: string;
           description: string | null;
           status: TodoStatus;
+          priority: TodoPriority;
           assigned_to: string | null;
           due_date: string | null;
           completed_at: string | null;
@@ -146,6 +148,7 @@ export interface Database {
           title: string;
           description?: string | null;
           status?: TodoStatus;
+          priority?: TodoPriority;
           assigned_to?: string | null;
           due_date?: string | null;
           completed_at?: string | null;
@@ -161,6 +164,7 @@ export interface Database {
           title?: string;
           description?: string | null;
           status?: TodoStatus;
+          priority?: TodoPriority;
           assigned_to?: string | null;
           due_date?: string | null;
           completed_at?: string | null;
@@ -280,6 +284,7 @@ export interface Database {
     };
     Enums: {
       todo_status: TodoStatus;
+      todo_priority: TodoPriority;
       attachment_type: AttachmentType;
     };
     CompositeTypes: {

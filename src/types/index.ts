@@ -1,6 +1,6 @@
-import type { Database, TodoStatus, AttachmentType, ChainRole } from './database';
+import type { Database, TodoStatus, TodoPriority, AttachmentType, ChainRole } from './database';
 
-export type { Database, TodoStatus, AttachmentType, ChainRole };
+export type { Database, TodoStatus, TodoPriority, AttachmentType, ChainRole };
 
 type T = Database['public']['Tables'];
 

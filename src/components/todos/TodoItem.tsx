@@ -1,14 +1,22 @@
 import { useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { Calendar, Check, GripVertical, Loader2, RotateCcw, Trash2 } from 'lucide-react';
+import { Calendar, Check, GripVertical, Loader2, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
+import { TodoForm } from './TodoForm';
+import { PriorityBadge, PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { cn, initials } from '@/lib/utils';
-import type { TodoRow, TodoStatus, UserRow } from '@/types';
+import type { TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
 
 interface Props {
   todo: TodoRow;
@@ -20,7 +28,8 @@ interface Props {
 export function TodoItem({ todo, members, draggable = false, onChanged }: Props) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
-  const sortable = useSortable({ id: todo.id, disabled: !draggable });
+  const [editing, setEditing] = useState(false);
+  const sortable = useSortable({ id: todo.id, disabled: !draggable || editing });
 
   const style: React.CSSProperties = draggable
     ? {
@@ -31,6 +40,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
     : {};
 
   const assignee = todo.assigned_to ? members.find((m) => m.id === todo.assigned_to) ?? null : null;
+  const isDone = todo.status === 'done';
 
   async function cycleStatus(next: TodoStatus) {
     if (!user) return;
@@ -48,8 +58,20 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
     onChanged?.();
   }
 
+  async function changePriority(p: TodoPriority) {
+    if (p === todo.priority) return;
+    setBusy(true);
+    const { error } = await supabase.from('todos').update({ priority: p }).eq('id', todo.id);
+    setBusy(false);
+    if (error) {
+      toast.error('Could not update priority', { description: error.message });
+      return;
+    }
+    onChanged?.();
+  }
+
   async function deleteTodo() {
-    if (todo.status === 'done') {
+    if (isDone) {
       toast.error('Completed todos cannot be deleted — re-open it first.');
       return;
     }
@@ -62,6 +84,24 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
       return;
     }
     onChanged?.();
+  }
+
+  if (editing) {
+    return (
+      <li>
+        <TodoForm
+          chainId={todo.chain_id}
+          projectId={todo.project_id}
+          members={members}
+          todo={todo}
+          onCancel={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false);
+            onChanged?.();
+          }}
+        />
+      </li>
+    );
   }
 
   return (
@@ -91,7 +131,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
         <p
           className={cn(
             'font-semibold leading-snug text-fg break-words',
-            todo.status === 'done' ? 'line-through opacity-60' : '',
+            isDone ? 'line-through opacity-60' : '',
           )}
         >
           {todo.title}
@@ -100,8 +140,30 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           <p className="mt-0.5 whitespace-pre-wrap text-sm text-fg-muted">{todo.description}</p>
         ) : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+          {/* Priority badge doubles as a quick picker */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label={`Priority: ${PRIORITY_META[todo.priority]?.label ?? 'Medium'} — click to change`}
+                className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue"
+              >
+                <PriorityBadge priority={todo.priority} className="cursor-pointer transition-opacity hover:opacity-80" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {PRIORITY_ORDER.map((p) => (
+                <DropdownMenuItem key={p} onSelect={() => changePriority(p)}>
+                  <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
+                  {PRIORITY_META[p].label}
+                  {p === todo.priority ? <Check className="ml-auto h-3.5 w-3.5" /> : null}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {todo.status === 'in_progress' ? <Badge variant="amber">In progress</Badge> : null}
-          {todo.status === 'done' ? <Badge variant="emerald">Done</Badge> : null}
+          {isDone ? <Badge variant="emerald">Done</Badge> : null}
           {todo.due_date ? (
             <Badge variant="neutral">
               <Calendar className="h-3 w-3" /> {new Date(todo.due_date).toLocaleDateString()}
@@ -119,25 +181,37 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
         </div>
       </div>
 
-      {todo.status !== 'done' ? (
-        <button
-          type="button"
-          onClick={deleteTodo}
-          aria-label="Delete todo"
-          className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => cycleStatus('pending')}
-          aria-label="Re-open todo"
-          className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </button>
-      )}
+      <div className="flex items-center gap-1">
+        {!isDone ? (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label="Edit todo"
+            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        ) : null}
+        {!isDone ? (
+          <button
+            type="button"
+            onClick={deleteTodo}
+            aria-label="Delete todo"
+            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => cycleStatus('pending')}
+            aria-label="Re-open todo"
+            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </li>
   );
 }
