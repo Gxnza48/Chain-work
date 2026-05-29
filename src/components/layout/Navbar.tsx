@@ -44,8 +44,8 @@ export function Navbar() {
         className={cn(
           'flex h-16 items-center justify-between gap-4 rounded-xl px-3 sm:px-5 transition-all duration-300',
           scrolled
-            ? 'border-2 border-fg bg-bg/70 backdrop-blur-xl shadow-brut'
-            : 'border-2 border-transparent bg-bg/30 backdrop-blur-sm',
+            ? 'border-2 border-fg bg-bg/85 backdrop-blur-md shadow-brut'
+            : 'border-2 border-transparent bg-transparent',
         )}
       >
         <Logo size="md" to="/" />

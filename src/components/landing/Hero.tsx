@@ -29,8 +29,7 @@ export function Hero() {
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
-  const mockupY = useTransform(scrollYProgress, [0, 1], [0, -90]);
-  const mockupScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
+  const mockupY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
   function handleSeeHow(e: React.MouseEvent) {
     e.preventDefault();
@@ -41,10 +40,8 @@ export function Hero() {
     <section
       aria-label="Hero"
       ref={sectionRef}
-      className="relative isolate overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 grid-bg noise"
+      className="relative isolate overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 grid-bg"
     >
-      <FloatingShapes />
-
       <motion.div
         className="relative mx-auto max-w-7xl px-6"
         variants={container}
@@ -92,43 +89,13 @@ export function Hero() {
           </Button>
         </motion.div>
 
-        <motion.div
-          variants={rise}
-          style={{ y: mockupY, scale: mockupScale }}
-          className="mt-16 md:mt-24 will-change-transform"
-        >
-          <HeroMockup />
+        <motion.div variants={rise} className="mt-16 md:mt-24">
+          <motion.div style={{ y: mockupY }} className="will-change-transform">
+            <HeroMockup />
+          </motion.div>
         </motion.div>
       </motion.div>
     </section>
-  );
-}
-
-/** Decorative brutalist shapes drifting behind the hero — pure motion-graphics flair. */
-function FloatingShapes() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <motion.div
-        className="absolute left-[6%] top-[18%] h-16 w-16 rounded-lg border-2 border-fg bg-accent-amber/80 shadow-brut"
-        animate={{ y: [0, -22, 0], rotate: [0, 8, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute right-[10%] top-[24%] h-20 w-20 rounded-full border-2 border-fg bg-accent-violet/70 shadow-brut"
-        animate={{ y: [0, 26, 0], x: [0, -10, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute right-[22%] top-[8%] h-10 w-10 rotate-45 border-2 border-fg bg-accent-emerald/70 shadow-brut-sm"
-        animate={{ y: [0, -16, 0], rotate: [45, 70, 45] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute left-[16%] bottom-[20%] h-12 w-12 rounded-md border-2 border-fg bg-accent-rose/70 shadow-brut-sm"
-        animate={{ y: [0, 18, 0], rotate: [0, -10, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </div>
   );
 }
 
