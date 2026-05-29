@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Card, CardContent } from '@/components/ui/Card';
+import { AvatarCropModal } from './AvatarCropModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { initials } from '@/lib/utils';
@@ -23,6 +24,7 @@ export function ProfileCard() {
   const [website, setWebsite] = useState(profile?.website ?? '');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   if (!user || !profile) return null;
@@ -77,19 +79,26 @@ export function ProfileCard() {
     await refreshProfile();
   }
 
-  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+  function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !profile) return;
+    // reset so picking the same file again still fires onChange
+    e.target.value = '';
+    if (!file) return;
     if (!file.type.startsWith('image/')) {
       toast.error('Avatar must be an image');
       return;
     }
+    setCropFile(file);
+  }
+
+  async function uploadCropped(blob: Blob) {
+    if (!profile) return;
     setUploading(true);
-    const ext = file.name.split('.').pop() ?? 'png';
-    const path = `${profile.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, {
+    const path = `${profile.id}/${Date.now()}.jpg`;
+    const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, {
       upsert: true,
       cacheControl: '3600',
+      contentType: 'image/jpeg',
     });
     if (upErr) {
       toast.error('Upload failed', { description: upErr.message });
@@ -97,13 +106,16 @@ export function ProfileCard() {
       return;
     }
     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    const publicUrl = data.publicUrl;
-    const { error } = await supabase.from('users').update({ avatar_url: publicUrl }).eq('id', profile.id);
+    const { error } = await supabase
+      .from('users')
+      .update({ avatar_url: data.publicUrl })
+      .eq('id', profile.id);
     setUploading(false);
     if (error) {
       toast.error('Could not save avatar', { description: error.message });
       return;
     }
+    setCropFile(null);
     toast.success('Avatar updated');
     await refreshProfile();
   }
@@ -204,6 +216,13 @@ export function ProfileCard() {
           )}
         </div>
       </CardContent>
+
+      <AvatarCropModal
+        file={cropFile}
+        busy={uploading}
+        onCancel={() => setCropFile(null)}
+        onCropped={uploadCropped}
+      />
     </Card>
   );
 }

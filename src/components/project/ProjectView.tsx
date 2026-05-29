@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { ChainLoader } from '@/components/ui/ChainLoader';
 import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
 import { AttachmentList } from '@/components/attachments/AttachmentList';
@@ -75,8 +76,8 @@ export function ProjectView({ projectId, members, onBack }: Props) {
 
   if (loading || !project) {
     return (
-      <div className="grid place-items-center p-12 text-fg-muted">
-        <Loader2 className="h-5 w-5 animate-spin-slow" />
+      <div className="grid place-items-center p-12">
+        <ChainLoader size={56} />
       </div>
     );
   }

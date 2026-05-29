@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { Card } from '@/components/ui/Card';
+import { ChainLoader } from '@/components/ui/ChainLoader';
 import { useAuth } from '@/hooks/useAuth';
 import { cn, prefersReducedMotion } from '@/lib/utils';
 
@@ -38,11 +39,7 @@ export default function AuthPage() {
   }
 
   if (loading) {
-    return (
-      <div className="grid min-h-screen place-items-center text-fg-muted">
-        <span className="font-medium">Loading…</span>
-      </div>
-    );
+    return <ChainLoader fullscreen label="Loading…" />;
   }
 
   if (user && emailConfirmed) {

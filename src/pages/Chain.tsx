@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { Folder, Lightbulb, ListTodo, Menu, RefreshCw } from 'lucide-react';
+import { Folder, Lightbulb, ListTodo, Menu } from 'lucide-react';
+import { ChainLoader } from '@/components/ui/ChainLoader';
 import { ChainHeader } from '@/components/chain/ChainHeader';
 import { MembersPanel } from '@/components/chain/MembersPanel';
 import { ProjectListView } from '@/components/project/ProjectListView';
@@ -27,13 +28,7 @@ export default function ChainPage() {
   }, [activeTab]);
 
   if (loading) {
-    return (
-      <div className="grid min-h-screen place-items-center text-fg-muted">
-        <span className="flex items-center gap-2">
-          <RefreshCw className="h-4 w-4 animate-spin-slow" /> Loading chain…
-        </span>
-      </div>
-    );
+    return <ChainLoader fullscreen label="Loading chain…" />;
   }
 
   if (error || !chain) {

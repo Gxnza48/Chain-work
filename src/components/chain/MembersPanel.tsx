@@ -1,14 +1,16 @@
+import { useState } from 'react';
 import { Ban, Crown, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu';
 import { PresenceBadge } from './PresenceBadge';
+import { MemberProfileDialog } from './MemberProfileDialog';
 import { usePresence } from '@/hooks/usePresence';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
 import { useAuthStore } from '@/store/auth';
 import { supabase } from '@/lib/supabase';
-import { cn, initials, relativeTime } from '@/lib/utils';
+import { initials, relativeTime } from '@/lib/utils';
 import type { ChainMemberProfile, ChainRole } from '@/types';
 
 interface Props {
@@ -19,10 +21,11 @@ interface Props {
 }
 
 export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
-  const { isOnline } = usePresence(chainId);
+  const { isOnline, lastSeenAt } = usePresence(chainId);
   useRelativeTimeTick();
   const myId = useAuthStore((s) => s.user?.id ?? null);
   const isOwner = myRole === 'owner';
+  const [viewing, setViewing] = useState<ChainMemberProfile | null>(null);
 
   const sorted = [...members].sort((a, b) => {
     const ao = isOnline(a.id);
@@ -94,10 +97,17 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
           return (
             <ContextMenu key={m.id} items={items} disabled={items.length === 0}>
               <li
-                className={cn(
-                  'rounded-md px-2 py-2 transition-colors hover:bg-surface-2',
-                  items.length > 0 ? 'cursor-context-menu' : '',
-                )}
+                role="button"
+                tabIndex={0}
+                onClick={() => setViewing(m)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setViewing(m);
+                  }
+                }}
+                title="View profile"
+                className="cursor-pointer rounded-md px-2 py-2 outline-none transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent-blue"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-9 w-9">
@@ -119,7 +129,7 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
                 </div>
                 {!online ? (
                   <p className="mt-1 ml-12 text-[11px] text-fg-muted">
-                    Last online {relativeTime(m.last_seen)}
+                    Last online {relativeTime(lastSeenAt(m.id) ?? m.last_seen)}
                   </p>
                 ) : (
                   <p className="mt-1 ml-12 text-[11px] font-semibold text-accent-emerald">Online now</p>
@@ -139,6 +149,15 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
           </span>
         </div>
       ) : null}
+
+      <MemberProfileDialog
+        member={viewing}
+        online={viewing ? isOnline(viewing.id) : false}
+        lastSeen={viewing ? lastSeenAt(viewing.id) ?? viewing.last_seen : null}
+        onOpenChange={(open) => {
+          if (!open) setViewing(null);
+        }}
+      />
     </div>
   );
 }

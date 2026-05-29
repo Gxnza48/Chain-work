@@ -1,10 +1,11 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
-import { Mail, RefreshCw } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { ChainLoader } from '@/components/ui/ChainLoader';
 
 interface Props {
   children: React.ReactNode;
@@ -15,14 +16,7 @@ export function AuthGuard({ children }: Props) {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="grid min-h-screen place-items-center">
-        <div className="flex items-center gap-3 text-fg-muted">
-          <RefreshCw className="h-4 w-4 animate-spin-slow" />
-          <span className="font-medium">Loading…</span>
-        </div>
-      </div>
-    );
+    return <ChainLoader fullscreen label="Loading…" />;
   }
 
   if (!user) {
