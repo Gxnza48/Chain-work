@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
+import { siteUrl } from '@/lib/site-url';
 import { isValidEmail } from '@/lib/utils';
 
 export function LoginForm() {
@@ -58,7 +59,7 @@ export function LoginForm() {
     }
     setResetSending(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?mode=reset`,
+      redirectTo: `${siteUrl()}/auth?mode=reset`,
     });
     setResetSending(false);
     if (error) {

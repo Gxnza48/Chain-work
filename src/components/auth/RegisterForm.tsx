@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { PasswordStrength } from './PasswordStrength';
 import { supabase } from '@/lib/supabase';
+import { siteUrl } from '@/lib/site-url';
 import { isValidEmail, isValidUsername, passwordStrength } from '@/lib/utils';
 
 interface Fields {
@@ -80,7 +81,7 @@ export function RegisterForm() {
       email: fields.email,
       password: fields.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth?confirmed=1`,
+        emailRedirectTo: `${siteUrl()}/auth?confirmed=1`,
         data: {
           username: fields.username.toLowerCase(),
           display_name: fields.fullName.trim(),

@@ -5,6 +5,7 @@ import { Logo } from '@/components/layout/Logo';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
+import { GoogleButton } from '@/components/auth/GoogleButton';
 import { Card } from '@/components/ui/Card';
 import { ChainLoader } from '@/components/ui/ChainLoader';
 import { useAuth } from '@/hooks/useAuth';
@@ -66,6 +67,19 @@ export default function AuthPage() {
 
           <div ref={panelRef} className="p-4 sm:p-6">
             {mode === 'login' ? <LoginForm /> : <RegisterForm />}
+
+            <div className="my-5 flex items-center gap-3">
+              <span className="h-0.5 flex-1 bg-border" />
+              <span className="text-xs font-bold uppercase tracking-wide text-fg-muted">
+                or
+              </span>
+              <span className="h-0.5 flex-1 bg-border" />
+            </div>
+
+            <GoogleButton
+              label={mode === 'login' ? 'Sign in with Google' : 'Sign up with Google'}
+            />
+
             <p className="mt-6 text-center text-sm text-fg-muted">
               {mode === 'login' ? (
                 <>
