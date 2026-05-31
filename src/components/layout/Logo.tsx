@@ -9,9 +9,9 @@ interface LogoProps {
 
 export function Logo({ className, to = '/', size = 'md' }: LogoProps) {
   const sizes = {
-    sm: { wrap: 'gap-2 text-lg', mark: 'h-6 w-6', svg: 'h-4 w-4' },
-    md: { wrap: 'gap-2.5 text-xl', mark: 'h-7 w-7', svg: 'h-[18px] w-[18px]' },
-    lg: { wrap: 'gap-3 text-2xl', mark: 'h-9 w-9', svg: 'h-6 w-6' },
+    sm: { wrap: 'gap-2 text-lg', mark: 'h-6 w-6', img: 'h-4 w-4' },
+    md: { wrap: 'gap-2.5 text-xl', mark: 'h-7 w-7', img: 'h-[18px] w-[18px]' },
+    lg: { wrap: 'gap-3 text-2xl', mark: 'h-9 w-9', img: 'h-6 w-6' },
   } as const;
   const s = sizes[size];
   return (
@@ -27,11 +27,16 @@ export function Logo({ className, to = '/', size = 'md' }: LogoProps) {
       <span
         aria-hidden
         className={cn(
-          'inline-grid place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm',
+          'inline-grid place-items-center rounded-md border-2 border-fg bg-white shadow-brut-sm',
           s.mark,
         )}
       >
-        <ChainMark className={s.svg} />
+        <img
+          src="/brand-mark.png"
+          alt=""
+          className={cn('object-contain', s.img)}
+          draggable={false}
+        />
       </span>
       <span>ChainWork</span>
     </Link>
