@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 import { useTheme } from '@/hooks/useTheme';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 
 export function ThemeToggle({ className }: Props) {
   const { theme, toggle } = useTheme();
+  const t = useT();
   const sunRef = useRef<SVGSVGElement | null>(null);
   const moonRef = useRef<SVGSVGElement | null>(null);
 
@@ -36,7 +38,9 @@ export function ThemeToggle({ className }: Props) {
     <button
       type="button"
       onClick={toggle}
-      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+      aria-label={t('Switch to {theme} theme', {
+        theme: t(theme === 'dark' ? 'light' : 'dark'),
+      })}
       className={cn(
         'relative inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm',
         'transition-transform duration-150 hover:-translate-x-[1px] hover:-translate-y-[1px] active:translate-x-0 active:translate-y-0',

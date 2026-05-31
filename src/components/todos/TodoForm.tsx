@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { TodoPriority, TodoRow, UserRow } from '@/types';
 
@@ -25,6 +26,7 @@ interface Props {
 
 export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved, onCancel }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const editing = Boolean(todo);
   const [title, setTitle] = useState(todo?.title ?? '');
   const [description, setDescription] = useState(todo?.description ?? '');
@@ -37,7 +39,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     e.preventDefault();
     if (!user) return;
     if (!title.trim()) {
-      toast.error('Give the todo a title');
+      toast.error(t('Give the todo a title'));
       return;
     }
     setSubmitting(true);
@@ -55,10 +57,10 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         .eq('id', todo.id);
       setSubmitting(false);
       if (error) {
-        toast.error('Could not save todo', { description: error.message });
+        toast.error(t('Could not save todo'), { description: error.message });
         return;
       }
-      toast.success('Todo updated');
+      toast.success(t('Todo updated'));
       onSaved?.();
       return;
     }
@@ -75,7 +77,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not create todo', { description: error.message });
+      toast.error(t('Could not create todo'), { description: error.message });
       return;
     }
     setTitle('');
@@ -95,17 +97,17 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="What needs doing?"
+        placeholder={t('What needs doing?')}
         className="text-base font-bold"
       />
       <Textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Add a description (optional)"
+        placeholder={t('Add a description (optional)')}
         rows={2}
       />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="priority">Priority</Label>
+        <Label htmlFor="priority">{t('Priority')}</Label>
         <Select value={priority} onValueChange={(v) => setPriority(v as TodoPriority)}>
           <SelectTrigger id="priority">
             <SelectValue />
@@ -115,7 +117,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
               <SelectItem key={p} value={p}>
                 <span className="inline-flex items-center gap-2">
                   <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
-                  {PRIORITY_META[p].label}
+                  {t(PRIORITY_META[p].label)}
                 </span>
               </SelectItem>
             ))}
@@ -124,13 +126,13 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="assignee">Assignee</Label>
+          <Label htmlFor="assignee">{t('Assignee')}</Label>
           <Select value={assignedTo} onValueChange={setAssignedTo}>
             <SelectTrigger id="assignee">
-              <SelectValue placeholder="Assign to…" />
+              <SelectValue placeholder={t('Assign to…')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
+              <SelectItem value="unassigned">{t('Unassigned')}</SelectItem>
               {members.map((m) => (
                 <SelectItem key={m.id} value={m.id}>
                   {m.display_name} (@{m.username})
@@ -140,14 +142,14 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           </Select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="due">Due</Label>
+          <Label htmlFor="due">{t('Due')}</Label>
           <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
         {onCancel ? (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-            <X className="h-4 w-4" /> Cancel
+            <X className="h-4 w-4" /> {t('Cancel')}
           </Button>
         ) : null}
         <Button type="submit" size="sm" disabled={submitting || !title.trim()}>
@@ -158,7 +160,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           ) : (
             <Plus className="h-4 w-4" />
           )}
-          {editing ? 'Save changes' : 'Add todo'}
+          {editing ? t('Save changes') : t('Add todo')}
         </Button>
       </div>
     </form>

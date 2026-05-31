@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { AttachmentCard } from './AttachmentCard';
 import { AttachmentUploader } from './AttachmentUploader';
+import { useT } from '@/lib/i18n';
 import type { AttachmentRow, UserRow } from '@/types';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function AttachmentList({ projectId, members }: Props) {
+  const t = useT();
   const [items, setItems] = useState<AttachmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -51,12 +53,12 @@ export function AttachmentList({ projectId, members }: Props) {
           <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-rose text-white shadow-brut-sm">
             <Paperclip className="h-4 w-4" />
           </span>
-          <h3 className="font-display text-lg font-bold tracking-tight">Links & Media</h3>
+          <h3 className="font-display text-lg font-bold tracking-tight">{t('Links & Media')}</h3>
           <Badge variant="neutral">{items.length}</Badge>
         </div>
         {!adding ? (
           <Button size="sm" onClick={() => setAdding(true)}>
-            <Plus className="h-4 w-4" /> Add attachment
+            <Plus className="h-4 w-4" /> {t('Add attachment')}
           </Button>
         ) : null}
       </div>
@@ -72,11 +74,11 @@ export function AttachmentList({ projectId, members }: Props) {
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-fg-muted">Loading…</p>
+        <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : items.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
-          <p className="font-semibold">Nothing attached yet.</p>
-          <p className="mt-1 text-sm text-fg-muted">Drop a repo link, an image, a YouTube URL — whatever's useful.</p>
+          <p className="font-semibold">{t('Nothing attached yet.')}</p>
+          <p className="mt-1 text-sm text-fg-muted">{t("Drop a repo link, an image, a YouTube URL — whatever's useful.")}</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">

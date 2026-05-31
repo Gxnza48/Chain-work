@@ -14,10 +14,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 import { cn, copyToClipboard } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 import type { ChainRow } from '@/types';
 
 interface Props {
@@ -31,6 +33,7 @@ interface Props {
 export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMembers }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(chain.name);
@@ -48,14 +51,14 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
   async function copyCode() {
     const ok = await copyToClipboard(chain.code);
     setCopied(ok);
-    if (ok) toast.success('Chain code copied!');
+    if (ok) toast.success(t('Chain code copied!'));
     window.setTimeout(() => setCopied(false), 1500);
   }
 
   async function saveName() {
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error('Chain name cannot be empty');
+      toast.error(t('Chain name cannot be empty'));
       return;
     }
     if (trimmed === chain.name) {
@@ -66,10 +69,10 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
     const { error } = await supabase.from('chains').update({ name: trimmed }).eq('id', chain.id);
     setSaving(false);
     if (error) {
-      toast.error('Could not rename chain', { description: error.message });
+      toast.error(t('Could not rename chain'), { description: error.message });
       return;
     }
-    toast.success('Chain renamed');
+    toast.success(t('Chain renamed'));
     setEditing(false);
     onRenamed?.();
   }
@@ -81,31 +84,31 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
 
   async function leaveChain() {
     if (!user) return;
-    if (!window.confirm('Leave this chain? You can rejoin with the code.')) return;
+    if (!window.confirm(t('Leave this chain? You can rejoin with the code.'))) return;
     const { error } = await supabase
       .from('chain_members')
       .delete()
       .eq('chain_id', chain.id)
       .eq('user_id', user.id);
     if (error) {
-      toast.error('Could not leave', { description: error.message });
+      toast.error(t('Could not leave'), { description: error.message });
       return;
     }
-    toast.success('Left chain');
+    toast.success(t('Left chain'));
     navigate('/dashboard', { replace: true });
   }
 
   const nameMenuItems: ContextMenuItem[] = canEdit
-    ? [{ label: 'Rename chain', icon: <Pencil className="h-4 w-4" />, onSelect: startEdit }]
+    ? [{ label: t('Rename chain'), icon: <Pencil className="h-4 w-4" />, onSelect: startEdit }]
     : [];
 
   return (
     <header className="sticky top-0 z-20 border-b-2 border-fg bg-bg/90 backdrop-blur-md">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/dashboard" aria-label="Back to dashboard">
+          <Link to="/dashboard" aria-label={t('Back to dashboard')}>
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Dashboard</span>
+            <span className="hidden sm:inline">{t('Dashboard')}</span>
           </Link>
         </Button>
 
@@ -131,12 +134,12 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                   }
                 }}
                 className="h-9 max-w-xs font-display text-lg font-bold"
-                aria-label="Chain name"
+                aria-label={t('Chain name')}
               />
               <button
                 type="submit"
                 disabled={saving}
-                aria-label="Save name"
+                aria-label={t('Save name')}
                 className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
@@ -147,7 +150,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                   setName(chain.name);
                   setEditing(false);
                 }}
-                aria-label="Cancel rename"
+                aria-label={t('Cancel rename')}
                 className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
               >
                 <X className="h-4 w-4" />
@@ -162,7 +165,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                     'font-display text-lg font-bold tracking-tight truncate',
                     canEdit ? 'cursor-text' : '',
                   )}
-                  title={canEdit ? 'Double-click or right-click to rename' : undefined}
+                  title={canEdit ? t('Double-click or right-click to rename') : undefined}
                 >
                   {chain.name}
                 </h1>
@@ -170,7 +173,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                   <button
                     type="button"
                     onClick={startEdit}
-                    aria-label="Rename chain"
+                    aria-label={t('Rename chain')}
                     className="hidden rounded-md p-1 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:inline-grid"
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -197,10 +200,12 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
           type="button"
           onClick={onOpenMembers}
           className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm lg:hidden"
-          aria-label="Open members"
+          aria-label={t('Open members')}
         >
           <Users className="h-5 w-5" />
         </button>
+
+        <LanguageToggle />
 
         <ThemeToggle />
 
@@ -208,7 +213,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label="Chain settings"
+              aria-label={t('Chain settings')}
               className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
             >
               <Settings className="h-5 w-5" />
@@ -218,17 +223,17 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
             {canEdit ? (
               <DropdownMenuItem onSelect={startEdit}>
                 <Pencil className="h-4 w-4" />
-                Rename chain
+                {t('Rename chain')}
               </DropdownMenuItem>
             ) : null}
             <DropdownMenuItem onSelect={copyCode}>
               <Copy className="h-4 w-4" />
-              Copy chain code
+              {t('Copy chain code')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={leaveChain} className="text-accent-rose">
               <LogOut className="h-4 w-4" />
-              Leave chain
+              {t('Leave chain')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

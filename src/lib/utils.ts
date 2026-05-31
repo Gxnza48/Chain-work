@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useLangStore } from '@/store/lang';
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
@@ -25,20 +26,21 @@ export function generateChainCode(length = 8): string {
 }
 
 export function relativeTime(iso: string | null | undefined): string {
-  if (!iso) return 'never';
+  const es = useLangStore.getState().lang === 'es';
+  if (!iso) return es ? 'nunca' : 'never';
   const then = new Date(iso).getTime();
   const now = Date.now();
   const diffSec = Math.round((now - then) / 1000);
-  if (diffSec < 60) return 'just now';
+  if (diffSec < 60) return es ? 'recién' : 'just now';
   const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) return es ? `hace ${diffMin}m` : `${diffMin}m ago`;
   const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return es ? `hace ${diffHr}h` : `${diffHr}h ago`;
   const diffDay = Math.round(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
+  if (diffDay < 7) return es ? `hace ${diffDay}d` : `${diffDay}d ago`;
   const diffWk = Math.round(diffDay / 7);
-  if (diffWk < 5) return `${diffWk}w ago`;
-  return new Date(iso).toLocaleDateString();
+  if (diffWk < 5) return es ? `hace ${diffWk}sem` : `${diffWk}w ago`;
+  return new Date(iso).toLocaleDateString(es ? 'es' : undefined);
 }
 
 export function initials(name: string): string {

@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
 import { relativeTime, safeFaviconUrl, youTubeEmbedUrl } from '@/lib/utils';
+import { useT, type TFn } from '@/lib/i18n';
 import type { AttachmentRow, UserRow } from '@/types';
 
 interface Props {
@@ -16,18 +17,19 @@ interface Props {
 
 export function AttachmentCard({ attachment, uploader, onChange }: Props) {
   const { user } = useAuth();
+  const t = useT();
   useRelativeTimeTick();
   const [lightbox, setLightbox] = useState(false);
   const isOwner = user?.id === attachment.uploaded_by;
 
   async function remove() {
-    if (!window.confirm('Delete this attachment?')) return;
+    if (!window.confirm(t('Delete this attachment?'))) return;
     const { error } = await supabase.from('attachments').delete().eq('id', attachment.id);
     if (error) {
-      toast.error('Could not delete', { description: error.message });
+      toast.error(t('Could not delete'), { description: error.message });
       return;
     }
-    toast.success('Attachment removed');
+    toast.success(t('Attachment removed'));
     onChange?.();
   }
 
@@ -42,7 +44,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
           >
             <img
               src={attachment.url}
-              alt={attachment.title ?? 'Attachment'}
+              alt={attachment.title ?? t('Attachment')}
               className="h-full w-full object-cover"
               loading="lazy"
             />
@@ -54,7 +56,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
               return (
                 <iframe
                   src={embed}
-                  title={attachment.title ?? 'Video'}
+                  title={attachment.title ?? t('Video')}
                   className="aspect-video w-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -72,7 +74,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
       <div className="flex items-start justify-between gap-3 p-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <TypeBadge type={attachment.type} />
+            <TypeBadge type={attachment.type} t={t} />
             <a
               href={attachment.url}
               target="_blank"
@@ -83,7 +85,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
             </a>
           </div>
           <p className="mt-1 truncate font-mono text-[11px] text-fg-muted">
-            {uploader ? uploader.display_name : 'Unknown'} · {relativeTime(attachment.created_at)}
+            {uploader ? uploader.display_name : t('Unknown')} · {relativeTime(attachment.created_at)}
           </p>
         </div>
         <div className="flex items-center gap-1.5">
@@ -92,7 +94,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
             target="_blank"
             rel="noreferrer"
             className="rounded-md p-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg"
-            aria-label="Open"
+            aria-label={t('Open')}
           >
             <ExternalLink className="h-4 w-4" />
           </a>
@@ -100,7 +102,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
             <button
               type="button"
               onClick={remove}
-              aria-label="Delete attachment"
+              aria-label={t('Delete attachment')}
               className="rounded-md p-1.5 text-fg-muted hover:bg-accent-rose/10 hover:text-accent-rose"
             >
               <Trash2 className="h-4 w-4" />
@@ -113,11 +115,11 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
           type="button"
           onClick={() => setLightbox(false)}
           className="fixed inset-0 z-[60] grid place-items-center bg-black/90 p-6"
-          aria-label="Close image"
+          aria-label={t('Close image')}
         >
           <img
             src={attachment.url}
-            alt={attachment.title ?? 'Attachment'}
+            alt={attachment.title ?? t('Attachment')}
             className="max-h-full max-w-full rounded-md border-2 border-white shadow-brut-lg"
           />
         </button>
@@ -126,28 +128,28 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
   );
 }
 
-function TypeBadge({ type }: { type: AttachmentRow['type'] }) {
+function TypeBadge({ type, t }: { type: AttachmentRow['type']; t: TFn }) {
   if (type === 'repo')
     return (
       <Badge variant="violet">
-        <Github className="h-3 w-3" /> Repo
+        <Github className="h-3 w-3" /> {t('Repo')}
       </Badge>
     );
   if (type === 'image')
     return (
       <Badge variant="emerald">
-        <ImageIcon className="h-3 w-3" /> Image
+        <ImageIcon className="h-3 w-3" /> {t('Image')}
       </Badge>
     );
   if (type === 'video')
     return (
       <Badge variant="rose">
-        <VideoIcon className="h-3 w-3" /> Video
+        <VideoIcon className="h-3 w-3" /> {t('Video')}
       </Badge>
     );
   return (
     <Badge variant="blue">
-      <LinkIcon className="h-3 w-3" /> Link
+      <LinkIcon className="h-3 w-3" /> {t('Link')}
     </Badge>
   );
 }

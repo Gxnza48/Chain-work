@@ -1,5 +1,6 @@
 import { Activity, Folders, Lightbulb, ListChecks, Paperclip, type LucideIcon } from 'lucide-react';
 import { motion, popVariants, staggerContainer, Reveal, VIEWPORT } from './Motion';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface FeatureCard {
@@ -53,19 +54,21 @@ const ACCENT_BG: Record<FeatureCard['accent'], string> = {
 };
 
 export function Features() {
+  const t = useT();
   return (
     <section id="features" className="relative scroll-mt-28 py-24 md:py-32 bg-surface border-y-2 border-fg">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-accent-violet">
-            What's inside
+            {t("What's inside")}
           </p>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-            Just the shape of work — nothing extra.
+            {t('Just the shape of work — nothing extra.')}
           </h2>
           <p className="mt-4 text-lg text-fg-muted">
-            Chains, members, projects, todos, ideas, attachments, presence. We made deliberate choices about what
-            <em> not</em> to build.
+            {t(
+              'Chains, members, projects, todos, ideas, attachments, presence. We made deliberate choices about what not to build.',
+            )}
           </p>
         </Reveal>
 
@@ -93,8 +96,8 @@ export function Features() {
                 >
                   <Icon className="h-6 w-6" strokeWidth={2.4} />
                 </span>
-                <h3 className="font-display text-2xl font-bold tracking-tight">{f.title}</h3>
-                <p className="text-base leading-relaxed text-fg-muted">{f.body}</p>
+                <h3 className="font-display text-2xl font-bold tracking-tight">{t(f.title)}</h3>
+                <p className="text-base leading-relaxed text-fg-muted">{t(f.body)}</p>
               </motion.article>
             );
           })}

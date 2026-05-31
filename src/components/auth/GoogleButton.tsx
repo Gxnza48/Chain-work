@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { siteUrl } from '@/lib/site-url';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 /** Multi-color Google "G" mark (lucide has no brand logos). */
 function GoogleMark({ className }: { className?: string }) {
@@ -30,6 +31,7 @@ function GoogleMark({ className }: { className?: string }) {
 }
 
 export function GoogleButton({ label = 'Continue with Google' }: { label?: string }) {
+  const t = useT();
   const [loading, setLoading] = useState(false);
 
   async function onClick() {
@@ -45,7 +47,7 @@ export function GoogleButton({ label = 'Continue with Google' }: { label?: strin
     });
     if (error) {
       setLoading(false);
-      toast.error('Could not start Google sign-in', { description: error.message });
+      toast.error(t('Could not start Google sign-in'), { description: error.message });
     }
     // on success the browser navigates away to Google; no need to reset loading.
   }
@@ -71,7 +73,7 @@ export function GoogleButton({ label = 'Continue with Google' }: { label?: strin
       ) : (
         <GoogleMark className="h-5 w-5" />
       )}
-      {label}
+      {t(label)}
     </button>
   );
 }

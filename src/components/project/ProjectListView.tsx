@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
 import { ProjectCard } from './ProjectCard';
 import { CreateProjectModal } from './CreateProjectModal';
+import { useT } from '@/lib/i18n';
 import type { ProjectRow, ProjectSummary, TodoRow, UserRow } from '@/types';
 
 const PROJECT_CAP = 25;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function ProjectListView({ chainId, members, canManage, onOpen }: Props) {
+  const t = useT();
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -29,7 +31,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
       .eq('chain_id', chainId)
       .order('created_at', { ascending: false });
     if (error) {
-      toast.error('Could not load projects', { description: error.message });
+      toast.error(t('Could not load projects'), { description: error.message });
       setProjects([]);
       return;
     }
@@ -83,9 +85,9 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight">Projects</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight">{t('Projects')}</h2>
           <p className="text-sm text-fg-muted">
-            {projects ? `${projects.length} / ${PROJECT_CAP} used` : '…'}
+            {projects ? t('{n} / {cap} used', { n: projects.length, cap: PROJECT_CAP }) : '…'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -93,7 +95,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
             type="button"
             onClick={load}
             className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
-            aria-label="Refresh"
+            aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -101,8 +103,8 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
             size="md"
             onClick={() => {
               if (atCap) {
-                toast.error('Project limit reached', {
-                  description: 'A chain may hold up to 25 projects.',
+                toast.error(t('Project limit reached'), {
+                  description: t('A chain may hold up to 25 projects.'),
                 });
                 return;
               }
@@ -110,7 +112,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
             }}
             disabled={atCap}
           >
-            <Plus className="h-4 w-4" /> New project
+            <Plus className="h-4 w-4" /> {t('New project')}
           </Button>
         </div>
       </div>
@@ -127,12 +129,12 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
             <span className="grid h-16 w-16 place-items-center rounded-lg border-2 border-fg bg-accent-blue text-white shadow-brut">
               <Folder className="h-7 w-7" strokeWidth={2.4} />
             </span>
-            <h3 className="font-display text-2xl font-bold tracking-tight">Spin up your first project</h3>
+            <h3 className="font-display text-2xl font-bold tracking-tight">{t('Spin up your first project')}</h3>
             <p className="max-w-sm text-sm text-fg-muted">
-              Projects are bounded containers: todos, ideas, attachments, and an append-only Roadmap.
+              {t('Projects are bounded containers: todos, ideas, attachments, and an append-only Roadmap.')}
             </p>
             <Button onClick={() => setCreating(true)}>
-              <Plus className="h-4 w-4" /> New project
+              <Plus className="h-4 w-4" /> {t('New project')}
             </Button>
           </CardContent>
         </Card>

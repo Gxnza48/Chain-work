@@ -1,5 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/Accordion';
 import { motion, popVariants, staggerContainer, Reveal, VIEWPORT } from './Motion';
+import { useT } from '@/lib/i18n';
 
 interface QA {
   q: string;
@@ -38,6 +39,7 @@ const QUESTIONS: QA[] = [
 ];
 
 export function FAQ() {
+  const t = useT();
   return (
     <section id="faq" className="relative scroll-mt-28 py-24 md:py-32">
       <div className="mx-auto max-w-3xl px-6">
@@ -46,7 +48,7 @@ export function FAQ() {
             FAQ
           </p>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-            Honest answers.
+            {t('Honest answers.')}
           </h2>
         </Reveal>
 
@@ -61,8 +63,8 @@ export function FAQ() {
             {QUESTIONS.map((qa, i) => (
               <motion.div key={qa.q} variants={popVariants}>
                 <AccordionItem value={`q-${i}`}>
-                  <AccordionTrigger>{qa.q}</AccordionTrigger>
-                  <AccordionContent>{qa.a}</AccordionContent>
+                  <AccordionTrigger>{t(qa.q)}</AccordionTrigger>
+                  <AccordionContent>{t(qa.a)}</AccordionContent>
                 </AccordionItem>
               </motion.div>
             ))}

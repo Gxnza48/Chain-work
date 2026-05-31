@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/lib/i18n';
 
 const VIEW = 264; // square preview size in px
 const OUT = 512; // exported avatar size in px
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
+  const t = useT();
   const [src, setSrc] = useState<string | null>(null);
   const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
   const [scale, setScale] = useState(1);
@@ -111,8 +113,8 @@ export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
     >
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Adjust your photo</DialogTitle>
-          <DialogDescription>Drag to reposition and zoom to frame it just right.</DialogDescription>
+          <DialogTitle>{t('Adjust your photo')}</DialogTitle>
+          <DialogDescription>{t('Drag to reposition and zoom to frame it just right.')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-2">
@@ -159,22 +161,22 @@ export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
               step={0.01}
               value={scale}
               onChange={(e) => onZoom(Number(e.target.value))}
-              aria-label="Zoom"
+              aria-label={t('Zoom')}
               className="h-2 w-full cursor-pointer appearance-none rounded-full border-2 border-fg bg-surface-2 accent-accent-blue"
             />
           </div>
           <p className="flex items-center gap-1.5 text-xs text-fg-muted">
-            <Move className="h-3.5 w-3.5" /> Drag the image to reposition
+            <Move className="h-3.5 w-3.5" /> {t('Drag the image to reposition')}
           </p>
         </div>
 
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={onCancel} disabled={busy}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="button" onClick={confirm} disabled={busy || !nat}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Save photo
+            {t('Save photo')}
           </Button>
         </DialogFooter>
       </DialogContent>

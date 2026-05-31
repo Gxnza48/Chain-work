@@ -4,6 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, List } from 'lucide-react';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   value: string;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function RichTextEditor({ value, onChange, placeholder, className }: Props) {
+  const t = useT();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -24,7 +26,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
         code: false,
         orderedList: false,
       }),
-      Placeholder.configure({ placeholder: placeholder ?? 'Describe the idea…' }),
+      Placeholder.configure({ placeholder: placeholder ?? t('Describe the idea…') }),
     ],
     content: value || '<p></p>',
     onUpdate({ editor }) {
@@ -55,21 +57,21 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
         <ToolbarButton
           active={editor.isActive('bold')}
           onClick={() => editor.chain().focus().toggleBold().run()}
-          label="Bold"
+          label={t('Bold')}
         >
           <Bold className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive('italic')}
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          label="Italic"
+          label={t('Italic')}
         >
           <Italic className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive('bulletList')}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          label="Bullet list"
+          label={t('Bullet list')}
         >
           <List className="h-4 w-4" />
         </ToolbarButton>

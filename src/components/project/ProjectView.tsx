@@ -11,6 +11,7 @@ import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
 import { AttachmentList } from '@/components/attachments/AttachmentList';
 import { Roadmap } from './Roadmap';
+import { useT } from '@/lib/i18n';
 import type { ProjectRow, UserRow } from '@/types';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function ProjectView({ projectId, members, onBack }: Props) {
+  const t = useT();
   const [project, setProject] = useState<ProjectRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -57,7 +59,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
   async function save() {
     if (!project) return;
     if (!name.trim()) {
-      toast.error('Project name cannot be empty');
+      toast.error(t('Project name cannot be empty'));
       return;
     }
     setSaving(true);
@@ -67,11 +69,11 @@ export function ProjectView({ projectId, members, onBack }: Props) {
       .eq('id', project.id);
     setSaving(false);
     if (error) {
-      toast.error('Could not save', { description: error.message });
+      toast.error(t('Could not save'), { description: error.message });
       return;
     }
     setEditing(false);
-    toast.success('Project saved');
+    toast.success(t('Project saved'));
   }
 
   if (loading || !project) {
@@ -88,30 +90,30 @@ export function ProjectView({ projectId, members, onBack }: Props) {
         <div className="min-w-0">
           <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 mb-2">
             <ArrowLeft className="h-4 w-4" />
-            All projects
+            {t('All projects')}
           </Button>
           {editing ? (
             <div className="flex flex-col gap-2">
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Project name"
+                placeholder={t('Project name')}
                 className="text-xl font-display font-bold"
               />
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description"
+                placeholder={t('Description')}
                 rows={3}
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={save} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Save
+                  {t('Save')}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
                   <X className="h-4 w-4" />
-                  Cancel
+                  {t('Cancel')}
                 </Button>
               </div>
             </div>
@@ -121,23 +123,23 @@ export function ProjectView({ projectId, members, onBack }: Props) {
               {project.description ? (
                 <p className="mt-1 max-w-3xl text-base text-fg-muted">{project.description}</p>
               ) : (
-                <p className="mt-1 text-sm italic text-fg-muted">No description</p>
+                <p className="mt-1 text-sm italic text-fg-muted">{t('No description')}</p>
               )}
             </>
           )}
         </div>
         {!editing ? (
           <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
-            <Pencil className="h-4 w-4" /> Edit
+            <Pencil className="h-4 w-4" /> {t('Edit')}
           </Button>
         ) : null}
       </div>
 
       <Tabs defaultValue="todos">
         <TabsList>
-          <TabsTrigger value="todos">Todos</TabsTrigger>
-          <TabsTrigger value="ideas">Ideas</TabsTrigger>
-          <TabsTrigger value="links">Links & Media</TabsTrigger>
+          <TabsTrigger value="todos">{t('Todos')}</TabsTrigger>
+          <TabsTrigger value="ideas">{t('Ideas')}</TabsTrigger>
+          <TabsTrigger value="links">{t('Links & Media')}</TabsTrigger>
         </TabsList>
         <TabsContent value="todos">
           <TodoList

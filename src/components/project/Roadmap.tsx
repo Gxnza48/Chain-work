@@ -6,6 +6,7 @@ import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { initials, relativeTime } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 import type { TodoRow, UserRow } from '@/types';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function Roadmap({ projectId, members, onChange }: Props) {
+  const t = useT();
   const [items, setItems] = useState<TodoRow[]>([]);
   const [loading, setLoading] = useState(true);
   useRelativeTimeTick();
@@ -53,10 +55,10 @@ export function Roadmap({ projectId, members, onChange }: Props) {
       .update({ status: 'pending', completed_at: null, completed_by: null })
       .eq('id', todo.id);
     if (error) {
-      toast.error('Could not reopen', { description: error.message });
+      toast.error(t('Could not reopen'), { description: error.message });
       return;
     }
-    toast.success('Re-opened, removed from Roadmap');
+    toast.success(t('Re-opened, removed from Roadmap'));
     onChange?.();
   }
 
@@ -69,23 +71,23 @@ export function Roadmap({ projectId, members, onChange }: Props) {
           <CheckCircle2 className="h-4 w-4" />
         </span>
         <h3 className="font-display text-lg font-bold tracking-tight">Roadmap</h3>
-        <span className="font-mono text-xs text-fg-muted">append-only history</span>
+        <span className="font-mono text-xs text-fg-muted">{t('append-only history')}</span>
       </div>
       <ol className="mt-4 flex flex-col gap-3">
         {loading ? (
-          <li className="text-sm text-fg-muted">Loading…</li>
+          <li className="text-sm text-fg-muted">{t('Loading…')}</li>
         ) : items.length === 0 ? (
-          <li className="text-sm text-fg-muted">No completed todos yet. Knock one out and watch it land here.</li>
+          <li className="text-sm text-fg-muted">{t('No completed todos yet. Knock one out and watch it land here.')}</li>
         ) : (
-          items.map((t) => {
-            const completedBy = t.completed_by ? memberMap.get(t.completed_by) : null;
+          items.map((item) => {
+            const completedBy = item.completed_by ? memberMap.get(item.completed_by) : null;
             return (
-              <li key={t.id} className="flex items-start gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
+              <li key={item.id} className="flex items-start gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
                 <span className="mt-1 grid h-5 w-5 place-items-center rounded-full border-2 border-fg bg-accent-emerald text-white">
                   <CheckCircle2 className="h-3 w-3" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-fg break-words">{t.title}</p>
+                  <p className="font-bold text-fg break-words">{item.title}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-fg-muted">
                     {completedBy ? (
                       <span className="inline-flex items-center gap-1.5">
@@ -100,10 +102,10 @@ export function Roadmap({ projectId, members, onChange }: Props) {
                         <span className="font-semibold">{completedBy.display_name}</span>
                       </span>
                     ) : null}
-                    <span className="font-mono">{relativeTime(t.completed_at)}</span>
+                    <span className="font-mono">{relativeTime(item.completed_at)}</span>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => reopen(t)} title="Re-open todo">
+                <Button variant="ghost" size="sm" onClick={() => reopen(item)} title={t('Re-open todo')}>
                   <RotateCcw className="h-4 w-4" />
                 </Button>
               </li>

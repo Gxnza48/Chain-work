@@ -3,9 +3,11 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, LogOut, Menu, Settings as SettingsIcon, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 import { initials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +28,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const { profile, signOut } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -50,7 +53,7 @@ export function AppShell({ children }: AppShellProps) {
           <button
             className="rounded-md p-1 text-fg-muted hover:bg-surface-2 lg:hidden"
             onClick={() => setOpen(false)}
-            aria-label="Close menu"
+            aria-label={t('Close menu')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -72,7 +75,7 @@ export function AppShell({ children }: AppShellProps) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
+                {t(item.label)}
               </NavLink>
             );
           })}
@@ -88,15 +91,16 @@ export function AppShell({ children }: AppShellProps) {
               <AvatarFallback>{initials(profile?.display_name ?? '?')}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-fg">{profile?.display_name ?? 'Profile'}</p>
+              <p className="truncate text-sm font-bold text-fg">{profile?.display_name ?? t('Profile')}</p>
               <p className="truncate text-xs text-fg-muted font-mono">@{profile?.username ?? ''}</p>
             </div>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" block onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
-              Logout
+              {t('Logout')}
             </Button>
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>
@@ -107,12 +111,15 @@ export function AppShell({ children }: AppShellProps) {
         <button
           className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
           onClick={() => setOpen(true)}
-          aria-label="Open menu"
+          aria-label={t('Open menu')}
         >
           <Menu className="h-5 w-5" />
         </button>
         <Logo size="sm" to="/" />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </div>
 
       <main className="flex-1 min-w-0 pt-16 lg:pt-0">
@@ -122,7 +129,7 @@ export function AppShell({ children }: AppShellProps) {
       {open ? (
         <button
           type="button"
-          aria-label="Close menu overlay"
+          aria-label={t('Close menu')}
           className="fixed inset-0 z-30 bg-black/60 lg:hidden"
           onClick={() => setOpen(false)}
         />

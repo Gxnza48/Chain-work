@@ -9,6 +9,7 @@ import { ContextMenu, type ContextMenuItem } from '@/components/ui/ContextMenu';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
 import { supabase } from '@/lib/supabase';
 import { initials, relativeTime } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 import type { ProjectSummary } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ interface Props {
 
 export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
   useRelativeTimeTick();
+  const t = useT();
   const pct = project.total_todos === 0 ? 0 : Math.round((project.completed_todos / project.total_todos) * 100);
   const visible = project.member_avatars.slice(0, 5);
   const extra = Math.max(0, project.member_avatars.length - visible.length);
@@ -38,7 +40,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
   async function saveName() {
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error('Project name cannot be empty');
+      toast.error(t('Project name cannot be empty'));
       return;
     }
     if (trimmed === project.name) {
@@ -49,10 +51,10 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
     const { error } = await supabase.from('projects').update({ name: trimmed }).eq('id', project.id);
     setSaving(false);
     if (error) {
-      toast.error('Could not rename project', { description: error.message });
+      toast.error(t('Could not rename project'), { description: error.message });
       return;
     }
-    toast.success('Project renamed');
+    toast.success(t('Project renamed'));
     setEditing(false);
     onRenamed?.();
   }
@@ -60,7 +62,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
   const menuItems: ContextMenuItem[] = canManage
     ? [
         {
-          label: 'Rename project',
+          label: t('Rename project'),
           icon: <Pencil className="h-4 w-4" />,
           onSelect: () => {
             setName(project.name);
@@ -115,13 +117,13 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                         }
                       }}
                       className="h-9 font-display text-base font-bold"
-                      aria-label="Project name"
+                      aria-label={t('Project name')}
                     />
                     <button
                       type="button"
                       onClick={saveName}
                       disabled={saving}
-                      aria-label="Save name"
+                      aria-label={t('Save name')}
                       className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
                     >
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
@@ -132,7 +134,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                         setName(project.name);
                         setEditing(false);
                       }}
-                      aria-label="Cancel rename"
+                      aria-label={t('Cancel rename')}
                       className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
                     >
                       <X className="h-4 w-4" />
@@ -144,7 +146,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                     {project.description ? (
                       <p className="mt-0.5 line-clamp-2 text-sm text-fg-muted">{project.description}</p>
                     ) : (
-                      <p className="mt-0.5 text-sm italic text-fg-muted">No description</p>
+                      <p className="mt-0.5 text-sm italic text-fg-muted">{t('No description')}</p>
                     )}
                   </>
                 )}
@@ -153,7 +155,12 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
 
             <div>
               <div className="mb-1 flex items-center justify-between text-xs font-mono text-fg-muted">
-                <span>{project.completed_todos}/{project.total_todos} completed</span>
+                <span>
+                  {t('{completed}/{total} completed', {
+                    completed: project.completed_todos,
+                    total: project.total_todos,
+                  })}
+                </span>
                 <span>{pct}%</span>
               </div>
               <Progress value={pct} barClassName={cn(pct === 100 ? 'bg-accent-emerald' : 'bg-accent-blue')} />
@@ -163,7 +170,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
               <div className="flex items-center -space-x-2">
                 {visible.length === 0 ? (
                   <span className="text-xs text-fg-muted">
-                    <Users className="inline h-3 w-3 mr-1" /> no contributors yet
+                    <Users className="inline h-3 w-3 mr-1" /> {t('no contributors yet')}
                   </span>
                 ) : (
                   visible.map((a) => (
@@ -180,7 +187,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                 ) : null}
               </div>
               <span className="font-mono text-[11px] text-fg-muted">
-                created {relativeTime(project.created_at)}
+                {t('created {time}', { time: relativeTime(project.created_at) })}
               </span>
             </div>
           </CardContent>

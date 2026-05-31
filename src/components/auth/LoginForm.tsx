@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
 import { siteUrl } from '@/lib/site-url';
 import { isValidEmail } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 export function LoginForm() {
   const navigate = useNavigate();
+  const t = useT();
   const location = useLocation();
   const fromState = (location.state as { from?: string } | null)?.from;
 
@@ -24,8 +26,8 @@ export function LoginForm() {
 
   function validate() {
     const e: { email?: string; password?: string } = {};
-    if (!isValidEmail(email)) e.email = 'Enter a valid email';
-    if (!password) e.password = 'Required';
+    if (!isValidEmail(email)) e.email = t('Enter a valid email');
+    if (!password) e.password = t('Required');
     return e;
   }
 
@@ -44,17 +46,17 @@ export function LoginForm() {
     setLoading(false);
 
     if (error) {
-      toast.error('Sign in failed', { description: error.message });
+      toast.error(t('Sign in failed'), { description: error.message });
       return;
     }
-    toast.success('Welcome back');
+    toast.success(t('Welcome back'));
     navigate(fromState && fromState !== '/auth' ? fromState : '/dashboard', { replace: true });
   }
 
   async function onReset() {
     if (!isValidEmail(email)) {
-      setTouched((t) => ({ ...t, email: true }));
-      setErrors({ ...errors, email: 'Enter your email above first' });
+      setTouched((prev) => ({ ...prev, email: true }));
+      setErrors({ ...errors, email: t('Enter your email above first') });
       return;
     }
     setResetSending(true);
@@ -63,16 +65,16 @@ export function LoginForm() {
     });
     setResetSending(false);
     if (error) {
-      toast.error('Could not send reset email', { description: error.message });
+      toast.error(t('Could not send reset email'), { description: error.message });
     } else {
-      toast.success('Reset link sent', { description: `Check ${email}.` });
+      toast.success(t('Reset link sent'), { description: t('Check {email}.', { email }) });
     }
   }
 
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="login-email">Email</Label>
+        <Label htmlFor="login-email">{t('Email')}</Label>
         <Input
           id="login-email"
           type="email"
@@ -93,14 +95,14 @@ export function LoginForm() {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <Label htmlFor="login-password">Password</Label>
+          <Label htmlFor="login-password">{t('Password')}</Label>
           <button
             type="button"
             onClick={onReset}
             disabled={resetSending}
             className="text-xs font-bold text-accent-blue hover:underline disabled:opacity-50"
           >
-            {resetSending ? 'Sending…' : 'Forgot password?'}
+            {resetSending ? t('Sending…') : t('Forgot password?')}
           </button>
         </div>
         <div className="relative">
@@ -121,7 +123,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPw((v) => !v)}
-            aria-label={showPw ? 'Hide password' : 'Show password'}
+            aria-label={showPw ? t('Hide password') : t('Show password')}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-fg-muted hover:bg-surface hover:text-fg"
           >
             {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -134,7 +136,7 @@ export function LoginForm() {
 
       <Button type="submit" size="lg" block disabled={!formValid || loading}>
         {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-        {loading ? 'Signing you in…' : 'Sign in'}
+        {loading ? t('Signing you in…') : t('Sign in')}
       </Button>
     </form>
   );

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
 import { cn, initials, relativeTime } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 import type { IdeaWithVotes } from '@/types';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export function IdeaCard({ idea, onChange }: Props) {
   const { user } = useAuth();
+  const t = useT();
   useRelativeTimeTick();
   const isOwner = user?.id === idea.created_by;
 
@@ -25,7 +27,7 @@ export function IdeaCard({ idea, onChange }: Props) {
         .delete()
         .eq('idea_id', idea.id)
         .eq('user_id', user.id);
-      if (error) toast.error('Vote failed', { description: error.message });
+      if (error) toast.error(t('Vote failed'), { description: error.message });
     } else {
       const { error } = await supabase
         .from('idea_votes')
@@ -33,19 +35,19 @@ export function IdeaCard({ idea, onChange }: Props) {
           { idea_id: idea.id, user_id: user.id, vote: value },
           { onConflict: 'idea_id,user_id' },
         );
-      if (error) toast.error('Vote failed', { description: error.message });
+      if (error) toast.error(t('Vote failed'), { description: error.message });
     }
     onChange?.();
   }
 
   async function remove() {
-    if (!window.confirm('Delete this idea? This cannot be undone.')) return;
+    if (!window.confirm(t('Delete this idea? This cannot be undone.'))) return;
     const { error } = await supabase.from('ideas').delete().eq('id', idea.id);
     if (error) {
-      toast.error('Could not delete', { description: error.message });
+      toast.error(t('Could not delete'), { description: error.message });
       return;
     }
-    toast.success('Idea deleted');
+    toast.success(t('Idea deleted'));
     onChange?.();
   }
 
@@ -56,7 +58,7 @@ export function IdeaCard({ idea, onChange }: Props) {
           type="button"
           onClick={() => castVote(1)}
           aria-pressed={idea.user_vote === 1}
-          aria-label="Upvote"
+          aria-label={t('Upvote')}
           className={cn(
             'grid h-8 w-8 place-items-center rounded-md border-2 transition-colors',
             idea.user_vote === 1
@@ -78,7 +80,7 @@ export function IdeaCard({ idea, onChange }: Props) {
           type="button"
           onClick={() => castVote(-1)}
           aria-pressed={idea.user_vote === -1}
-          aria-label="Downvote"
+          aria-label={t('Downvote')}
           className={cn(
             'grid h-8 w-8 place-items-center rounded-md border-2 transition-colors',
             idea.user_vote === -1
@@ -97,7 +99,7 @@ export function IdeaCard({ idea, onChange }: Props) {
             <button
               type="button"
               onClick={remove}
-              aria-label="Delete idea"
+              aria-label={t('Delete idea')}
               className="rounded-md p-1 text-fg-muted hover:bg-accent-rose/10 hover:text-accent-rose"
             >
               <Trash2 className="h-4 w-4" />

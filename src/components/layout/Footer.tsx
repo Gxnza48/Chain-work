@@ -4,7 +4,9 @@ import { ArrowRight, Github } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/Button';
+import { Flag } from '@/components/ui/Flag';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 
 const LINK_GROUPS: { heading: string; links: { label: string; href: string; external?: boolean }[] }[] = [
   {
@@ -27,6 +29,7 @@ const LINK_GROUPS: { heading: string; links: { label: string; href: string; exte
 
 export function Footer() {
   const { user, loading } = useAuth();
+  const t = useT();
   const rootRef = useRef<HTMLElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: rootRef,
@@ -42,16 +45,16 @@ export function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-12 md:flex-row md:items-center">
           <div>
             <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-              Ready to build together?
+              {t('Ready to build together?')}
             </h2>
             <p className="mt-2 max-w-md text-fg-muted">
-              Spin up a chain, share the code, and start shipping with your team in minutes.
+              {t('Spin up a chain, share the code, and start shipping with your team in minutes.')}
             </p>
           </div>
           {loading ? null : (
             <Button asChild size="lg">
               <Link to={user ? '/dashboard' : '/auth?mode=register'}>
-                {user ? 'Open dashboard' : 'Get started free'}
+                {user ? t('Open dashboard') : t('Get started free')}
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
@@ -64,7 +67,7 @@ export function Footer() {
         <div className="col-span-2 flex flex-col gap-3 sm:col-span-1">
           <Logo size="md" to="/" />
           <p className="max-w-sm text-sm text-fg-muted">
-            A web app where small teams build together, in shared chains.
+            {t('A web app where small teams build together, in shared chains.')}
           </p>
           <a
             href="https://github.com/Gxnza48/Chain-work"
@@ -73,14 +76,14 @@ export function Footer() {
             className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm transition-colors hover:bg-surface"
           >
             <Github className="h-4 w-4" />
-            Star on GitHub
+            {t('Star on GitHub')}
           </a>
         </div>
 
         {LINK_GROUPS.map((group) => (
           <nav key={group.heading} className="flex flex-col gap-3">
             <h3 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
-              {group.heading}
+              {t(group.heading)}
             </h3>
             <ul className="flex flex-col gap-2 text-sm font-semibold">
               {group.links.map((link) => (
@@ -91,13 +94,21 @@ export function Footer() {
                     rel={link.external ? 'noreferrer' : undefined}
                     className="text-fg-muted transition-colors hover:text-fg"
                   >
-                    {link.label}
+                    {t(link.label)}
                   </a>
                 </li>
               ))}
             </ul>
           </nav>
         ))}
+      </div>
+
+      {/* Made-in-Argentina credit — flag via flagcdn (emoji flags don't render on desktop) */}
+      <div className="border-t-2 border-fg/30">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-6 py-5 text-center text-sm font-semibold text-fg-muted">
+          <Flag code="ar" alt="Argentina" className="h-3.5 w-5 rounded-[2px] border border-fg/40" />
+          <span>{t('Made in Argentina by Gonzalo Bonadeo & Agustin Casal')}</span>
+        </div>
       </div>
 
       {/* Giant wordmark — the closing flourish of the page. Centered, full-bleed,

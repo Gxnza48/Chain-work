@@ -1,5 +1,6 @@
 import { KeySquare, Send, Users, type LucideIcon } from 'lucide-react';
 import { motion, popVariants, staggerContainer, Reveal, VIEWPORT } from './Motion';
+import { useT } from '@/lib/i18n';
 
 interface Step {
   icon: LucideIcon;
@@ -26,18 +27,21 @@ const STEPS: Step[] = [
 ];
 
 export function HowItWorks() {
+  const t = useT();
   return (
     <section id="how-it-works" className="relative scroll-mt-28 py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-accent-blue">
-            How it works
+            {t('How it works')}
           </p>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-            Three steps. No setup tax.
+            {t('Three steps. No setup tax.')}
           </h2>
           <p className="mt-4 text-lg text-fg-muted">
-            ChainWork is built around one idea: shared spaces that are trivial to create and instant to join.
+            {t(
+              'ChainWork is built around one idea: shared spaces that are trivial to create and instant to join.',
+            )}
           </p>
         </Reveal>
 
@@ -63,8 +67,8 @@ export function HowItWorks() {
                   </span>
                   <span className="font-mono text-3xl font-bold text-fg-muted">{String(i + 1).padStart(2, '0')}</span>
                 </div>
-                <h3 className="font-display text-2xl font-bold tracking-tight">{step.title}</h3>
-                <p className="text-base leading-relaxed text-fg-muted">{step.body}</p>
+                <h3 className="font-display text-2xl font-bold tracking-tight">{t(step.title)}</h3>
+                <p className="text-base leading-relaxed text-fg-muted">{t(step.body)}</p>
               </motion.li>
             );
           })}

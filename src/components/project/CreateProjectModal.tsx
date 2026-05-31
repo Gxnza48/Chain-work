@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   chainId: string;
@@ -25,6 +26,7 @@ interface Props {
 
 export function CreateProjectModal({ chainId, open, onOpenChange, onCreated }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -53,16 +55,16 @@ export function CreateProjectModal({ chainId, open, onOpenChange, onCreated }: P
     setSubmitting(false);
     if (error) {
       if (/Project limit reached/.test(error.message)) {
-        toast.error('Project limit reached', { description: 'A chain may hold up to 25 projects.' });
+        toast.error(t('Project limit reached'), { description: t('A chain may hold up to 25 projects.') });
       } else {
-        toast.error('Could not create project', { description: error.message });
+        toast.error(t('Could not create project'), { description: error.message });
       }
       return;
     }
     onOpenChange(false);
     reset();
     onCreated?.(data.id);
-    toast.success('Project created');
+    toast.success(t('Project created'));
   }
 
   return (
@@ -76,40 +78,40 @@ export function CreateProjectModal({ chainId, open, onOpenChange, onCreated }: P
       <DialogContent>
         <form onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>New project</DialogTitle>
+            <DialogTitle>{t('New project')}</DialogTitle>
             <DialogDescription>
-              Projects bundle todos, ideas, attachments, and a Roadmap. Each chain can hold up to 25.
+              {t('Projects bundle todos, ideas, attachments, and a Roadmap. Each chain can hold up to 25.')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="project-name">Name</Label>
+              <Label htmlFor="project-name">{t('Name')}</Label>
               <Input
                 id="project-name"
                 autoFocus
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Launch site"
+                placeholder={t('e.g. Launch site')}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="project-description">Description (optional)</Label>
+              <Label htmlFor="project-description">{t('Description (optional)')}</Label>
               <Textarea
                 id="project-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="What is this project about?"
+                placeholder={t('What is this project about?')}
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || !name.trim()}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Create
+              {t('Create')}
             </Button>
           </DialogFooter>
         </form>

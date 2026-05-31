@@ -15,6 +15,7 @@ import { TodoForm } from './TodoForm';
 import { PriorityBadge, PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useT, type TFn } from '@/lib/i18n';
 import { cn, initials } from '@/lib/utils';
 import type { TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
 
@@ -27,6 +28,7 @@ interface Props {
 
 export function TodoItem({ todo, members, draggable = false, onChanged }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const sortable = useSortable({ id: todo.id, disabled: !draggable || editing });
@@ -52,7 +54,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
     const { error } = await supabase.from('todos').update(payload).eq('id', todo.id);
     setBusy(false);
     if (error) {
-      toast.error('Could not update todo', { description: error.message });
+      toast.error(t('Could not update todo'), { description: error.message });
       return;
     }
     onChanged?.();
@@ -64,7 +66,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
     const { error } = await supabase.from('todos').update({ priority: p }).eq('id', todo.id);
     setBusy(false);
     if (error) {
-      toast.error('Could not update priority', { description: error.message });
+      toast.error(t('Could not update priority'), { description: error.message });
       return;
     }
     onChanged?.();
@@ -72,15 +74,15 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
 
   async function deleteTodo() {
     if (isDone) {
-      toast.error('Completed todos cannot be deleted — re-open it first.');
+      toast.error(t('Completed todos cannot be deleted — re-open it first.'));
       return;
     }
-    if (!window.confirm('Delete this todo?')) return;
+    if (!window.confirm(t('Delete this todo?'))) return;
     setBusy(true);
     const { error } = await supabase.from('todos').delete().eq('id', todo.id);
     setBusy(false);
     if (error) {
-      toast.error('Could not delete', { description: error.message });
+      toast.error(t('Could not delete'), { description: error.message });
       return;
     }
     onChanged?.();
@@ -119,13 +121,13 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           {...sortable.attributes}
           {...sortable.listeners}
           className="mt-1 cursor-grab rounded-md p-1 text-fg-muted opacity-60 hover:bg-surface-2 hover:opacity-100 active:cursor-grabbing"
-          aria-label="Drag to reorder"
+          aria-label={t('Drag to reorder')}
         >
           <GripVertical className="h-4 w-4" />
         </button>
       ) : null}
 
-      <StatusButton status={todo.status} busy={busy} onCycle={cycleStatus} />
+      <StatusButton status={todo.status} busy={busy} onCycle={cycleStatus} t={t} />
 
       <div className="min-w-0 flex-1">
         <p
@@ -145,7 +147,9 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label={`Priority: ${PRIORITY_META[todo.priority]?.label ?? 'Medium'} — click to change`}
+                aria-label={t('Priority: {label} — click to change', {
+                  label: t(PRIORITY_META[todo.priority]?.label ?? 'Medium'),
+                })}
                 className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue"
               >
                 <PriorityBadge priority={todo.priority} className="cursor-pointer transition-opacity hover:opacity-80" />
@@ -155,15 +159,15 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
               {PRIORITY_ORDER.map((p) => (
                 <DropdownMenuItem key={p} onSelect={() => changePriority(p)}>
                   <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
-                  {PRIORITY_META[p].label}
+                  {t(PRIORITY_META[p].label)}
                   {p === todo.priority ? <Check className="ml-auto h-3.5 w-3.5" /> : null}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {todo.status === 'in_progress' ? <Badge variant="amber">In progress</Badge> : null}
-          {isDone ? <Badge variant="emerald">Done</Badge> : null}
+          {todo.status === 'in_progress' ? <Badge variant="amber">{t('In progress')}</Badge> : null}
+          {isDone ? <Badge variant="emerald">{t('Done')}</Badge> : null}
           {todo.due_date ? (
             <Badge variant="neutral">
               <Calendar className="h-3 w-3" /> {new Date(todo.due_date).toLocaleDateString()}
@@ -186,7 +190,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           <button
             type="button"
             onClick={() => setEditing(true)}
-            aria-label="Edit todo"
+            aria-label={t('Edit todo')}
             className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
           >
             <Pencil className="h-4 w-4" />
@@ -196,7 +200,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           <button
             type="button"
             onClick={deleteTodo}
-            aria-label="Delete todo"
+            aria-label={t('Delete todo')}
             className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
           >
             <Trash2 className="h-4 w-4" />
@@ -205,7 +209,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           <button
             type="button"
             onClick={() => cycleStatus('pending')}
-            aria-label="Re-open todo"
+            aria-label={t('Re-open todo')}
             className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
           >
             <RotateCcw className="h-4 w-4" />
@@ -220,9 +224,16 @@ interface StatusButtonProps {
   status: TodoStatus;
   busy: boolean;
   onCycle: (next: TodoStatus) => void;
+  t: TFn;
 }
 
-function StatusButton({ status, busy, onCycle }: StatusButtonProps) {
+const STATUS_LABEL: Record<TodoStatus, string> = {
+  pending: 'pending',
+  in_progress: 'in progress',
+  done: 'done',
+};
+
+function StatusButton({ status, busy, onCycle, t }: StatusButtonProps) {
   const next: TodoStatus = status === 'pending' ? 'in_progress' : status === 'in_progress' ? 'done' : 'pending';
 
   const className = cn(
@@ -237,7 +248,7 @@ function StatusButton({ status, busy, onCycle }: StatusButtonProps) {
       type="button"
       onClick={() => onCycle(next)}
       disabled={busy}
-      aria-label={`Mark as ${next}`}
+      aria-label={t('Mark as {status}', { status: t(STATUS_LABEL[next]) })}
       className={className}
     >
       {busy ? <Loader2 className="h-3 w-3 animate-spin text-fg" /> : <Check className="h-3 w-3" />}

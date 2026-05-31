@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/Label';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   chainId: string;
@@ -17,6 +18,7 @@ interface Props {
 
 export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('<p></p>');
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +27,7 @@ export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
     e.preventDefault();
     if (!user) return;
     if (!title.trim()) {
-      toast.error('Give the idea a title');
+      toast.error(t('Give the idea a title'));
       return;
     }
     setSubmitting(true);
@@ -39,7 +41,7 @@ export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
     });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not save idea', { description: error.message });
+      toast.error(t('Could not save idea'), { description: error.message });
       return;
     }
     setTitle('');
@@ -53,28 +55,28 @@ export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
       className="rounded-lg border-2 border-fg bg-surface-2 p-4 shadow-brut-sm flex flex-col gap-3"
     >
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="idea-title">Title</Label>
+        <Label htmlFor="idea-title">{t('Title')}</Label>
         <Input
           id="idea-title"
           autoFocus
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="What's the idea?"
+          placeholder={t("What's the idea?")}
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label>Description (optional)</Label>
-        <RichTextEditor value={description} onChange={setDescription} placeholder="Sketch it out…" />
+        <Label>{t('Description (optional)')}</Label>
+        <RichTextEditor value={description} onChange={setDescription} placeholder={t('Sketch it out…')} />
       </div>
       <div className="flex justify-end gap-2">
         {onCancel ? (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-            <X className="h-4 w-4" /> Cancel
+            <X className="h-4 w-4" /> {t('Cancel')}
           </Button>
         ) : null}
         <Button type="submit" size="sm" disabled={submitting || !title.trim()}>
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          Add idea
+          {t('Add idea')}
         </Button>
       </div>
     </form>

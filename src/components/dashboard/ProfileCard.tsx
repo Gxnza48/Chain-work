@@ -10,6 +10,7 @@ import { AvatarCropModal } from './AvatarCropModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { initials } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 /** Strip the protocol / trailing slash so the link reads cleanly in the UI. */
 function prettyLink(url: string): string {
@@ -18,6 +19,7 @@ function prettyLink(url: string): string {
 
 export function ProfileCard() {
   const { user, profile, refreshProfile } = useAuth();
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
@@ -53,14 +55,14 @@ export function ProfileCard() {
   async function save() {
     if (!profile) return;
     if (!displayName.trim()) {
-      toast.error('Display name cannot be empty');
+      toast.error(t('Display name cannot be empty'));
       return;
     }
     let websiteValue: string | null = null;
     if (website.trim()) {
       websiteValue = normalizeUrl(website);
       if (!websiteValue) {
-        toast.error('That link doesn’t look like a valid URL');
+        toast.error(t('That link doesn’t look like a valid URL'));
         return;
       }
     }
@@ -71,10 +73,10 @@ export function ProfileCard() {
       .eq('id', profile.id);
     setSaving(false);
     if (error) {
-      toast.error('Could not save profile', { description: error.message });
+      toast.error(t('Could not save profile'), { description: error.message });
       return;
     }
-    toast.success('Profile saved');
+    toast.success(t('Profile saved'));
     setEditing(false);
     await refreshProfile();
   }
@@ -85,7 +87,7 @@ export function ProfileCard() {
     e.target.value = '';
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      toast.error('Avatar must be an image');
+      toast.error(t('Avatar must be an image'));
       return;
     }
     setCropFile(file);
@@ -101,7 +103,7 @@ export function ProfileCard() {
       contentType: 'image/jpeg',
     });
     if (upErr) {
-      toast.error('Upload failed', { description: upErr.message });
+      toast.error(t('Upload failed'), { description: upErr.message });
       setUploading(false);
       return;
     }
@@ -112,11 +114,11 @@ export function ProfileCard() {
       .eq('id', profile.id);
     setUploading(false);
     if (error) {
-      toast.error('Could not save avatar', { description: error.message });
+      toast.error(t('Could not save avatar'), { description: error.message });
       return;
     }
     setCropFile(null);
-    toast.success('Avatar updated');
+    toast.success(t('Avatar updated'));
     await refreshProfile();
   }
 
@@ -135,7 +137,7 @@ export function ProfileCard() {
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
             className="absolute -bottom-1 -right-1 inline-grid h-8 w-8 place-items-center rounded-full border-2 border-fg bg-accent-blue text-white shadow-brut-sm disabled:opacity-50"
-            aria-label="Change avatar"
+            aria-label={t('Change avatar')}
           >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin-slow" /> : <Camera className="h-4 w-4" />}
           </button>
@@ -154,13 +156,13 @@ export function ProfileCard() {
               <Input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Display name"
+                placeholder={t('Display name')}
                 className="text-lg font-display font-bold"
               />
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="A short bio…"
+                placeholder={t('A short bio…')}
                 rows={3}
               />
               <div className="relative">
@@ -172,17 +174,17 @@ export function ProfileCard() {
                   type="url"
                   inputMode="url"
                   className="pl-9"
-                  aria-label="Website or portfolio link"
+                  aria-label={t('Website or portfolio link')}
                 />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={save} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Save
+                  {t('Save')}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
                   <X className="h-4 w-4" />
-                  Cancel
+                  {t('Cancel')}
                 </Button>
               </div>
             </div>
@@ -195,11 +197,11 @@ export function ProfileCard() {
                 </div>
                 <Button size="sm" variant="outline" onClick={startEdit}>
                   <Pencil className="h-4 w-4" />
-                  Edit
+                  {t('Edit')}
                 </Button>
               </div>
               <p className="mt-3 text-base leading-relaxed text-fg-muted">
-                {profile.bio || 'Add a short bio to introduce yourself to teammates.'}
+                {profile.bio || t('Add a short bio to introduce yourself to teammates.')}
               </p>
               {profile.website ? (
                 <a

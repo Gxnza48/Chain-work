@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { bytesToMB, classifyUrl, VIDEO_MAX_BYTES } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   projectId: string;
@@ -17,6 +18,7 @@ type Mode = 'url' | 'image' | 'video';
 
 export function AttachmentUploader({ projectId, onCreated }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const [mode, setMode] = useState<Mode>('url');
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -29,7 +31,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     try {
       new URL(url);
     } catch {
-      toast.error('That doesn\'t look like a valid URL');
+      toast.error(t("That doesn't look like a valid URL"));
       return;
     }
     setSubmitting(true);
@@ -43,7 +45,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not add link', { description: error.message });
+      toast.error(t('Could not add link'), { description: error.message });
       return;
     }
     setUrl('');
@@ -58,15 +60,17 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     const isVideo = mode === 'video';
 
     if (isVideo && file.size > VIDEO_MAX_BYTES) {
-      toast.error('Video too large', { description: `Max 50 MB — yours is ${bytesToMB(file.size)} MB` });
+      toast.error(t('Video too large'), {
+        description: t('Max 50 MB — yours is {mb} MB', { mb: bytesToMB(file.size) }),
+      });
       return;
     }
     if (mode === 'image' && !file.type.startsWith('image/')) {
-      toast.error('Choose an image file');
+      toast.error(t('Choose an image file'));
       return;
     }
     if (isVideo && !file.type.startsWith('video/')) {
-      toast.error('Choose a video file');
+      toast.error(t('Choose a video file'));
       return;
     }
 
@@ -76,7 +80,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
       cacheControl: '3600',
     });
     if (upErr) {
-      toast.error('Upload failed', { description: upErr.message });
+      toast.error(t('Upload failed'), { description: upErr.message });
       setSubmitting(false);
       return;
     }
@@ -92,7 +96,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not save attachment', { description: error.message });
+      toast.error(t('Could not save attachment'), { description: error.message });
       return;
     }
     if (fileRef.current) fileRef.current.value = '';
@@ -103,20 +107,20 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     <div className="rounded-lg border-2 border-fg bg-surface-2 p-4 shadow-brut-sm">
       <div className="flex flex-wrap gap-2">
         <ModeButton active={mode === 'url'} onClick={() => setMode('url')} icon={<LinkIcon className="h-4 w-4" />}>
-          Link or repo
+          {t('Link or repo')}
         </ModeButton>
         <ModeButton active={mode === 'image'} onClick={() => setMode('image')} icon={<ImageIcon className="h-4 w-4" />}>
-          Upload image
+          {t('Upload image')}
         </ModeButton>
         <ModeButton active={mode === 'video'} onClick={() => setMode('video')} icon={<Video className="h-4 w-4" />}>
-          Upload video (≤50 MB)
+          {t('Upload video (≤50 MB)')}
         </ModeButton>
       </div>
 
       {mode === 'url' ? (
         <form onSubmit={submitUrl} className="mt-3 flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="att-url">URL</Label>
+            <Label htmlFor="att-url">{t('URL')}</Label>
             <Input
               id="att-url"
               value={url}
@@ -125,17 +129,17 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="att-title">Title (optional)</Label>
+            <Label htmlFor="att-title">{t('Title (optional)')}</Label>
             <Input
               id="att-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="What is this?"
+              placeholder={t('What is this?')}
             />
           </div>
           <Button type="submit" size="sm" className="self-end" disabled={submitting || !url}>
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            Add
+            {t('Add')}
           </Button>
         </form>
       ) : (
@@ -149,11 +153,11 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
           />
           {submitting ? (
             <p className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin-slow" /> Uploading…
+              <Loader2 className="h-3 w-3 animate-spin-slow" /> {t('Uploading…')}
             </p>
           ) : (
             <p className="text-xs text-fg-muted">
-              {mode === 'image' ? 'JPG, PNG, GIF, or WebP.' : 'MP4 or WebM up to 50 MB.'}
+              {mode === 'image' ? t('JPG, PNG, GIF, or WebP.') : t('MP4 or WebM up to 50 MB.')}
             </p>
           )}
         </div>

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   open: boolean;
@@ -23,6 +24,7 @@ interface Props {
 
 export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
   const navigate = useNavigate();
+  const t = useT();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +39,7 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
     e.preventDefault();
     const trimmed = code.trim().toUpperCase();
     if (trimmed.length !== 8) {
-      setError('Codes are 8 characters');
+      setError(t('Codes are 8 characters'));
       return;
     }
     setSubmitting(true);
@@ -45,7 +47,7 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
     setSubmitting(false);
     if (rpcErr) {
       if (/CHAIN_NOT_FOUND/.test(rpcErr.message) || rpcErr.code === 'P0002') {
-        setError('That code doesn\'t match a chain');
+        setError(t("That code doesn't match a chain"));
       } else {
         setError(rpcErr.message);
       }
@@ -53,7 +55,7 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
     }
     const chainId = data as unknown as string;
     onJoined?.();
-    toast.success('Joined chain');
+    toast.success(t('Joined chain'));
     onOpenChange(false);
     reset();
     navigate(`/chain/${chainId}`);
@@ -70,13 +72,13 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
       <DialogContent>
         <form onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>Join a chain</DialogTitle>
+            <DialogTitle>{t('Join a chain')}</DialogTitle>
             <DialogDescription>
-              Paste the 8-character code your teammate shared with you.
+              {t('Paste the 8-character code your teammate shared with you.')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 py-2">
-            <Label htmlFor="chain-code">Chain code</Label>
+            <Label htmlFor="chain-code">{t('Chain code')}</Label>
             <Input
               id="chain-code"
               value={code}
@@ -94,11 +96,11 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || code.length !== 8}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Join
+              {t('Join')}
             </Button>
           </DialogFooter>
         </form>

@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, LayoutDashboard, Menu, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 import { Button } from '@/components/ui/Button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 import { cn, initials } from '@/lib/utils';
 
 interface NavItem {
@@ -24,6 +26,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { user, profile, loading } = useAuth();
+  const t = useT();
   const authed = Boolean(user);
 
   useEffect(() => {
@@ -57,13 +60,14 @@ export function Navbar() {
               href={item.href}
               className="group relative rounded-md px-3 py-2 text-sm font-semibold text-fg-muted transition-colors hover:text-fg"
             >
-              {item.label}
+              {t(item.label)}
               <span className="absolute inset-x-3 -bottom-0.5 h-0.5 origin-left scale-x-0 bg-accent-blue transition-transform duration-200 group-hover:scale-x-100" />
             </a>
           ))}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageToggle />
           <ThemeToggle />
           {loading ? (
             <Skeleton className="h-11 w-32 rounded-lg" />
@@ -81,27 +85,28 @@ export function Navbar() {
                 </AvatarFallback>
               </Avatar>
               <span className="max-w-[10rem] truncate text-sm font-display font-bold tracking-tight">
-                {profile?.display_name ?? 'Dashboard'}
+                {profile?.display_name ?? t('Dashboard')}
               </span>
               <ArrowRight className="h-4 w-4 text-fg-muted transition-transform group-hover:translate-x-0.5" />
             </Link>
           ) : (
             <>
               <Button asChild size="md" variant="ghost">
-                <Link to="/auth?mode=login">Log in</Link>
+                <Link to="/auth?mode=login">{t('Log in')}</Link>
               </Button>
               <Button asChild size="md" variant="primary">
-                <Link to="/auth?mode=register">Sign Up</Link>
+                <Link to="/auth?mode=register">{t('Sign Up')}</Link>
               </Button>
             </>
           )}
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
+          <LanguageToggle />
           <ThemeToggle />
           <button
             type="button"
-            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-label={open ? t('Close menu') : t('Open menu')}
             onClick={() => setOpen((v) => !v)}
             className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
           >
@@ -120,26 +125,26 @@ export function Navbar() {
                 onClick={() => setOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-semibold text-fg hover:bg-surface-2"
               >
-                {item.label}
+                {t(item.label)}
               </a>
             ))}
             {loading ? null : authed ? (
               <Button asChild size="md" variant="primary" block className="mt-2">
                 <Link to="/dashboard" onClick={() => setOpen(false)}>
                   <LayoutDashboard className="h-4 w-4" />
-                  Go to dashboard
+                  {t('Go to dashboard')}
                 </Link>
               </Button>
             ) : (
               <div className="mt-2 flex flex-col gap-2">
                 <Button asChild size="md" variant="outline" block>
                   <Link to="/auth?mode=login" onClick={() => setOpen(false)}>
-                    Log in
+                    {t('Log in')}
                   </Link>
                 </Button>
                 <Button asChild size="md" variant="primary" block>
                   <Link to="/auth?mode=register" onClick={() => setOpen(false)}>
-                    Sign Up
+                    {t('Sign Up')}
                   </Link>
                 </Button>
               </div>

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { IdeaCard } from './IdeaCard';
 import { IdeaForm } from './IdeaForm';
+import { useT } from '@/lib/i18n';
 import type { IdeaRow, IdeaVoteRow, IdeaWithVotes, UserRow } from '@/types';
 
 interface Props {
@@ -20,6 +21,7 @@ type SortMode = 'top' | 'newest' | 'oldest';
 
 export function IdeaList({ chainId, projectId, members }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const [ideas, setIdeas] = useState<IdeaWithVotes[]>([]);
   const [sort, setSort] = useState<SortMode>('top');
   const [adding, setAdding] = useState(false);
@@ -32,7 +34,7 @@ export function IdeaList({ chainId, projectId, members }: Props) {
     else query.is('project_id', null);
     const { data: ideaData, error: ideaErr } = await query.order('created_at', { ascending: false });
     if (ideaErr) {
-      toast.error('Could not load ideas', { description: ideaErr.message });
+      toast.error(t('Could not load ideas'), { description: ideaErr.message });
       setIdeas([]);
       setLoading(false);
       return;
@@ -102,7 +104,7 @@ export function IdeaList({ chainId, projectId, members }: Props) {
           <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-amber text-white shadow-brut-sm">
             <Lightbulb className="h-4 w-4" />
           </span>
-          <h3 className="font-display text-lg font-bold tracking-tight">Ideas</h3>
+          <h3 className="font-display text-lg font-bold tracking-tight">{t('Ideas')}</h3>
           <Badge variant="neutral">{ideas.length}</Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -111,22 +113,22 @@ export function IdeaList({ chainId, projectId, members }: Props) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="top">Most voted</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="top">{t('Most voted')}</SelectItem>
+              <SelectItem value="newest">{t('Newest')}</SelectItem>
+              <SelectItem value="oldest">{t('Oldest')}</SelectItem>
             </SelectContent>
           </Select>
           <button
             type="button"
             onClick={load}
             className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
-            aria-label="Refresh"
+            aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {!adding ? (
             <Button size="sm" onClick={() => setAdding(true)}>
-              <Plus className="h-4 w-4" /> Add idea
+              <Plus className="h-4 w-4" /> {t('Add idea')}
             </Button>
           ) : null}
         </div>
@@ -145,11 +147,11 @@ export function IdeaList({ chainId, projectId, members }: Props) {
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-fg-muted">Loading…</p>
+        <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : sorted.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
-          <p className="font-semibold">No ideas yet.</p>
-          <p className="mt-1 text-sm text-fg-muted">Capture a loose thought — your team can vote it up.</p>
+          <p className="font-semibold">{t('No ideas yet.')}</p>
+          <p className="mt-1 text-sm text-fg-muted">{t('Capture a loose thought — your team can vote it up.')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

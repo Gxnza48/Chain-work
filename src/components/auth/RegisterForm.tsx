@@ -8,6 +8,7 @@ import { PasswordStrength } from './PasswordStrength';
 import { supabase } from '@/lib/supabase';
 import { siteUrl } from '@/lib/site-url';
 import { isValidEmail, isValidUsername, passwordStrength } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface Fields {
   fullName: string;
@@ -26,6 +27,7 @@ interface Errors {
 }
 
 export function RegisterForm() {
+  const t = useT();
   const [fields, setFields] = useState<Fields>({
     fullName: '',
     username: '',
@@ -51,13 +53,13 @@ export function RegisterForm() {
 
   function validate(next: Fields = fields): Errors {
     const e: Errors = {};
-    if (!next.fullName.trim()) e.fullName = 'Required';
+    if (!next.fullName.trim()) e.fullName = t('Required');
     if (!isValidUsername(next.username))
-      e.username = 'Lowercase letters/digits, 3-24 chars, no spaces';
-    if (!isValidEmail(next.email)) e.email = 'Enter a valid email';
+      e.username = t('Lowercase letters/digits, 3-24 chars, no spaces');
+    if (!isValidEmail(next.email)) e.email = t('Enter a valid email');
     if (passwordStrength(next.password).score < 2)
-      e.password = 'Password is too weak (≥ 8 chars, mix of cases/digits)';
-    if (next.confirm !== next.password) e.confirm = 'Passwords do not match';
+      e.password = t('Password is too weak (≥ 8 chars, mix of cases/digits)');
+    if (next.confirm !== next.password) e.confirm = t('Passwords do not match');
     return e;
   }
 
@@ -92,19 +94,19 @@ export function RegisterForm() {
 
     if (error) {
       const msg = /username/i.test(error.message)
-        ? 'That username is taken'
+        ? t('That username is taken')
         : error.message;
-      toast.error('Could not sign you up', { description: msg });
+      toast.error(t('Could not sign you up'), { description: msg });
       return;
     }
-    toast.success('Confirm your email', {
-      description: `We sent a link to ${fields.email}.`,
+    toast.success(t('Confirm your email'), {
+      description: t('We sent a link to {email}.', { email: fields.email }),
     });
   }
 
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
-      <Field label="Full name" htmlFor="fullName" error={touched.fullName ? errors.fullName : undefined}>
+      <Field label={t('Full name')} htmlFor="fullName" error={touched.fullName ? errors.fullName : undefined}>
         <Input
           id="fullName"
           autoComplete="name"
@@ -116,7 +118,7 @@ export function RegisterForm() {
         />
       </Field>
 
-      <Field label="Username" htmlFor="username" error={touched.username ? errors.username : undefined}>
+      <Field label={t('Username')} htmlFor="username" error={touched.username ? errors.username : undefined}>
         <Input
           id="username"
           autoComplete="username"
@@ -128,7 +130,7 @@ export function RegisterForm() {
         />
       </Field>
 
-      <Field label="Email" htmlFor="email" error={touched.email ? errors.email : undefined}>
+      <Field label={t('Email')} htmlFor="email" error={touched.email ? errors.email : undefined}>
         <Input
           id="email"
           type="email"
@@ -141,7 +143,7 @@ export function RegisterForm() {
         />
       </Field>
 
-      <Field label="Password" htmlFor="password" error={touched.password ? errors.password : undefined}>
+      <Field label={t('Password')} htmlFor="password" error={touched.password ? errors.password : undefined}>
         <div className="relative">
           <Input
             id="password"
@@ -156,7 +158,7 @@ export function RegisterForm() {
           />
           <button
             type="button"
-            aria-label={showPw ? 'Hide password' : 'Show password'}
+            aria-label={showPw ? t('Hide password') : t('Show password')}
             onClick={() => setShowPw((v) => !v)}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-fg-muted hover:bg-surface hover:text-fg"
           >
@@ -166,7 +168,7 @@ export function RegisterForm() {
         <PasswordStrength password={fields.password} />
       </Field>
 
-      <Field label="Confirm password" htmlFor="confirm" error={touched.confirm ? errors.confirm : undefined}>
+      <Field label={t('Confirm password')} htmlFor="confirm" error={touched.confirm ? errors.confirm : undefined}>
         <div className="relative">
           <Input
             id="confirm"
@@ -181,7 +183,7 @@ export function RegisterForm() {
           />
           <button
             type="button"
-            aria-label={showConfirm ? 'Hide password' : 'Show password'}
+            aria-label={showConfirm ? t('Hide password') : t('Show password')}
             onClick={() => setShowConfirm((v) => !v)}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-fg-muted hover:bg-surface hover:text-fg"
           >
@@ -192,7 +194,7 @@ export function RegisterForm() {
 
       <Button type="submit" size="lg" block disabled={!formValid || loading}>
         {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-        {loading ? 'Creating your account…' : 'Create account'}
+        {loading ? t('Creating your account…') : t('Create account')}
       </Button>
     </form>
   );

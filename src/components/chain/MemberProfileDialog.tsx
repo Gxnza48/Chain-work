@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { PresenceBadge } from './PresenceBadge';
 import { initials, relativeTime } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 import type { ChainMemberProfile } from '@/types';
 
 interface Props {
@@ -18,6 +19,7 @@ function prettyLink(url: string): string {
 }
 
 export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: Props) {
+  const t = useT();
   return (
     <Dialog open={Boolean(member)} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
@@ -35,7 +37,7 @@ export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: 
                 {member.display_name}
                 {member.role === 'owner' ? (
                   <Badge variant="amber" className="px-1.5 py-0">
-                    <Crown className="h-3 w-3" /> Owner
+                    <Crown className="h-3 w-3" /> {t('Owner')}
                   </Badge>
                 ) : null}
               </DialogTitle>
@@ -45,14 +47,14 @@ export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: 
             <div className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5">
               <PresenceBadge online={online} />
               <span className="text-xs font-semibold text-fg-muted">
-                {online ? 'Online now' : `Last online ${relativeTime(lastSeen)}`}
+                {online ? t('Online now') : t('Last online {time}', { time: relativeTime(lastSeen) })}
               </span>
             </div>
 
             {member.bio ? (
               <p className="text-sm leading-relaxed text-fg-muted">{member.bio}</p>
             ) : (
-              <p className="text-sm italic text-fg-muted">No bio yet.</p>
+              <p className="text-sm italic text-fg-muted">{t('No bio yet.')}</p>
             )}
 
             {member.website ? (

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { relativeTime } from '@/lib/utils';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
+import { useT } from '@/lib/i18n';
 import type { ChainSummary } from '@/types';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export function ChainCard({ chain }: Props) {
   useRelativeTimeTick();
+  const t = useT();
   return (
     <Link to={`/chain/${chain.id}`} className="block group focus:outline-none">
       <Card className="brut-press transition-[transform,box-shadow] hover:shadow-brut-lg">
@@ -25,10 +27,13 @@ export function ChainCard({ chain }: Props) {
           </div>
           <div className="flex items-center justify-between text-xs">
             <Badge variant="neutral">
-              <Users className="h-3 w-3" /> {chain.member_count} {chain.member_count === 1 ? 'member' : 'members'}
+              <Users className="h-3 w-3" /> {chain.member_count}{' '}
+              {chain.member_count === 1 ? t('member') : t('members')}
             </Badge>
             <span className="font-mono text-xs text-fg-muted">
-              {chain.last_activity ? `active ${relativeTime(chain.last_activity)}` : 'no activity yet'}
+              {chain.last_activity
+                ? t('active {time}', { time: relativeTime(chain.last_activity) })
+                : t('no activity yet')}
             </span>
           </div>
         </CardContent>

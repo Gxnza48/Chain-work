@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
 import type { ChainRow, ChainSummary } from '@/types';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const t = useT();
   const [chains, setChains] = useState<ChainSummary[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -76,20 +78,20 @@ export default function Dashboard() {
         <section className="mt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight">Your chains</h2>
-              <p className="text-sm text-fg-muted">Shared workspaces you are a member of.</p>
+              <h2 className="font-display text-2xl font-bold tracking-tight">{t('Your chains')}</h2>
+              <p className="text-sm text-fg-muted">{t('Shared workspaces you are a member of.')}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="secondary" size="md" onClick={() => setJoining(true)}>
-                <KeyRound className="h-4 w-4" /> Join Chain
+                <KeyRound className="h-4 w-4" /> {t('Join Chain')}
               </Button>
               <Button variant="primary" size="md" onClick={() => setCreating(true)}>
-                <Plus className="h-4 w-4" /> Create New Chain
+                <Plus className="h-4 w-4" /> {t('Create New Chain')}
               </Button>
               <button
                 type="button"
                 onClick={load}
-                aria-label="Refresh"
+                aria-label={t('Refresh')}
                 className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -124,6 +126,7 @@ export default function Dashboard() {
 }
 
 function EmptyState({ onCreate, onJoin }: { onCreate: () => void; onJoin: () => void }) {
+  const t = useT();
   return (
     <Card>
       <CardContent className="grid place-items-center gap-4 py-16 text-center">
@@ -131,17 +134,17 @@ function EmptyState({ onCreate, onJoin }: { onCreate: () => void; onJoin: () => 
           <Layers className="h-7 w-7" strokeWidth={2.4} />
         </span>
         <div>
-          <h3 className="font-display text-2xl font-bold tracking-tight">Create your first chain</h3>
+          <h3 className="font-display text-2xl font-bold tracking-tight">{t('Create your first chain')}</h3>
           <p className="mt-1 text-sm text-fg-muted">
-            A chain is a shared workspace. Make one, invite a teammate, and start building.
+            {t('A chain is a shared workspace. Make one, invite a teammate, and start building.')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onJoin}>
-            <KeyRound className="h-4 w-4" /> Join with code
+            <KeyRound className="h-4 w-4" /> {t('Join with code')}
           </Button>
           <Button onClick={onCreate}>
-            <Plus className="h-4 w-4" /> Create chain
+            <Plus className="h-4 w-4" /> {t('Create chain')}
           </Button>
         </div>
       </CardContent>

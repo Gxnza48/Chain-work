@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface ChainLoaderProps {
   size?: number;
@@ -15,11 +16,12 @@ interface ChainLoaderProps {
  * "forges", then the second locks into it — a tiny brand moment for any wait.
  */
 export function ChainLoader({ size = 72, className, label, fullscreen }: ChainLoaderProps) {
+  const t = useT();
   const loader = (
     <div
       className={cn('inline-flex flex-col items-center gap-4', className)}
       role="status"
-      aria-label={label ?? 'Loading'}
+      aria-label={label ?? t('Loading')}
     >
       <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden>
         <g

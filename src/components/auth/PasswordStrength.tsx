@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import { passwordStrength } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   password: string;
@@ -24,6 +25,7 @@ const LABEL_COLOR: Record<number, string> = {
 };
 
 export function PasswordStrength({ password }: Props) {
+  const t = useT();
   const refs = useRef<(HTMLDivElement | null)[]>([]);
   const strength = passwordStrength(password);
 
@@ -68,7 +70,7 @@ export function PasswordStrength({ password }: Props) {
         )}
         aria-live="polite"
       >
-        {password ? strength.label : 'Enter a password'}
+        {password ? t(strength.label) : t('Enter a password')}
       </p>
     </div>
   );

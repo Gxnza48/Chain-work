@@ -1,6 +1,7 @@
 import { Flame, SignalHigh, SignalLow, SignalMedium, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 import type { TodoPriority } from '@/types';
 
 type BadgeVariant = 'neutral' | 'blue' | 'violet' | 'emerald' | 'amber' | 'rose';
@@ -29,12 +30,13 @@ interface PriorityBadgeProps {
 
 /** Colored level badge for a todo, matching the app's brutalist Badge style. */
 export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
+  const t = useT();
   const meta = PRIORITY_META[priority] ?? PRIORITY_META.medium;
   const Icon = meta.icon;
   return (
     <Badge variant={meta.variant} className={cn('shrink-0', className)}>
       <Icon className="h-3 w-3" strokeWidth={2.4} />
-      {meta.label}
+      {t(meta.label)}
     </Badge>
   );
 }

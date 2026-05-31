@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
+import { useT } from '@/lib/i18n';
 import type { TodoRow, UserRow } from '@/types';
 
 interface Props {
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Props) {
+  const t = useT();
   const [todos, setTodos] = useState<TodoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -44,7 +46,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
     else query.is('project_id', null);
     const { data, error } = await query;
     if (error) {
-      toast.error('Could not load todos', { description: error.message });
+      toast.error(t('Could not load todos'), { description: error.message });
       setTodos([]);
     } else {
       setTodos(data ?? []);
@@ -102,9 +104,12 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
           <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
             <ListTodo className="h-4 w-4" />
           </span>
-          <h3 className="font-display text-lg font-bold tracking-tight">{heading}</h3>
+          <h3 className="font-display text-lg font-bold tracking-tight">{t(heading)}</h3>
           <Badge variant="neutral">
-            {pending.length + inProgress.length} active · {done.length} done
+            {t('{active} active · {done} done', {
+              active: pending.length + inProgress.length,
+              done: done.length,
+            })}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -112,13 +117,13 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
             type="button"
             onClick={load}
             className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
-            aria-label="Refresh"
+            aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {!adding ? (
             <Button size="sm" onClick={() => setAdding(true)}>
-              <Plus className="h-4 w-4" /> Add todo
+              <Plus className="h-4 w-4" /> {t('Add todo')}
             </Button>
           ) : null}
         </div>
@@ -138,17 +143,17 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-fg-muted">Loading…</p>
+        <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : todos.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
-          <p className="font-semibold">No todos here yet.</p>
-          <p className="mt-1 text-sm text-fg-muted">Add the first one to kick this off.</p>
+          <p className="font-semibold">{t('No todos here yet.')}</p>
+          <p className="mt-1 text-sm text-fg-muted">{t('Add the first one to kick this off.')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
           {pending.length > 0 ? (
             <section>
-              <SectionHeader label="Pending" count={pending.length} variant="neutral" />
+              <SectionHeader label={t('Pending')} count={pending.length} variant="neutral" />
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                 <SortableContext items={pending.map((t) => t.id)} strategy={verticalListSortingStrategy}>
                   <ul className="flex flex-col gap-2">
@@ -169,7 +174,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
 
           {inProgress.length > 0 ? (
             <section>
-              <SectionHeader label="In progress" count={inProgress.length} variant="amber" />
+              <SectionHeader label={t('In progress')} count={inProgress.length} variant="amber" />
               <ul className="flex flex-col gap-2">
                 {inProgress.map((t) => (
                   <TodoItem key={t.id} todo={t} members={members} onChanged={load} />
@@ -180,7 +185,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
 
           {done.length > 0 ? (
             <section>
-              <SectionHeader label="Done" count={done.length} variant="emerald" />
+              <SectionHeader label={t('Done (section)')} count={done.length} variant="emerald" />
               <ul className="flex flex-col gap-2">
                 {done.map((t) => (
                   <TodoItem key={t.id} todo={t} members={members} onChanged={load} />

@@ -10,6 +10,7 @@ import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
 import { Sheet, SheetContent, SheetTitle, SheetHeader } from '@/components/ui/Sheet';
 import { useChain } from '@/hooks/useChain';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 type Tab = 'projects' | 'ideas' | 'todos';
@@ -17,6 +18,7 @@ type Tab = 'projects' | 'ideas' | 'todos';
 export default function ChainPage() {
   const { chainId } = useParams<{ chainId: string }>();
   const { chain, members, myRole, loading, error, refresh } = useChain(chainId);
+  const t = useT();
 
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [openProject, setOpenProject] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export default function ChainPage() {
   }, [activeTab]);
 
   if (loading) {
-    return <ChainLoader fullscreen label="Loading chain…" />;
+    return <ChainLoader fullscreen label={t('Loading chain…')} />;
   }
 
   if (error || !chain) {
@@ -55,7 +57,7 @@ export default function ChainPage() {
           )}
         >
           <p className="px-2 pb-1 pt-2 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-fg-muted">
-            Workspace
+            {t('Workspace')}
           </p>
           <NavButton
             active={activeTab === 'projects' && !openProject}
@@ -66,7 +68,7 @@ export default function ChainPage() {
             }}
             icon={<Folder className="h-4 w-4" />}
           >
-            Projects
+            {t('Projects')}
           </NavButton>
           <NavButton
             active={activeTab === 'ideas'}
@@ -76,7 +78,7 @@ export default function ChainPage() {
             }}
             icon={<Lightbulb className="h-4 w-4" />}
           >
-            Ideas
+            {t('Ideas')}
           </NavButton>
           <NavButton
             active={activeTab === 'todos'}
@@ -86,7 +88,7 @@ export default function ChainPage() {
             }}
             icon={<ListTodo className="h-4 w-4" />}
           >
-            All todos
+            {t('All todos')}
           </NavButton>
         </aside>
 
@@ -95,7 +97,7 @@ export default function ChainPage() {
           type="button"
           onClick={() => setNavOpen(true)}
           className="fixed left-3 top-16 z-20 inline-grid h-9 w-9 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm lg:hidden"
-          aria-label="Open navigation"
+          aria-label={t('Open navigation')}
         >
           <Menu className="h-4 w-4" />
         </button>
@@ -103,7 +105,7 @@ export default function ChainPage() {
         {navOpen ? (
           <button
             type="button"
-            aria-label="Close navigation"
+            aria-label={t('Close navigation')}
             onClick={() => setNavOpen(false)}
             className="fixed inset-0 z-20 bg-black/60 lg:hidden"
           />
@@ -149,7 +151,7 @@ export default function ChainPage() {
       <Sheet open={membersOpen} onOpenChange={setMembersOpen}>
         <SheetContent side="bottom" className="lg:hidden">
           <SheetHeader>
-            <SheetTitle>Members</SheetTitle>
+            <SheetTitle>{t('Members')}</SheetTitle>
           </SheetHeader>
           <MembersPanel chainId={chain.id} members={members} myRole={myRole} onChanged={refresh} />
         </SheetContent>

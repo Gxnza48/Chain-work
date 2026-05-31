@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
 import { copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useT } from '@/lib/i18n';
 
 interface Props {
   open: boolean;
@@ -31,6 +32,7 @@ interface Created {
 
 export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
   const { user } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +51,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
     if (!user) return;
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error('Give your chain a name');
+      toast.error(t('Give your chain a name'));
       return;
     }
     setSubmitting(true);
@@ -59,11 +61,11 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
     if (error || !data || data.length === 0) {
       const msg = error?.message ?? 'Unknown error';
       if (/NOT_AUTHENTICATED/.test(msg)) {
-        toast.error('Session expired', { description: 'Please sign in again.' });
+        toast.error(t('Session expired'), { description: t('Please sign in again.') });
       } else if (/CODE_COLLISION/.test(msg)) {
-        toast.error('Could not generate a unique chain code. Please try again.');
+        toast.error(t('Could not generate a unique chain code. Please try again.'));
       } else {
-        toast.error('Could not create chain', { description: msg });
+        toast.error(t('Could not create chain'), { description: msg });
       }
       setSubmitting(false);
       return;
@@ -75,7 +77,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
     const ok = await copyToClipboard(chain.code);
     setCopied(ok);
     if (ok) {
-      toast.success('Chain code copied!', { description: 'Share it with your team.' });
+      toast.success(t('Chain code copied!'), { description: t('Share it with your team.') });
     }
     setCreated(chain);
     setSubmitting(false);
@@ -86,7 +88,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
     if (!created) return;
     const ok = await copyToClipboard(created.code);
     setCopied(ok);
-    if (ok) toast.success('Copied to clipboard');
+    if (ok) toast.success(t('Copied to clipboard'));
   }
 
   return (
@@ -101,13 +103,13 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
         {!created ? (
           <form onSubmit={onSubmit}>
             <DialogHeader>
-              <DialogTitle>Create a new chain</DialogTitle>
+              <DialogTitle>{t('Create a new chain')}</DialogTitle>
               <DialogDescription>
-                Chains are shared workspaces. You'll get an 8-character code to invite teammates.
+                {t("Chains are shared workspaces. You'll get an 8-character code to invite teammates.")}
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-2 py-2">
-              <Label htmlFor="chain-name">Chain name</Label>
+              <Label htmlFor="chain-name">{t('Chain name')}</Label>
               <Input
                 id="chain-name"
                 value={name}
@@ -118,20 +120,22 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
             </div>
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t('Cancel')}
               </Button>
               <Button type="submit" disabled={submitting || !name.trim()}>
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin-slow" /> : null}
-                Create chain
+                {t('Create chain')}
               </Button>
             </DialogFooter>
           </form>
         ) : (
           <div>
             <DialogHeader>
-              <DialogTitle>Your chain is ready</DialogTitle>
+              <DialogTitle>{t('Your chain is ready')}</DialogTitle>
               <DialogDescription>
-                Share this code with your team — anyone with it can join {created.name}.
+                {t('Share this code with your team — anyone with it can join {name}.', {
+                  name: created.name,
+                })}
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center gap-3 py-4">
@@ -142,7 +146,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
               </div>
               <Button variant="secondary" size="sm" onClick={copyAgain}>
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? 'Copied' : 'Copy code'}
+                {copied ? t('Copied') : t('Copy code')}
               </Button>
             </div>
             <DialogFooter>
@@ -155,7 +159,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
                   reset();
                 }}
               >
-                Open chain
+                {t('Open chain')}
               </Button>
             </DialogFooter>
           </div>
