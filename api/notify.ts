@@ -1,14 +1,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { sendToUsers, serviceClient, type PushPayload } from './_lib/push';
 
-// Called by the actor's browser right after they create a todo/idea/file or join
-// a chain. Authenticated with the user's Supabase JWT; the server re-reads the
-// record (so clients can't forge content) and notifies the OTHER chain members.
+// Self-contained on purpose: no local relative imports. Under `"type": "module"`
+// a relative import without a .js extension crashes the function at load
+// (FUNCTION_INVOCATION_FAILED). Heavy deps are imported dynamically (bare
+// specifiers resolve fine) so module load never touches them.
+
+// Called by the actor's browser right after they create a todo/idea/file, join a
+// chain, or tap the bell. Authenticated with the user's Supabase JWT; the server
+// re-reads the record and notifies the relevant chain members.
 
 type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge';
-
 const NUDGE_COOLDOWN_HOURS = 12;
+
+interface PushPayload {
+  title: string;
+  body: string;
+  url?: string;
+  tag?: string;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
@@ -26,10 +36,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!event) return res.status(400).json({ error: 'no event' });
 
   try {
-    // Resolve chain + notification content from the persisted record.
-    let chainId: string | null = null;
-    let payload: PushPayload | null = null;
-
     const actorName = await displayName(db, actor.id);
     const chainName = async (id: string | null) => {
       if (!id) return 'tu chain';
@@ -49,7 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const assignees: string[] = todo.assignees ?? [];
       if (assignees.length === 0) return res.status(400).json({ error: 'no-assignees' });
 
-      // Actor must be a member of the todo's chain.
       const member = await isMember(db, todo.chain_id, actor.id);
       if (!member) return res.status(403).json({ error: 'not a member' });
 
@@ -85,6 +90,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const sent = await sendToUsers(db, assignees, payload);
       return res.status(200).json({ ok: true, sent });
     }
+
+    // --- Auto-notify on create/join: notify OTHER chain members. ---
+    let chainId: string | null = null;
+    let payload: PushPayload | null = null;
 
     if (event === 'todo' || event === 'idea') {
       const table = event === 'todo' ? 'todos' : 'ideas';
@@ -126,7 +135,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!chainId || !payload) return res.status(400).json({ error: 'unhandled' });
 
-    // Security: the actor must belong to the chain they're notifying about.
     const { data: membership } = await db
       .from('chain_members')
       .select('user_id')
@@ -140,6 +148,67 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     return res.status(500).json({ error: (err as Error).message });
   }
+}
+
+// ---------------------------------------------------------------------------
+// Inline helpers (no local imports — see header note).
+// ---------------------------------------------------------------------------
+
+async function serviceClient(): Promise<SupabaseClient> {
+  const { createClient } = await import('@supabase/supabase-js');
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _webpush: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function webpushClient(): Promise<any> {
+  if (_webpush) return _webpush;
+  const mod = await import('web-push');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wp = ((mod as any).default ?? mod) as any;
+  const publicKey = process.env.VITE_VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || '';
+  const privateKey = process.env.VAPID_PRIVATE_KEY || '';
+  const subject = process.env.VAPID_SUBJECT || 'mailto:agustincasal@impulsex.com.ar';
+  if (!publicKey || !privateKey) throw new Error('Missing VAPID keys');
+  wp.setVapidDetails(subject, publicKey, privateKey);
+  _webpush = wp;
+  return wp;
+}
+
+async function sendToUsers(
+  db: SupabaseClient,
+  userIds: string[],
+  payload: PushPayload,
+): Promise<number> {
+  if (userIds.length === 0) return 0;
+  const webpush = await webpushClient();
+  const { data: subs } = await db
+    .from('push_subscriptions')
+    .select('id, endpoint, p256dh, auth')
+    .in('user_id', userIds);
+  const rows = (subs ?? []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>;
+  const body = JSON.stringify(payload);
+  const dead: string[] = [];
+  let sent = 0;
+  await Promise.all(
+    rows.map(async (row) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } },
+          body,
+        );
+        sent++;
+      } catch (err: unknown) {
+        const status = (err as { statusCode?: number }).statusCode;
+        if (status === 404 || status === 410) dead.push(row.id);
+      }
+    }),
+  );
+  if (dead.length) await db.from('push_subscriptions').delete().in('id', dead);
+  return sent;
 }
 
 async function displayName(db: SupabaseClient, userId: string): Promise<string> {
