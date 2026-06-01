@@ -19,7 +19,7 @@ interface DueTodo {
   id: string;
   title: string;
   chain_id: string;
-  assigned_to: string | null;
+  assignees: string[] | null;
   created_by: string;
   status: string;
 }
@@ -42,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   ] as const) {
     const { data: todos } = await db
       .from('todos')
-      .select('id, title, chain_id, assigned_to, created_by, status')
+      .select('id, title, chain_id, assignees, created_by, status')
       .eq('due_date', date)
       .neq('status', 'done');
 
@@ -54,14 +54,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .insert({ todo_id: todo.id, remind_date: sentDate, kind });
       if (insErr) continue; // unique violation => already sent
 
-      const recipient = todo.assigned_to ?? todo.created_by;
+      const recipients =
+        todo.assignees && todo.assignees.length > 0 ? todo.assignees : [todo.created_by];
       const payload: PushPayload = {
         title: kind === 'due' ? 'Vence hoy' : 'Vence mañana',
         body: `${todo.title} vence ${lead}`,
         url: `/chain/${todo.chain_id}`,
         tag: `due-${todo.id}-${kind}`,
       };
-      total += await sendToUsers(db, [recipient], payload);
+      total += await sendToUsers(db, recipients, payload);
     }
   }
 

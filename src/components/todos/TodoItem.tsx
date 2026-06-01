@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { Calendar, Check, GripVertical, Loader2, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { Bell, Calendar, Check, GripVertical, Loader2, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -14,10 +14,13 @@ import {
 import { TodoForm } from './TodoForm';
 import { PriorityBadge, PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
+import { pingTodo } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useT, type TFn } from '@/lib/i18n';
 import { cn, initials } from '@/lib/utils';
 import type { TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
+
+const NUDGE_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
 interface Props {
   todo: TodoRow;
@@ -31,6 +34,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
   const t = useT();
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [nudging, setNudging] = useState(false);
   const sortable = useSortable({ id: todo.id, disabled: !draggable || editing });
 
   const style: React.CSSProperties = draggable
@@ -41,8 +45,36 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
       }
     : {};
 
-  const assignee = todo.assigned_to ? members.find((m) => m.id === todo.assigned_to) ?? null : null;
+  const assignedIds = todo.assignees ?? (todo.assigned_to ? [todo.assigned_to] : []);
+  const assignees = assignedIds
+    .map((id) => members.find((m) => m.id === id))
+    .filter((m): m is UserRow => Boolean(m));
   const isDone = todo.status === 'done';
+
+  const nudgedAt = todo.last_nudged_at ? new Date(todo.last_nudged_at).getTime() : 0;
+  const cooldownLeftMs = Math.max(0, nudgedAt + NUDGE_COOLDOWN_MS - Date.now());
+  const onCooldown = cooldownLeftMs > 0;
+  const cooldownHours = Math.ceil(cooldownLeftMs / (60 * 60 * 1000));
+
+  async function nudge() {
+    if (nudging || onCooldown) return;
+    setNudging(true);
+    const r = await pingTodo(todo.id);
+    setNudging(false);
+    if (r.ok) {
+      toast.success(t('Reminder sent'));
+      onChanged?.();
+    } else if (r.status === 429) {
+      toast.error(t('Already reminded recently'), {
+        description: t('Available in {h}h', { h: Math.max(1, Math.ceil((r.retryAfter ?? 0) / 3600)) }),
+      });
+      onChanged?.();
+    } else if (r.error === 'no-assignees') {
+      toast.error(t('No one is assigned to this todo'));
+    } else {
+      toast.error(t('Could not send reminder'), { description: r.error });
+    }
+  }
 
   async function cycleStatus(next: TodoStatus) {
     if (!user) return;
@@ -173,19 +205,40 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
               <Calendar className="h-3 w-3" /> {new Date(todo.due_date).toLocaleDateString()}
             </Badge>
           ) : null}
-          {assignee ? (
+          {assignees.length > 0 ? (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
-              <Avatar className="h-5 w-5">
-                {assignee.avatar_url ? <AvatarImage src={assignee.avatar_url} alt={assignee.display_name} /> : null}
-                <AvatarFallback className="text-[9px]">{initials(assignee.display_name)}</AvatarFallback>
-              </Avatar>
-              {assignee.display_name}
+              <span className="flex -space-x-1.5">
+                {assignees.slice(0, 4).map((a) => (
+                  <Avatar key={a.id} className="h-5 w-5 ring-2 ring-surface">
+                    {a.avatar_url ? <AvatarImage src={a.avatar_url} alt={a.display_name} /> : null}
+                    <AvatarFallback className="text-[9px]">{initials(a.display_name)}</AvatarFallback>
+                  </Avatar>
+                ))}
+              </span>
+              {assignees.length === 1 ? assignees[0].display_name : t('{n} assigned', { n: assignees.length })}
             </span>
           ) : null}
         </div>
       </div>
 
       <div className="flex items-center gap-1">
+        {!isDone && assignees.length > 0 ? (
+          <button
+            type="button"
+            onClick={nudge}
+            disabled={nudging || onCooldown}
+            aria-label={t('Remind assignees')}
+            title={onCooldown ? t('Available in {h}h', { h: cooldownHours }) : t('Remind assignees')}
+            className={cn(
+              'rounded-md p-1 transition-colors',
+              onCooldown
+                ? 'cursor-not-allowed text-fg-muted/40'
+                : 'text-accent-amber hover:bg-accent-amber/10',
+            )}
+          >
+            {nudging ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
+          </button>
+        ) : null}
         {!isDone ? (
           <button
             type="button"

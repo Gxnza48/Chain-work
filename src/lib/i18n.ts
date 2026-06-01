@@ -331,11 +331,21 @@ const es: Record<string, string> = {
   'Add a description (optional)': 'Agregá una descripción (opcional)',
   'Priority': 'Prioridad',
   'Assignee': 'Responsable',
+  'Assignees': 'Responsables',
   'Assign to…': 'Asignar a…',
   'Unassigned': 'Sin asignar',
+  'No members to assign yet.': 'Todavía no hay miembros para asignar.',
+  '{n} assigned': '{n} asignados',
   'Due': 'Vence',
   'Save changes': 'Guardar cambios',
   'Add todo': 'Agregar tarea',
+  // ---- todo nudge / bell ----
+  'Remind assignees': 'Recordar a los responsables',
+  'Reminder sent': 'Recordatorio enviado',
+  'Already reminded recently': 'Ya se recordó hace poco',
+  'Available in {h}h': 'Disponible en {h}h',
+  'No one is assigned to this todo': 'Nadie está asignado a esta tarea',
+  'Could not send reminder': 'No se pudo enviar el recordatorio',
 
   // ---- priority ----
   'Low': 'Baja',

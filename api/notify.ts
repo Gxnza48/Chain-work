@@ -5,7 +5,9 @@ import { sendToUsers, serviceClient, type PushPayload } from './_lib/push';
 // a chain. Authenticated with the user's Supabase JWT; the server re-reads the
 // record (so clients can't forge content) and notifies the OTHER chain members.
 
-type Event = 'todo' | 'idea' | 'file' | 'join';
+type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge';
+
+const NUDGE_COOLDOWN_HOURS = 12;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
@@ -33,6 +35,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { data } = await db.from('chains').select('name').eq('id', id).single();
       return data?.name ?? 'tu chain';
     };
+
+    // --- Manual bell / nudge: push the assignees, throttled to once per 12h. ---
+    if (event === 'nudge') {
+      const { data: todo } = await db
+        .from('todos')
+        .select('id, title, chain_id, assignees')
+        .eq('id', body.id)
+        .single();
+      if (!todo) return res.status(404).json({ error: 'not found' });
+
+      const assignees: string[] = todo.assignees ?? [];
+      if (assignees.length === 0) return res.status(400).json({ error: 'no-assignees' });
+
+      // Actor must be a member of the todo's chain.
+      const member = await isMember(db, todo.chain_id, actor.id);
+      if (!member) return res.status(403).json({ error: 'not a member' });
+
+      // Atomic cooldown: only succeeds if 12h elapsed (or never nudged).
+      const cutoff = new Date(Date.now() - NUDGE_COOLDOWN_HOURS * 3600 * 1000).toISOString();
+      const { data: claimed } = await db
+        .from('todos')
+        .update({ last_nudged_at: new Date().toISOString() })
+        .eq('id', todo.id)
+        .or(`last_nudged_at.is.null,last_nudged_at.lt.${cutoff}`)
+        .select('id')
+        .maybeSingle();
+      if (!claimed) {
+        const { data: cur } = await db
+          .from('todos')
+          .select('last_nudged_at')
+          .eq('id', todo.id)
+          .single();
+        const last = cur?.last_nudged_at ? new Date(cur.last_nudged_at).getTime() : 0;
+        const retryAfter = Math.max(
+          0,
+          Math.ceil((last + NUDGE_COOLDOWN_HOURS * 3600 * 1000 - Date.now()) / 1000),
+        );
+        return res.status(429).json({ error: 'cooldown', retryAfter });
+      }
+
+      const payload: PushPayload = {
+        title: await chainName(todo.chain_id),
+        body: `🔔 ${actorName} te recordó: ${todo.title}`,
+        url: `/chain/${todo.chain_id}`,
+        tag: `nudge-${todo.id}`,
+      };
+      const sent = await sendToUsers(db, assignees, payload);
+      return res.status(200).json({ ok: true, sent });
+    }
 
     if (event === 'todo' || event === 'idea') {
       const table = event === 'todo' ? 'todos' : 'ideas';
@@ -93,4 +144,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function displayName(db: ReturnType<typeof serviceClient>, userId: string): Promise<string> {
   const { data } = await db.from('users').select('display_name').eq('id', userId).single();
   return data?.display_name ?? 'Alguien';
+}
+
+async function isMember(
+  db: ReturnType<typeof serviceClient>,
+  chainId: string,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await db
+    .from('chain_members')
+    .select('user_id')
+    .eq('chain_id', chainId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  return Boolean(data);
 }

@@ -134,6 +134,8 @@ export interface Database {
           status: TodoStatus;
           priority: TodoPriority;
           assigned_to: string | null;
+          assignees: string[];
+          last_nudged_at: string | null;
           due_date: string | null;
           completed_at: string | null;
           completed_by: string | null;
@@ -150,6 +152,8 @@ export interface Database {
           status?: TodoStatus;
           priority?: TodoPriority;
           assigned_to?: string | null;
+          assignees?: string[];
+          last_nudged_at?: string | null;
           due_date?: string | null;
           completed_at?: string | null;
           completed_by?: string | null;
@@ -166,6 +170,8 @@ export interface Database {
           status?: TodoStatus;
           priority?: TodoPriority;
           assigned_to?: string | null;
+          assignees?: string[];
+          last_nudged_at?: string | null;
           due_date?: string | null;
           completed_at?: string | null;
           completed_by?: string | null;

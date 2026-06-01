@@ -127,3 +127,32 @@ export async function notifyEvent(
     /* best-effort */
   }
 }
+
+export interface PingResult {
+  ok: boolean;
+  status: number;
+  /** Seconds remaining on the 12h cooldown when status === 429. */
+  retryAfter?: number;
+  error?: string;
+}
+
+/**
+ * Manually nudge (bell) the assignees of a todo with a push. Unlike notifyEvent
+ * this RETURNS the result so the UI can show success / cooldown / error toasts.
+ */
+export async function pingTodo(todoId: string): Promise<PingResult> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return { ok: false, status: 401, error: 'no-session' };
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ event: 'nudge', id: todoId }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { retryAfter?: number; error?: string };
+    return { ok: res.ok, status: res.status, retryAfter: json.retryAfter, error: json.error };
+  } catch (err) {
+    return { ok: false, status: 0, error: (err as Error).message };
+  }
+}

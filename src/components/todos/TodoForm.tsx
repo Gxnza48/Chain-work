@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Plus, Save, X } from 'lucide-react';
+import { Check, Loader2, Plus, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -31,8 +31,14 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
   const editing = Boolean(todo);
   const [title, setTitle] = useState(todo?.title ?? '');
   const [description, setDescription] = useState(todo?.description ?? '');
-  const [assignedTo, setAssignedTo] = useState<string>(todo?.assigned_to ?? 'unassigned');
+  const [assignees, setAssignees] = useState<string[]>(
+    todo?.assignees ?? (todo?.assigned_to ? [todo.assigned_to] : []),
+  );
   const [dueDate, setDueDate] = useState(todo?.due_date ?? '');
+
+  function toggleAssignee(id: string) {
+    setAssignees((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
   const [priority, setPriority] = useState<TodoPriority>(todo?.priority ?? 'medium');
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,7 +57,8 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         .update({
           title: title.trim(),
           description: description.trim() || null,
-          assigned_to: assignedTo === 'unassigned' ? null : assignedTo,
+          assignees,
+          assigned_to: assignees[0] ?? null,
           due_date: dueDate || null,
           priority,
         })
@@ -73,7 +80,8 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         project_id: projectId ?? null,
         title: title.trim(),
         description: description.trim() || null,
-        assigned_to: assignedTo === 'unassigned' ? null : assignedTo,
+        assignees,
+        assigned_to: assignees[0] ?? null,
         due_date: dueDate || null,
         priority,
         created_by: user.id,
@@ -88,7 +96,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     if (data) void notifyEvent('todo', { id: data.id });
     setTitle('');
     setDescription('');
-    setAssignedTo('unassigned');
+    setAssignees([]);
     setDueDate('');
     setPriority('medium');
     onCreated?.();
@@ -130,27 +138,36 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           </SelectContent>
         </Select>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="assignee">{t('Assignee')}</Label>
-          <Select value={assignedTo} onValueChange={setAssignedTo}>
-            <SelectTrigger id="assignee">
-              <SelectValue placeholder={t('Assign to…')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="unassigned">{t('Unassigned')}</SelectItem>
-              {members.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.display_name} (@{m.username})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="due">{t('Due')}</Label>
-          <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>{t('Assignees')}</Label>
+        {members.length === 0 ? (
+          <p className="text-xs text-fg-muted">{t('No members to assign yet.')}</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {members.map((m) => {
+              const on = assignees.includes(m.id);
+              return (
+                <button
+                  type="button"
+                  key={m.id}
+                  onClick={() => toggleAssignee(m.id)}
+                  aria-pressed={on}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2.5 py-1 text-xs font-bold shadow-brut-sm transition-colors',
+                    on ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
+                  )}
+                >
+                  {on ? <Check className="h-3 w-3" /> : null}
+                  {m.display_name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="due">{t('Due')}</Label>
+        <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
       </div>
       <div className="flex gap-2 justify-end">
         {onCancel ? (
