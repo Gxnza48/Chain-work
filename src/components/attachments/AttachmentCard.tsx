@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ExternalLink,
   FileCode,
@@ -99,11 +99,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
             </span>
           </button>
         ) : attachment.type === 'html' ? (
-          <FilePreview
-            attachment={attachment}
-            icon={<FileCode className="h-5 w-5" />}
-            hint={t('Opens in a new tab')}
-          />
+          <HtmlPreview attachment={attachment} />
         ) : (
           <LinkPreview attachment={attachment} />
         )}
@@ -266,31 +262,115 @@ function LinkPreview({ attachment }: { attachment: AttachmentRow }) {
   );
 }
 
-function FilePreview({
-  attachment,
-  icon,
-  hint,
-}: {
-  attachment: AttachmentRow;
-  icon: React.ReactNode;
-  hint: string;
-}) {
+/** Inject a <base href> so relative resources inside the uploaded HTML resolve
+ *  against the file's folder in storage, and render in an iframe regardless of
+ *  the content-type the server sends back. */
+function withBaseHref(html: string, url: string): string {
+  if (/<base\s/i.test(html)) return html;
+  const dir = url.slice(0, url.lastIndexOf('/') + 1);
+  const baseTag = `<base href="${dir}">`;
+  if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, `<head$1>${baseTag}`);
+  return baseTag + html;
+}
+
+function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const [html, setHtml] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const sandbox = 'allow-scripts allow-popups allow-forms';
+
+  useEffect(() => {
+    let cancelled = false;
+    setHtml(null);
+    setFailed(false);
+    fetch(attachment.url)
+      .then((r) => r.text())
+      .then((text) => {
+        if (!cancelled) setHtml(withBaseHref(text, attachment.url));
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [attachment.url]);
+
   return (
-    <a
-      href={attachment.url}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-center gap-3 p-5 hover:bg-surface"
-    >
-      <span className="grid h-12 w-12 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white">
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <p className="truncate font-bold text-fg">{attachment.title ?? attachment.url}</p>
-        <p className="flex items-center gap-1 truncate text-xs text-fg-muted font-mono">
-          <ExternalLink className="h-3 w-3" /> {hint}
-        </p>
-      </div>
-    </a>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="group relative block w-full aspect-video overflow-hidden bg-white focus:outline-none"
+        aria-label={t('View HTML')}
+      >
+        {html != null ? (
+          <iframe
+            srcDoc={html}
+            title={attachment.title ?? t('HTML')}
+            sandbox={sandbox}
+            className="pointer-events-none h-full w-full bg-white"
+            loading="lazy"
+          />
+        ) : failed ? (
+          <span className="flex h-full w-full items-center gap-3 p-5">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white">
+              <FileCode className="h-5 w-5" />
+            </span>
+            <span className="min-w-0 text-left">
+              <span className="block truncate font-bold text-fg">{attachment.title ?? t('HTML')}</span>
+              <span className="block truncate text-xs text-fg-muted font-mono">{t('Open')}</span>
+            </span>
+          </span>
+        ) : (
+          <span className="grid h-full w-full place-items-center text-xs font-semibold text-fg-muted">
+            {t('Loading…')}
+          </span>
+        )}
+        <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/40">
+          <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-brut-sm transition-opacity group-hover:opacity-100">
+            <Maximize2 className="h-3.5 w-3.5" /> {t('View HTML')}
+          </span>
+        </span>
+      </button>
+      {open ? (
+        <div className="fixed inset-0 z-[60] flex flex-col gap-3 bg-black/90 p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <p className="truncate font-bold text-white">{attachment.title ?? t('HTML')}</p>
+            <div className="flex items-center gap-2">
+              <a
+                href={attachment.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+              >
+                <ExternalLink className="h-4 w-4" /> {t('Open')}
+              </a>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label={t('Close')}
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+              >
+                <X className="h-4 w-4" /> {t('Close')}
+              </button>
+            </div>
+          </div>
+          {html != null ? (
+            <iframe
+              srcDoc={html}
+              title={attachment.title ?? t('HTML')}
+              sandbox={sandbox}
+              className="min-h-0 flex-1 w-full rounded-md border-2 border-white bg-white shadow-brut-lg"
+            />
+          ) : (
+            <div className="grid min-h-0 flex-1 place-items-center rounded-md border-2 border-white bg-white">
+              <p className="text-sm font-semibold text-fg-muted">{t('Loading…')}</p>
+            </div>
+          )}
+        </div>
+      ) : null}
+    </>
   );
 }

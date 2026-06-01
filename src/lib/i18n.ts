@@ -455,6 +455,7 @@ const es: Record<string, string> = {
   'File too large': 'El archivo es muy grande',
   'Max 25 MB — yours is {mb} MB': 'Máx 25 MB; el tuyo tiene {mb} MB',
   'View PDF': 'Ver PDF',
+  'View HTML': 'Ver HTML',
   'PDF': 'PDF',
   'HTML': 'HTML',
   'Opens in a new tab': 'Se abre en una pestaña nueva',
