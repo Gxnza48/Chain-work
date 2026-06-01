@@ -625,6 +625,90 @@ Object.assign(es, {
   'Verify & close': 'Verificar y cerrar',
 });
 
+// ---- Labels, Comments, Subtasks, Milestones & in-app Notifications
+// (added 2026-06-01). Merged via Object.assign so new keys can't collide with
+// duplicate-literal lint errors on the maps above. Keys already defined earlier
+// (Add, Loading…, Unknown, Notifications, Done, Cancel, Due, Save changes,
+// Clear, Close, Add a description (optional)) are intentionally not repeated. ----
+Object.assign(es, {
+  // Labels
+  'Labels': 'Etiquetas',
+  'Manage labels': 'Gestionar etiquetas',
+  'Edit labels': 'Editar etiquetas',
+  'New label name': 'Nombre de la etiqueta',
+  'Pick a color': 'Elegí un color',
+  'No labels yet. Create your first one above.': 'Todavía no hay etiquetas. Creá la primera arriba.',
+  'No labels yet — create one': 'Todavía no hay etiquetas — creá una',
+  'A label with that name already exists': 'Ya existe una etiqueta con ese nombre',
+  'Could not create label': 'No se pudo crear la etiqueta',
+  'Could not rename label': 'No se pudo renombrar la etiqueta',
+  'Could not delete label': 'No se pudo eliminar la etiqueta',
+  'Delete this label? It will be removed from all todos.': '¿Eliminar esta etiqueta? Se quitará de todas las tareas.',
+  'Filter by label': 'Filtrar por etiqueta',
+  'Rename': 'Renombrar',
+  'Delete': 'Borrar',
+  'blue': 'Azul',
+  'emerald': 'Esmeralda',
+  'amber': 'Ámbar',
+  'rose': 'Rosa',
+  'violet': 'Violeta',
+  'slate': 'Pizarra',
+  'cyan': 'Cian',
+  'orange': 'Naranja',
+  // Comments
+  'Could not load comments': 'No se pudieron cargar los comentarios',
+  'Could not post comment': 'No se pudo publicar el comentario',
+  'Could not delete comment': 'No se pudo borrar el comentario',
+  'No comments yet. Start the conversation.': 'Todavía no hay comentarios. Arrancá la conversación.',
+  'Write a comment…': 'Escribí un comentario…',
+  'Post comment': 'Publicar comentario',
+  'Delete comment': 'Borrar comentario',
+  'Toggle comments': 'Mostrar/ocultar comentarios',
+  // Subtasks
+  'Subtasks': 'Subtareas',
+  'Add a subtask…': 'Agregar una subtarea…',
+  'Mark subtask done': 'Marcar subtarea como hecha',
+  'Mark subtask not done': 'Marcar subtarea como no hecha',
+  'Delete subtask': 'Eliminar subtarea',
+  'Could not load subtasks': 'No se pudieron cargar las subtareas',
+  'Could not add subtask': 'No se pudo agregar la subtarea',
+  'Could not update subtask': 'No se pudo actualizar la subtarea',
+  'Could not delete subtask': 'No se pudo eliminar la subtarea',
+  // Milestones
+  'Milestones': 'Hitos',
+  'goals & sprints': 'metas y sprints',
+  'New milestone': 'Nuevo hito',
+  'Add milestone': 'Agregar hito',
+  'No milestones yet. Group todos into a goal or sprint to track progress.':
+    'Todavía no hay hitos. Agrupá tareas en una meta o sprint para seguir el progreso.',
+  'Milestone': 'Hito',
+  'No milestone': 'Sin hito',
+  'Milestone title (e.g. Beta launch)': 'Título del hito (ej. Lanzamiento beta)',
+  'Give the milestone a title': 'Ponele un título al hito',
+  'Milestone created': 'Hito creado',
+  'Milestone updated': 'Hito actualizado',
+  'Milestone deleted': 'Hito eliminado',
+  'Milestone completed': 'Hito completado',
+  'Milestone re-opened': 'Hito reabierto',
+  'Could not create milestone': 'No se pudo crear el hito',
+  'Could not save milestone': 'No se pudo guardar el hito',
+  'Could not update milestone': 'No se pudo actualizar el hito',
+  'Could not delete milestone': 'No se pudo eliminar el hito',
+  'Delete this milestone? Linked todos are kept.': '¿Eliminar este hito? Las tareas vinculadas se conservan.',
+  'Mark milestone done': 'Marcar hito como hecho',
+  'Re-open milestone': 'Reabrir hito',
+  'Edit milestone': 'Editar hito',
+  'Delete milestone': 'Eliminar hito',
+  'overdue': 'vencido',
+  '{done}/{total}': '{done}/{total}',
+  // In-app notifications
+  'Mark all read': 'Marcar todo como leído',
+  'No notifications yet': 'Todavía no hay notificaciones',
+  'New comment': 'Nuevo comentario',
+  'Todo completed': 'Tarea completada',
+  'New member joined': 'Se unió un nuevo miembro',
+});
+
 function interpolate(str: string, vars?: Record<string, string | number>): string {
   if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));

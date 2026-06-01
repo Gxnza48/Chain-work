@@ -18,6 +18,7 @@ import { IdeaList } from '@/components/ideas/IdeaList';
 import { AttachmentList } from '@/components/attachments/AttachmentList';
 import { ProjectStats } from './ProjectStats';
 import { Roadmap } from './Roadmap';
+import { MilestonesPanel } from './MilestonesPanel';
 import { buildProjectJSON, buildProjectMarkdown, downloadFile, slugify } from '@/lib/export';
 import { forgetRecentProject, recordRecentProject } from '@/lib/recent';
 import { copyToClipboard } from '@/lib/utils';
@@ -214,6 +215,8 @@ export function ProjectView({ projectId, members, onBack }: Props) {
       </div>
 
       <ProjectStats projectId={project.id} refreshSignal={todoRev} />
+
+      <MilestonesPanel chainId={project.chain_id} projectId={project.id} refreshSignal={todoRev} />
 
       <Tabs defaultValue="todos">
         <TabsList>

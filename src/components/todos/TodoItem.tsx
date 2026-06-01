@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import {
   Bell,
   Calendar,
   Check,
+  ChevronDown,
+  ChevronRight,
   Copy,
   CopyPlus,
   GripVertical,
+  ListChecks,
   Loader2,
+  MessageSquare,
   MoreVertical,
   Pencil,
   RotateCcw,
+  Target,
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,12 +30,16 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { TodoForm } from './TodoForm';
 import { PriorityBadge, PRIORITY_META, PRIORITY_ORDER } from './priority';
+import { CommentThread } from './CommentThread';
+import { SubtaskList } from './SubtaskList';
+import { LabelChip } from './LabelChip';
+import { TodoLabelPicker } from './TodoLabelPicker';
 import { supabase } from '@/lib/supabase';
 import { pingTodo } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useT, type TFn } from '@/lib/i18n';
 import { cn, copyToClipboard, dueState, initials } from '@/lib/utils';
-import type { TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
+import type { LabelRow, TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
 
 const NUDGE_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
@@ -43,6 +52,13 @@ interface Props {
   selectable?: boolean;
   selected?: boolean;
   onToggleSelected?: () => void;
+  /** Labels feature: the chain's labels, this todo's labels, and toggles. */
+  allLabels?: LabelRow[];
+  todoLabels?: LabelRow[];
+  onToggleLabel?: (labelId: string, on: boolean) => void;
+  onManageLabels?: () => void;
+  /** Milestones feature: the linked milestone's title, if any. */
+  milestoneTitle?: string;
 }
 
 export function TodoItem({
@@ -53,12 +69,20 @@ export function TodoItem({
   selectable = false,
   selected = false,
   onToggleSelected,
+  allLabels,
+  todoLabels,
+  onToggleLabel,
+  onManageLabels,
+  milestoneTitle,
 }: Props) {
   const { user } = useAuth();
   const t = useT();
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [nudging, setNudging] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState<number | null>(null);
+  const [showSubtasks, setShowSubtasks] = useState(false);
   const canDrag = draggable && !selectable;
   const sortable = useSortable({ id: todo.id, disabled: !canDrag || editing });
 
@@ -69,6 +93,21 @@ export function TodoItem({
         zIndex: sortable.isDragging ? 50 : undefined,
       }
     : {};
+
+  // Lightweight comment count for the meta-row badge — no open subscription.
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from('comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('todo_id', todo.id)
+      .then(({ count }) => {
+        if (active) setCommentCount(count ?? 0);
+      });
+    return () => {
+      active = false;
+    };
+  }, [todo.id]);
 
   const assignedIds = todo.assignees ?? (todo.assigned_to ? [todo.assigned_to] : []);
   const assignees = assignedIds
@@ -166,6 +205,7 @@ export function TodoItem({
       assignees: todo.assignees ?? [],
       assigned_to: todo.assigned_to,
       due_date: todo.due_date,
+      milestone_id: todo.milestone_id,
       created_by: user.id,
     });
     setBusy(false);
@@ -302,7 +342,39 @@ export function TodoItem({
               </span>
             </span>
           ) : null}
+          {(todoLabels ?? []).map((l) => (
+            <LabelChip
+              key={l.id}
+              label={l}
+              onRemove={!isDone ? () => onToggleLabel?.(l.id, true) : undefined}
+            />
+          ))}
+          {todo.milestone_id && milestoneTitle ? (
+            <Badge variant="violet">
+              <Target className="h-3 w-3" />
+              {milestoneTitle}
+            </Badge>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setShowComments((v) => !v)}
+            aria-expanded={showComments}
+            aria-label={t('Toggle comments')}
+            className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            {commentCount ?? 0}
+          </button>
         </div>
+        {showSubtasks ? <SubtaskList todoId={todo.id} chainId={todo.chain_id} /> : null}
+        {showComments ? (
+          <CommentThread
+            chainId={todo.chain_id}
+            todoId={todo.id}
+            members={members}
+            onCountChange={setCommentCount}
+          />
+        ) : null}
       </div>
 
       {!selectable ? (
@@ -353,6 +425,24 @@ export function TodoItem({
               <RotateCcw className="h-4 w-4" />
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setShowSubtasks((v) => !v)}
+            aria-label={t('Subtasks')}
+            aria-expanded={showSubtasks}
+            className="inline-flex items-center gap-1 rounded-md p-2 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:p-1"
+          >
+            <ListChecks className="h-4 w-4" />
+            {showSubtasks ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          </button>
+          {!isDone && allLabels ? (
+            <TodoLabelPicker
+              allLabels={allLabels}
+              assignedIds={(todoLabels ?? []).map((l) => l.id)}
+              onToggle={(lid, on) => onToggleLabel?.(lid, on)}
+              onManage={() => onManageLabels?.()}
+            />
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button

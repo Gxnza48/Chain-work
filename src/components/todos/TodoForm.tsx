@@ -10,6 +10,7 @@ import { PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
 import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
+import { useMilestones } from '@/hooks/useMilestones';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { TodoPriority, TodoRow, UserRow } from '@/types';
@@ -35,6 +36,8 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     todo?.assignees ?? (todo?.assigned_to ? [todo.assigned_to] : []),
   );
   const [dueDate, setDueDate] = useState(todo?.due_date ?? '');
+  const [milestoneId, setMilestoneId] = useState(todo?.milestone_id ?? '');
+  const { milestones } = useMilestones(projectId ?? '');
 
   function toggleAssignee(id: string) {
     setAssignees((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -60,6 +63,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           assignees,
           assigned_to: assignees[0] ?? null,
           due_date: dueDate || null,
+          milestone_id: milestoneId || null,
           priority,
         })
         .eq('id', todo.id);
@@ -83,6 +87,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         assignees,
         assigned_to: assignees[0] ?? null,
         due_date: dueDate || null,
+        milestone_id: milestoneId || null,
         priority,
         created_by: user.id,
       })
@@ -98,6 +103,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     setDescription('');
     setAssignees([]);
     setDueDate('');
+    setMilestoneId('');
     setPriority('medium');
     onCreated?.();
   }
@@ -165,6 +171,27 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           </div>
         )}
       </div>
+      {projectId ? (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="milestone">{t('Milestone')}</Label>
+          <Select
+            value={milestoneId || '__none__'}
+            onValueChange={(v) => setMilestoneId(v === '__none__' ? '' : v)}
+          >
+            <SelectTrigger id="milestone">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">{t('No milestone')}</SelectItem>
+              {milestones.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="due">{t('Due')}</Label>
         <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />

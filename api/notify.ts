@@ -10,7 +10,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 // chain, or tap the bell. Authenticated with the user's Supabase JWT; the server
 // re-reads the record and notifies the relevant chain members.
 
-type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge';
+type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge' | 'comment';
 const NUDGE_COOLDOWN_HOURS = 12;
 
 interface PushPayload {
@@ -130,6 +130,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: `${actorName} se unió a la chain`,
         url: `/chain/${chainId}`,
         tag: `join-${chainId}-${actor.id}`,
+      };
+    } else if (event === 'comment') {
+      const { data } = await db
+        .from('comments')
+        .select('body, todos(chain_id, title)')
+        .eq('id', body.id)
+        .single();
+      const todo = (data as { todos?: { chain_id: string; title: string } } | null)?.todos;
+      if (!data || !todo) return res.status(404).json({ error: 'not found' });
+      chainId = todo.chain_id;
+      const snippet = data.body.length > 80 ? `${data.body.slice(0, 80)}…` : data.body;
+      payload = {
+        title: await chainName(chainId),
+        body: `${actorName} comentó en "${todo.title}": ${snippet}`,
+        url: `/chain/${chainId}`,
+        tag: `comment-${body.id}`,
       };
     }
 

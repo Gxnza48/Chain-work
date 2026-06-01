@@ -6,7 +6,7 @@ const VAPID_PUBLIC_KEY =
   import.meta.env.VITE_VAPID_PUBLIC_KEY ||
   'BKaz7-uAxEGH-VnWLMjoYBVkLfrFv1JPDfatH5OtD4zofedUHm4z391kMTCJU8cVzV90p1xgFObyuoZjkroQMVc';
 
-export type NotifyEvent = 'todo' | 'idea' | 'file' | 'join';
+export type NotifyEvent = 'todo' | 'idea' | 'file' | 'join' | 'comment';
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);

@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Tag,
   Trash2,
   X,
 } from 'lucide-react';
@@ -36,9 +37,13 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
+import { LabelManager } from './LabelManager';
+import { labelColorMeta } from './labelColors';
 import { PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAuth } from '@/hooks/useAuth';
+import { useLabels } from '@/hooks/useLabels';
+import { useMilestones } from '@/hooks/useMilestones';
 import { useUIStore } from '@/store/ui';
 import { cn, isTypingTarget } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
@@ -92,6 +97,13 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
   // Bulk selection
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Labels + milestones (independent, self-refreshing data layers).
+  const labels = useLabels(chainId);
+  const [labelFilter, setLabelFilter] = useState<string[]>([]);
+  const [managerOpen, setManagerOpen] = useState(false);
+  const { milestones } = useMilestones(projectId ?? '');
+  const milestoneTitle = new Map(milestones.map((m) => [m.id, m.title]));
 
   const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -153,7 +165,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
 
   const me = user?.id ?? null;
   const q = query.trim().toLowerCase();
-  const filtersActive = Boolean(q) || priorityFilter.length > 0 || onlyMine;
+  const filtersActive = Boolean(q) || priorityFilter.length > 0 || onlyMine || labelFilter.length > 0;
 
   function matches(todo: TodoRow): boolean {
     if (q && !`${todo.title} ${todo.description ?? ''}`.toLowerCase().includes(q)) return false;
@@ -161,6 +173,10 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
     if (onlyMine) {
       const assigned = todo.assignees ?? (todo.assigned_to ? [todo.assigned_to] : []);
       if (!me || !assigned.includes(me)) return false;
+    }
+    if (labelFilter.length > 0) {
+      const ids = labels.linksByTodo.get(todo.id) ?? [];
+      if (!labelFilter.every((lid) => ids.includes(lid))) return false;
     }
     return true;
   }
@@ -198,6 +214,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
     setQuery('');
     setPriorityFilter([]);
     setOnlyMine(false);
+    setLabelFilter([]);
   }
 
   function toggleSelected(id: string) {
@@ -332,6 +349,9 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
                 <SelectItem value="recent">{t('Sort: Newest')}</SelectItem>
               </SelectContent>
             </Select>
+            <Button size="sm" variant="outline" onClick={() => setManagerOpen(true)} className="shrink-0">
+              <Tag className="h-4 w-4" /> {t('Labels')}
+            </Button>
             <Button
               size="sm"
               variant={selectionMode ? 'primary' : 'outline'}
@@ -384,8 +404,47 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
               </button>
             ) : null}
           </div>
+
+          {labels.labels.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Tag className="h-3.5 w-3.5 text-fg-muted" />
+              {labels.labels.map((l) => {
+                const on = labelFilter.includes(l.id);
+                return (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() =>
+                      setLabelFilter((prev) =>
+                        prev.includes(l.id) ? prev.filter((x) => x !== l.id) : [...prev, l.id],
+                      )
+                    }
+                    aria-pressed={on}
+                    title={t('Filter by label')}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
+                      on ? 'bg-fg text-bg' : 'bg-surface text-fg hover:bg-surface-2',
+                    )}
+                  >
+                    <span className={cn('h-2 w-2 rounded-full border border-fg', labelColorMeta(l.color).dot)} />
+                    {l.name}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       ) : null}
+
+      <LabelManager
+        open={managerOpen}
+        onOpenChange={setManagerOpen}
+        labels={labels.labels}
+        createLabel={labels.createLabel}
+        renameLabel={labels.renameLabel}
+        recolorLabel={labels.recolorLabel}
+        deleteLabel={labels.deleteLabel}
+      />
 
       {selectionMode ? (
         <div className="sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-lg border-2 border-fg bg-surface p-2 shadow-brut lg:top-2">
@@ -465,7 +524,18 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
                   <SortableContext items={pending.map((x) => x.id)} strategy={verticalListSortingStrategy}>
                     <ul className="flex flex-col gap-2">
                       {pending.map((x) => (
-                        <TodoItem key={x.id} todo={x} members={members} draggable onChanged={load} />
+                        <TodoItem
+                          key={x.id}
+                          todo={x}
+                          members={members}
+                          draggable
+                          onChanged={load}
+                          allLabels={labels.labels}
+                          todoLabels={labels.labelsForTodo(x.id)}
+                          onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                          onManageLabels={() => setManagerOpen(true)}
+                          milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
+                        />
                       ))}
                     </ul>
                   </SortableContext>
@@ -481,6 +551,11 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
                       selectable={selectionMode}
                       selected={selected.has(x.id)}
                       onToggleSelected={() => toggleSelected(x.id)}
+                      allLabels={labels.labels}
+                      todoLabels={labels.labelsForTodo(x.id)}
+                      onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                      onManageLabels={() => setManagerOpen(true)}
+                      milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
                     />
                   ))}
                 </ul>
@@ -501,6 +576,11 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
                     selectable={selectionMode}
                     selected={selected.has(x.id)}
                     onToggleSelected={() => toggleSelected(x.id)}
+                    allLabels={labels.labels}
+                    todoLabels={labels.labelsForTodo(x.id)}
+                    onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                    onManageLabels={() => setManagerOpen(true)}
+                    milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
                   />
                 ))}
               </ul>
@@ -535,6 +615,11 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
                       selectable={selectionMode}
                       selected={selected.has(x.id)}
                       onToggleSelected={() => toggleSelected(x.id)}
+                      allLabels={labels.labels}
+                      todoLabels={labels.labelsForTodo(x.id)}
+                      onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                      onManageLabels={() => setManagerOpen(true)}
+                      milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
                     />
                   ))}
                 </ul>

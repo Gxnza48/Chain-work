@@ -4,6 +4,7 @@ export type TodoStatus = 'pending' | 'in_progress' | 'done';
 export type TodoPriority = 'low' | 'medium' | 'high' | 'critical';
 export type AttachmentType = 'repo' | 'image' | 'video' | 'link' | 'pdf' | 'html';
 export type ChainRole = 'owner' | 'member';
+export type MilestoneStatus = 'open' | 'done';
 
 export type Json =
   | string
@@ -135,6 +136,7 @@ export interface Database {
           priority: TodoPriority;
           assigned_to: string | null;
           assignees: string[];
+          milestone_id: string | null;
           last_nudged_at: string | null;
           due_date: string | null;
           completed_at: string | null;
@@ -158,6 +160,7 @@ export interface Database {
           completed_at?: string | null;
           completed_by?: string | null;
           order_index?: number;
+          milestone_id?: string | null;
           created_by: string;
           created_at?: string;
         };
@@ -175,6 +178,82 @@ export interface Database {
           due_date?: string | null;
           completed_at?: string | null;
           completed_by?: string | null;
+          order_index?: number;
+          milestone_id?: string | null;
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      labels: {
+        Row: {
+          id: string;
+          chain_id: string;
+          name: string;
+          color: string;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          name: string;
+          color?: string;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          name?: string;
+          color?: string;
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      todo_labels: {
+        Row: {
+          todo_id: string;
+          label_id: string;
+        };
+        Insert: {
+          todo_id: string;
+          label_id: string;
+        };
+        Update: {
+          todo_id?: string;
+          label_id?: string;
+        };
+        Relationships: [];
+      };
+      subtasks: {
+        Row: {
+          id: string;
+          todo_id: string;
+          chain_id: string;
+          title: string;
+          done: boolean;
+          order_index: number;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          todo_id: string;
+          chain_id: string;
+          title: string;
+          done?: boolean;
+          order_index?: number;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          todo_id?: string;
+          chain_id?: string;
+          title?: string;
+          done?: boolean;
           order_index?: number;
           created_by?: string;
           created_at?: string;
@@ -262,6 +341,72 @@ export interface Database {
         };
         Relationships: [];
       };
+      comments: {
+        Row: {
+          id: string;
+          chain_id: string;
+          todo_id: string;
+          user_id: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          todo_id: string;
+          user_id: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          todo_id?: string;
+          user_id?: string;
+          body?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      milestones: {
+        Row: {
+          id: string;
+          chain_id: string;
+          project_id: string;
+          title: string;
+          description: string | null;
+          due_date: string | null;
+          status: MilestoneStatus;
+          order_index: number;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          project_id: string;
+          title: string;
+          description?: string | null;
+          due_date?: string | null;
+          status?: MilestoneStatus;
+          order_index?: number;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          project_id?: string;
+          title?: string;
+          description?: string | null;
+          due_date?: string | null;
+          status?: MilestoneStatus;
+          order_index?: number;
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       push_subscriptions: {
         Row: {
           id: string;
@@ -288,6 +433,48 @@ export interface Database {
           p256dh?: string;
           auth?: string;
           user_agent?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          chain_id: string | null;
+          actor_id: string | null;
+          type: string;
+          title: string;
+          body: string | null;
+          link: string | null;
+          entity_id: string | null;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          chain_id?: string | null;
+          actor_id?: string | null;
+          type: string;
+          title: string;
+          body?: string | null;
+          link?: string | null;
+          entity_id?: string | null;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          chain_id?: string | null;
+          actor_id?: string | null;
+          type?: string;
+          title?: string;
+          body?: string | null;
+          link?: string | null;
+          entity_id?: string | null;
+          read?: boolean;
           created_at?: string;
         };
         Relationships: [];
