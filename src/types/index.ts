@@ -40,6 +40,7 @@ export interface ChainSummary extends ChainRow {
 export interface ProjectSummary extends ProjectRow {
   total_todos: number;
   completed_todos: number;
+  overdue_todos: number;
   member_avatars: Array<{ id: string; display_name: string; avatar_url: string | null }>;
 }
 

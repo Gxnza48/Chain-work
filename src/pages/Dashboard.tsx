@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, KeyRound, RefreshCw, Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Folder, Plus, KeyRound, RefreshCw, Layers, Search } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { ChainCard } from '@/components/dashboard/ChainCard';
@@ -11,6 +12,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
+import { getRecentProjects } from '@/lib/recent';
+import { useUIStore } from '@/store/ui';
 import { cn } from '@/lib/utils';
 import type { ChainRow, ChainSummary } from '@/types';
 
@@ -76,6 +79,9 @@ export default function Dashboard() {
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-10">
         <ProfileCard />
 
+        <CommandHint />
+        <RecentProjectsStrip />
+
         <section className="mt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start justify-between gap-3">
@@ -130,6 +136,56 @@ export default function Dashboard() {
       <CreateChainModal open={creating} onOpenChange={setCreating} onCreated={load} />
       <JoinChainModal open={joining} onOpenChange={setJoining} onJoined={load} />
     </AppShell>
+  );
+}
+
+function CommandHint() {
+  const t = useT();
+  const setPaletteOpen = useUIStore((s) => s.setPaletteOpen);
+  const mac =
+    typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+  return (
+    <button
+      type="button"
+      onClick={() => setPaletteOpen(true)}
+      className="mt-8 flex w-full items-center gap-2.5 rounded-lg border-2 border-fg bg-surface px-3 py-2.5 text-left shadow-brut-sm transition-colors hover:bg-surface-2"
+    >
+      <Search className="h-4 w-4 shrink-0 text-fg-muted" />
+      <span className="flex-1 text-sm font-medium text-fg-muted">{t('Search or jump to anything…')}</span>
+      <kbd className="shrink-0 rounded border-2 border-fg bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] font-bold text-fg-muted">
+        {mac ? '⌘' : 'Ctrl'} K
+      </kbd>
+    </button>
+  );
+}
+
+function RecentProjectsStrip() {
+  const t = useT();
+  const [recents] = useState(() => getRecentProjects());
+  if (recents.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <h2 className="font-display text-sm font-bold uppercase tracking-[0.18em] text-fg-muted">
+        {t('Jump back in')}
+      </h2>
+      <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+        {recents.map((r) => (
+          <Link
+            key={r.projectId}
+            to={`/chain/${r.chainId}?project=${r.projectId}`}
+            className="flex min-w-[12rem] shrink-0 items-center gap-2.5 rounded-lg border-2 border-fg bg-surface p-3 shadow-brut-sm brut-press"
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
+              <Folder className="h-4 w-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold">{r.name}</span>
+              <span className="block truncate text-[11px] text-fg-muted">{t('Open project')}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 

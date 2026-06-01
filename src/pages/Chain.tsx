@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { Folder, Lightbulb, ListTodo, Menu } from 'lucide-react';
 import { ChainLoader } from '@/components/ui/ChainLoader';
 import { ChainHeader } from '@/components/chain/ChainHeader';
@@ -20,14 +20,37 @@ export default function ChainPage() {
   const { chain, members, myRole, loading, error, refresh } = useChain(chainId);
   const t = useT();
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('projects');
-  const [openProject, setOpenProject] = useState<string | null>(null);
+  const [openProject, setOpenProject] = useState<string | null>(() => searchParams.get('project'));
   const [navOpen, setNavOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
 
   useEffect(() => {
     if (activeTab !== 'projects') setOpenProject(null);
   }, [activeTab]);
+
+  // Keep the URL (?project=ID) in sync so an open project is deep-linkable —
+  // used by the command palette and the dashboard's "Jump back in" strip.
+  useEffect(() => {
+    const cur = searchParams.get('project');
+    if (openProject === (cur ?? null)) return;
+    const next = new URLSearchParams(searchParams);
+    if (openProject) next.set('project', openProject);
+    else next.delete('project');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openProject]);
+
+  // React to external deep-links (e.g. palette) while already on this chain.
+  useEffect(() => {
+    const p = searchParams.get('project');
+    if (p && p !== openProject) {
+      setActiveTab('projects');
+      setOpenProject(p);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   if (loading) {
     return <ChainLoader fullscreen label={t('Loading chain…')} />;
@@ -123,6 +146,7 @@ export default function ChainPage() {
           ) : null}
           {activeTab === 'projects' && openProject ? (
             <ProjectView
+              key={openProject}
               projectId={openProject}
               members={members}
               onBack={() => setOpenProject(null)}

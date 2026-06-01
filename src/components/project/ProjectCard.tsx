@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, Folder, Loader2, Pencil, Users, X } from 'lucide-react';
+import { AlertTriangle, Check, Folder, Loader2, Pencil, Pin, Users, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
@@ -18,9 +18,11 @@ interface Props {
   canManage?: boolean;
   onOpen?: (id: string) => void;
   onRenamed?: () => void;
+  pinned?: boolean;
+  onTogglePin?: () => void;
 }
 
-export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
+export function ProjectCard({ project, canManage, onOpen, onRenamed, pinned, onTogglePin }: Props) {
   useRelativeTimeTick();
   const t = useT();
   const pct = project.total_todos === 0 ? 0 : Math.round((project.completed_todos / project.total_todos) * 100);
@@ -94,6 +96,23 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
                 <Folder className="h-5 w-5" />
               </span>
+              {onTogglePin ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePin();
+                  }}
+                  aria-label={pinned ? t('Unpin project') : t('Pin project')}
+                  title={pinned ? t('Unpin project') : t('Pin project')}
+                  className={cn(
+                    'order-last grid h-8 w-8 shrink-0 place-items-center rounded-md border-2 border-fg shadow-brut-sm transition-colors',
+                    pinned ? 'bg-accent-amber text-white' : 'bg-surface text-fg-muted hover:bg-surface-2',
+                  )}
+                >
+                  <Pin className={cn('h-4 w-4', pinned ? 'fill-current' : '')} />
+                </button>
+              ) : null}
               <div className="min-w-0 flex-1">
                 {editing ? (
                   <div
@@ -186,9 +205,19 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                   </span>
                 ) : null}
               </div>
-              <span className="font-mono text-[11px] text-fg-muted">
-                {t('created {time}', { time: relativeTime(project.created_at) })}
-              </span>
+              <div className="flex items-center gap-2">
+                {project.overdue_todos > 0 ? (
+                  <span
+                    className="inline-flex items-center gap-1 rounded border-2 border-fg bg-accent-rose px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                    title={t('{n} overdue', { n: project.overdue_todos })}
+                  >
+                    <AlertTriangle className="h-3 w-3" /> {project.overdue_todos}
+                  </span>
+                ) : null}
+                <span className="font-mono text-[11px] text-fg-muted">
+                  {t('created {time}', { time: relativeTime(project.created_at) })}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -1,10 +1,11 @@
-import { ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { ListChecks, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { supabase } from '@/lib/supabase';
+import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useRelativeTimeTick } from '@/hooks/useRelativeTimeTick';
-import { cn, initials, relativeTime } from '@/lib/utils';
+import { cn, htmlToText, initials, relativeTime } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
 import type { IdeaWithVotes } from '@/types';
 
@@ -38,6 +39,29 @@ export function IdeaCard({ idea, onChange }: Props) {
       if (error) toast.error(t('Vote failed'), { description: error.message });
     }
     onChange?.();
+  }
+
+  async function convertToTodo() {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('todos')
+      .insert({
+        chain_id: idea.chain_id,
+        project_id: idea.project_id,
+        title: idea.title,
+        description: htmlToText(idea.description) || null,
+        created_by: user.id,
+      })
+      .select('id')
+      .single();
+    if (error) {
+      toast.error(t('Could not create todo'), { description: error.message });
+      return;
+    }
+    if (data) void notifyEvent('todo', { id: data.id });
+    toast.success(t('Converted to a todo'), {
+      description: t('Find it in the Todos tab.'),
+    });
   }
 
   async function remove() {
@@ -94,17 +118,28 @@ export function IdeaCard({ idea, onChange }: Props) {
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-display text-lg font-bold tracking-tight">{idea.title}</h4>
-          {isOwner ? (
+          <h4 className="min-w-0 break-words font-display text-lg font-bold tracking-tight">{idea.title}</h4>
+          <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
-              onClick={remove}
-              aria-label={t('Delete idea')}
-              className="rounded-md p-1 text-fg-muted hover:bg-accent-rose/10 hover:text-accent-rose"
+              onClick={convertToTodo}
+              aria-label={t('Convert to a todo')}
+              title={t('Convert to a todo')}
+              className="rounded-md p-1 text-fg-muted hover:bg-accent-blue/10 hover:text-accent-blue"
             >
-              <Trash2 className="h-4 w-4" />
+              <ListChecks className="h-4 w-4" />
             </button>
-          ) : null}
+            {isOwner ? (
+              <button
+                type="button"
+                onClick={remove}
+                aria-label={t('Delete idea')}
+                className="rounded-md p-1 text-fg-muted hover:bg-accent-rose/10 hover:text-accent-rose"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {idea.description ? (

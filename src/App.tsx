@@ -9,8 +9,12 @@ import NotFound from './pages/NotFound';
 import { AuthGuard } from './components/layout/AuthGuard';
 import { Toaster } from './components/ui/Toaster';
 import { TooltipProvider } from './components/ui/Tooltip';
+import { CommandPalette } from './components/command/CommandPalette';
+import { ShortcutsDialog } from './components/command/ShortcutsDialog';
 import { useAuthStore } from './store/auth';
 import { useThemeStore } from './store/theme';
+import { useUIStore } from './store/ui';
+import { isTypingTarget } from './lib/utils';
 
 export default function App() {
   const initialize = useAuthStore((s) => s.initialize);
@@ -32,6 +36,27 @@ export default function App() {
       cleanup?.();
     };
   }, [initialize]);
+
+  // Global hotkeys: ⌘K / Ctrl+K opens the command palette, "?" opens help.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        useUIStore.getState().togglePalette();
+        return;
+      }
+      if (
+        e.key === '?' &&
+        !isTypingTarget(e.target) &&
+        !useUIStore.getState().paletteOpen
+      ) {
+        e.preventDefault();
+        useUIStore.getState().setShortcutsOpen(true);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -64,6 +89,8 @@ export default function App() {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <CommandPalette />
+      <ShortcutsDialog />
       <Toaster />
     </TooltipProvider>
   );

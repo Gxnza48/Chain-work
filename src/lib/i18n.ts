@@ -518,6 +518,113 @@ const es: Record<string, string> = {
   'just now': 'recién',
 };
 
+// ---- Project power-ups: command palette, shortcuts, stats, filters, export,
+// templates & recents (added 2026-06-01). Merged via Object.assign so new keys
+// can be added without risking duplicate-key collisions with the map above. ----
+Object.assign(es, {
+  // Command palette
+  'Go to': 'Ir a',
+  'Home page': 'Inicio',
+  'Recent projects': 'Proyectos recientes',
+  'Actions': 'Acciones',
+  'Search chains, projects, actions…': 'Buscá chains, proyectos, acciones…',
+  'Command palette': 'Paleta de comandos',
+  'No results': 'Sin resultados',
+  // Shortcuts dialog
+  'Keyboard shortcuts': 'Atajos de teclado',
+  'Move faster around ChainWork.': 'Movete más rápido por ChainWork.',
+  'Open the command palette': 'Abrir la paleta de comandos',
+  'Show this shortcuts help': 'Mostrar esta ayuda de atajos',
+  'New todo (inside a project)': 'Nueva tarea (dentro de un proyecto)',
+  'Focus the todo search': 'Ir al buscador de tareas',
+  'Close any dialog or menu': 'Cerrar cualquier diálogo o menú',
+  // Dashboard
+  'Search or jump to anything…': 'Buscá o saltá a cualquier cosa…',
+  'Jump back in': 'Retomá donde dejaste',
+  'Open project': 'Abrir proyecto',
+  // Project stats
+  'Project overview': 'Resumen del proyecto',
+  'complete': 'completado',
+  '{n} overdue': '{n} vencidas',
+  'Overdue': 'Vencidas',
+  'Files': 'Archivos',
+  'Open by priority:': 'Abiertas por prioridad:',
+  // Project list: search + sort + pin
+  'Search projects…': 'Buscar proyectos…',
+  'Clear': 'Limpiar',
+  'Sort: Recent': 'Orden: Recientes',
+  'Sort: Name A–Z': 'Orden: Nombre A–Z',
+  'Sort: Most complete': 'Orden: Más completos',
+  'Sort: Most todos': 'Orden: Más tareas',
+  'No projects match your search.': 'Ningún proyecto coincide con tu búsqueda.',
+  'Unpin project': 'Dejar de fijar',
+  'Pin project': 'Fijar proyecto',
+  // Project export
+  'Export': 'Exportar',
+  'Copy summary': 'Copiar resumen',
+  'Download Markdown': 'Descargar Markdown',
+  'Download JSON': 'Descargar JSON',
+  'Project exported': 'Proyecto exportado',
+  'Project not found': 'No se encontró el proyecto',
+  'Summary copied to clipboard': 'Resumen copiado al portapapeles',
+  'Could not copy': 'No se pudo copiar',
+  // Todo toolbar + bulk
+  'Search todos…': 'Buscar tareas…',
+  'Sort: Manual': 'Orden: Manual',
+  'Sort: Priority': 'Orden: Prioridad',
+  'Sort: Due date': 'Orden: Fecha límite',
+  'Sort: Newest': 'Orden: Más nuevas',
+  'Select': 'Seleccionar',
+  'Only mine': 'Solo las mías',
+  'Clear filters': 'Limpiar filtros',
+  '{n} selected': '{n} seleccionadas',
+  'Complete': 'Completar',
+  'Reopen': 'Reabrir',
+  'Bulk action failed': 'La acción masiva falló',
+  'Marked as done': 'Marcadas como hechas',
+  'Re-opened': 'Reabiertas',
+  'Priority updated': 'Prioridad actualizada',
+  'Completed todos cannot be deleted — re-open them first.':
+    'Las tareas completadas no se pueden borrar — reabrilas primero.',
+  'Delete {n} todos?': '¿Borrar {n} tareas?',
+  'Deleted ({n} completed skipped)': 'Borradas ({n} completadas omitidas)',
+  'Todos deleted': 'Tareas borradas',
+  'No todos match your filters.': 'Ninguna tarea coincide con tus filtros.',
+  // Todo item: due dates + more menu
+  '{n}d overdue': 'vencida hace {n}d',
+  'today': 'hoy',
+  'in {n}d': 'en {n}d',
+  'Could not duplicate': 'No se pudo duplicar',
+  'Todo duplicated': 'Tarea duplicada',
+  'More actions': 'Más acciones',
+  'Duplicate': 'Duplicar',
+  'Copy title': 'Copiar título',
+  // Idea → todo
+  'Convert to a todo': 'Convertir en tarea',
+  'Converted to a todo': 'Convertida en tarea',
+  'Find it in the Todos tab.': 'La encontrás en la pestaña Tareas.',
+  // Project templates
+  'Start from a template': 'Empezá desde una plantilla',
+  'Blank': 'En blanco',
+  'Sprint': 'Sprint',
+  'Content': 'Contenido',
+  'Bug triage': 'Bugs',
+  'Empty': 'Vacío',
+  '{n} starter todos': '{n} tareas iniciales',
+  'Plan the sprint': 'Planificar el sprint',
+  'Build the core': 'Construir el núcleo',
+  'Test & QA': 'Pruebas y QA',
+  'Ship & announce': 'Lanzar y anunciar',
+  'Outline': 'Esquema',
+  'First draft': 'Primer borrador',
+  'Edit & review': 'Editar y revisar',
+  'Publish': 'Publicar',
+  'Reproduce the issue': 'Reproducir el problema',
+  'Find the root cause': 'Encontrar la causa raíz',
+  'Apply the fix': 'Aplicar el arreglo',
+  'Verify & close': 'Verificar y cerrar',
+});
+
 function interpolate(str: string, vars?: Record<string, string | number>): string {
   if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));

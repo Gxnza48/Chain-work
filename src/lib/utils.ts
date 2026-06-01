@@ -155,3 +155,44 @@ export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
+
+/** Local midnight (ms) for today — used for due-date comparisons. */
+export function startOfToday(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+export type DueState = 'overdue' | 'today' | 'soon' | 'later';
+
+/**
+ * Classify a `YYYY-MM-DD` due date relative to today (local time). `soon` means
+ * due within the next two days. Returns null for empty/invalid dates.
+ */
+export function dueState(due: string | null | undefined): { state: DueState; days: number } | null {
+  if (!due) return null;
+  const due0 = new Date(`${due.slice(0, 10)}T00:00:00`).getTime();
+  if (Number.isNaN(due0)) return null;
+  const days = Math.round((due0 - startOfToday()) / 86_400_000);
+  const state: DueState = days < 0 ? 'overdue' : days === 0 ? 'today' : days <= 2 ? 'soon' : 'later';
+  return { state, days };
+}
+
+/** True when the event originates from a text field, so global hotkeys can bail out. */
+export function isTypingTarget(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  if (!el || !el.tagName) return false;
+  const tag = el.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable === true;
+}
+
+/** Strip HTML down to plain text (used when turning a rich-text idea into a todo). */
+export function htmlToText(html: string | null | undefined): string {
+  if (!html) return '';
+  if (typeof document === 'undefined') {
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+}

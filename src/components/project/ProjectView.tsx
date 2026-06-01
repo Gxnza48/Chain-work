@@ -1,18 +1,28 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Loader2, Pencil, Save, X } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, FileJson, FileText, Loader2, Pencil, Save, Share2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { ChainLoader } from '@/components/ui/ChainLoader';
 import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
 import { AttachmentList } from '@/components/attachments/AttachmentList';
+import { ProjectStats } from './ProjectStats';
 import { Roadmap } from './Roadmap';
+import { buildProjectJSON, buildProjectMarkdown, downloadFile, slugify } from '@/lib/export';
+import { forgetRecentProject, recordRecentProject } from '@/lib/recent';
+import { copyToClipboard } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
-import type { ProjectRow, UserRow } from '@/types';
+import type { AttachmentRow, IdeaRow, ProjectRow, TodoRow, UserRow } from '@/types';
 
 interface Props {
   projectId: string;
@@ -37,6 +47,12 @@ export function ProjectView({ projectId, members, onBack }: Props) {
       setProject(data);
       setName(data.name);
       setDescription(data.description ?? '');
+      recordRecentProject({ chainId: data.chain_id, projectId: data.id, name: data.name });
+    } else {
+      // Project was deleted or isn't accessible (e.g. a stale "recent" / deep link).
+      forgetRecentProject(projectId);
+      toast.error(t('Project not found'));
+      onBack();
     }
     setLoading(false);
   }
@@ -75,6 +91,47 @@ export function ProjectView({ projectId, members, onBack }: Props) {
     }
     setEditing(false);
     toast.success(t('Project saved'));
+  }
+
+  async function exportProject(kind: 'copy' | 'md' | 'json') {
+    if (!project) return;
+    const [{ data: todoData }, { data: ideaData }, { data: fileData }] = await Promise.all([
+      supabase
+        .from('todos')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('status', { ascending: true })
+        .order('order_index', { ascending: true }),
+      supabase
+        .from('ideas')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('attachments')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false }),
+    ]);
+    const todos = (todoData ?? []) as TodoRow[];
+    const ideas = (ideaData ?? []) as IdeaRow[];
+    const files = (fileData ?? []) as AttachmentRow[];
+    const slug = slugify(project.name);
+
+    if (kind === 'json') {
+      downloadFile(`${slug}.json`, buildProjectJSON(project, todos, ideas, files), 'application/json');
+      toast.success(t('Project exported'));
+      return;
+    }
+    const md = buildProjectMarkdown(project, todos, ideas, files);
+    if (kind === 'md') {
+      downloadFile(`${slug}.md`, md, 'text/markdown');
+      toast.success(t('Project exported'));
+      return;
+    }
+    const ok = await copyToClipboard(md);
+    if (ok) toast.success(t('Summary copied to clipboard'));
+    else toast.error(t('Could not copy'));
   }
 
   if (loading || !project) {
@@ -130,16 +187,33 @@ export function ProjectView({ projectId, members, onBack }: Props) {
           )}
         </div>
         {!editing ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setEditing(true)}
-            className="shrink-0 self-start"
-          >
-            <Pencil className="h-4 w-4" /> {t('Edit')}
-          </Button>
+          <div className="flex shrink-0 items-center gap-2 self-start">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <Share2 className="h-4 w-4" /> {t('Export')}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => exportProject('copy')}>
+                  <ClipboardCopy className="h-4 w-4" /> {t('Copy summary')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => exportProject('md')}>
+                  <FileText className="h-4 w-4" /> {t('Download Markdown')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => exportProject('json')}>
+                  <FileJson className="h-4 w-4" /> {t('Download JSON')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+              <Pencil className="h-4 w-4" /> {t('Edit')}
+            </Button>
+          </div>
         ) : null}
       </div>
+
+      <ProjectStats projectId={project.id} refreshSignal={todoRev} />
 
       <Tabs defaultValue="todos">
         <TabsList>

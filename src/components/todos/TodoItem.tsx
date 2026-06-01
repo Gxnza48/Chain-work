@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { Bell, Calendar, Check, GripVertical, Loader2, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import {
+  Bell,
+  Calendar,
+  Check,
+  Copy,
+  CopyPlus,
+  GripVertical,
+  Loader2,
+  MoreVertical,
+  Pencil,
+  RotateCcw,
+  Trash2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -17,7 +29,7 @@ import { supabase } from '@/lib/supabase';
 import { pingTodo } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useT, type TFn } from '@/lib/i18n';
-import { cn, initials } from '@/lib/utils';
+import { cn, copyToClipboard, dueState, initials } from '@/lib/utils';
 import type { TodoPriority, TodoRow, TodoStatus, UserRow } from '@/types';
 
 const NUDGE_COOLDOWN_MS = 12 * 60 * 60 * 1000;
@@ -27,17 +39,30 @@ interface Props {
   members: UserRow[];
   draggable?: boolean;
   onChanged?: () => void;
+  /** Bulk-selection mode (renders a checkbox and hides the row actions). */
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelected?: () => void;
 }
 
-export function TodoItem({ todo, members, draggable = false, onChanged }: Props) {
+export function TodoItem({
+  todo,
+  members,
+  draggable = false,
+  onChanged,
+  selectable = false,
+  selected = false,
+  onToggleSelected,
+}: Props) {
   const { user } = useAuth();
   const t = useT();
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [nudging, setNudging] = useState(false);
-  const sortable = useSortable({ id: todo.id, disabled: !draggable || editing });
+  const canDrag = draggable && !selectable;
+  const sortable = useSortable({ id: todo.id, disabled: !canDrag || editing });
 
-  const style: React.CSSProperties = draggable
+  const style: React.CSSProperties = canDrag
     ? {
         transform: CSS.Translate.toString(sortable.transform),
         transition: sortable.transition,
@@ -55,6 +80,15 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
   const cooldownLeftMs = Math.max(0, nudgedAt + NUDGE_COOLDOWN_MS - Date.now());
   const onCooldown = cooldownLeftMs > 0;
   const cooldownHours = Math.ceil(cooldownLeftMs / (60 * 60 * 1000));
+
+  // Due-date intelligence: overdue → rose, today/soon → amber.
+  const due = !isDone ? dueState(todo.due_date) : null;
+  const dueVariant: 'rose' | 'amber' | 'neutral' =
+    due?.state === 'overdue' ? 'rose' : due?.state === 'today' || due?.state === 'soon' ? 'amber' : 'neutral';
+  let dueSuffix = '';
+  if (due?.state === 'overdue') dueSuffix = t('{n}d overdue', { n: Math.abs(due.days) });
+  else if (due?.state === 'today') dueSuffix = t('today');
+  else if (due?.state === 'soon') dueSuffix = t('in {n}d', { n: due.days });
 
   async function nudge() {
     if (nudging || onCooldown) return;
@@ -120,6 +154,34 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
     onChanged?.();
   }
 
+  async function duplicate() {
+    if (!user) return;
+    setBusy(true);
+    const { error } = await supabase.from('todos').insert({
+      chain_id: todo.chain_id,
+      project_id: todo.project_id,
+      title: todo.title,
+      description: todo.description,
+      priority: todo.priority,
+      assignees: todo.assignees ?? [],
+      assigned_to: todo.assigned_to,
+      due_date: todo.due_date,
+      created_by: user.id,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(t('Could not duplicate'), { description: error.message });
+      return;
+    }
+    toast.success(t('Todo duplicated'));
+    onChanged?.();
+  }
+
+  async function copyTitle() {
+    const ok = await copyToClipboard(todo.title);
+    if (ok) toast.success(t('Copied to clipboard'));
+  }
+
   if (editing) {
     return (
       <li>
@@ -140,26 +202,44 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
 
   return (
     <li
-      ref={draggable ? sortable.setNodeRef : undefined}
+      ref={canDrag ? sortable.setNodeRef : undefined}
       style={style}
       className={cn(
         'group flex items-start gap-3 rounded-md border-2 border-fg bg-surface p-3 shadow-brut-sm transition-shadow',
-        sortable.isDragging && draggable ? 'ring-2 ring-accent-blue' : '',
+        sortable.isDragging && canDrag ? 'ring-2 ring-accent-blue' : '',
+        selectable && selected ? 'ring-2 ring-accent-blue' : '',
       )}
     >
-      {draggable ? (
+      {selectable ? (
         <button
           type="button"
-          {...sortable.attributes}
-          {...sortable.listeners}
-          className="mt-1 cursor-grab rounded-md p-1 text-fg-muted opacity-60 hover:bg-surface-2 hover:opacity-100 active:cursor-grabbing"
-          aria-label={t('Drag to reorder')}
+          onClick={onToggleSelected}
+          role="checkbox"
+          aria-checked={selected}
+          aria-label={t('Select todo')}
+          className={cn(
+            'mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-fg shadow-brut-sm transition-colors',
+            selected ? 'bg-accent-blue text-white' : 'bg-surface text-transparent hover:bg-surface-2',
+          )}
         >
-          <GripVertical className="h-4 w-4" />
+          <Check className="h-4 w-4" />
         </button>
-      ) : null}
-
-      <StatusButton status={todo.status} busy={busy} onCycle={cycleStatus} t={t} />
+      ) : (
+        <>
+          {canDrag ? (
+            <button
+              type="button"
+              {...sortable.attributes}
+              {...sortable.listeners}
+              className="mt-1 cursor-grab rounded-md p-1 text-fg-muted opacity-60 hover:bg-surface-2 hover:opacity-100 active:cursor-grabbing"
+              aria-label={t('Drag to reorder')}
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+          ) : null}
+          <StatusButton status={todo.status} busy={busy} onCycle={cycleStatus} t={t} />
+        </>
+      )}
 
       <div className="min-w-0 flex-1">
         <p
@@ -201,8 +281,10 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
           {todo.status === 'in_progress' ? <Badge variant="amber">{t('In progress')}</Badge> : null}
           {isDone ? <Badge variant="emerald">{t('Done')}</Badge> : null}
           {todo.due_date ? (
-            <Badge variant="neutral">
-              <Calendar className="h-3 w-3" /> {new Date(todo.due_date).toLocaleDateString()}
+            <Badge variant={dueVariant}>
+              <Calendar className="h-3 w-3" />
+              {new Date(`${todo.due_date.slice(0, 10)}T00:00:00`).toLocaleDateString()}
+              {dueSuffix ? ` · ${dueSuffix}` : ''}
             </Badge>
           ) : null}
           {assignees.length > 0 ? (
@@ -223,54 +305,77 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
-        {!isDone && assignees.length > 0 ? (
-          <button
-            type="button"
-            onClick={nudge}
-            disabled={nudging || onCooldown}
-            aria-label={t('Remind assignees')}
-            title={onCooldown ? t('Available in {h}h', { h: cooldownHours }) : t('Remind assignees')}
-            className={cn(
-              'rounded-md p-1 transition-colors',
-              onCooldown
-                ? 'cursor-not-allowed text-fg-muted/40'
-                : 'text-accent-amber hover:bg-accent-amber/10',
-            )}
-          >
-            {nudging ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
-          </button>
-        ) : null}
-        {!isDone ? (
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            aria-label={t('Edit todo')}
-            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-        ) : null}
-        {!isDone ? (
-          <button
-            type="button"
-            onClick={deleteTodo}
-            aria-label={t('Delete todo')}
-            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => cycleStatus('pending')}
-            aria-label={t('Re-open todo')}
-            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      {!selectable ? (
+        <div className="flex items-center gap-1">
+          {!isDone && assignees.length > 0 ? (
+            <button
+              type="button"
+              onClick={nudge}
+              disabled={nudging || onCooldown}
+              aria-label={t('Remind assignees')}
+              title={onCooldown ? t('Available in {h}h', { h: cooldownHours }) : t('Remind assignees')}
+              className={cn(
+                'rounded-md p-1 transition-colors',
+                onCooldown
+                  ? 'cursor-not-allowed text-fg-muted/40'
+                  : 'text-accent-amber hover:bg-accent-amber/10',
+              )}
+            >
+              {nudging ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
+            </button>
+          ) : null}
+          {!isDone ? (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              aria-label={t('Edit todo')}
+              className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          ) : null}
+          {!isDone ? (
+            <button
+              type="button"
+              onClick={deleteTodo}
+              aria-label={t('Delete todo')}
+              className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => cycleStatus('pending')}
+              aria-label={t('Re-open todo')}
+              className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label={t('More actions')}
+                className="rounded-md p-2 text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:p-1"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={duplicate}>
+                <CopyPlus className="h-4 w-4" />
+                {t('Duplicate')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={copyTitle}>
+                <Copy className="h-4 w-4" />
+                {t('Copy title')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : null}
     </li>
   );
 }
