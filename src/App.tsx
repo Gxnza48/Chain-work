@@ -7,6 +7,7 @@ import ChainPage from './pages/Chain';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import { AuthGuard } from './components/layout/AuthGuard';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { Toaster } from './components/ui/Toaster';
 import { TooltipProvider } from './components/ui/Tooltip';
 import { CommandPalette } from './components/command/CommandPalette';
@@ -60,7 +61,27 @@ export default function App() {
 
   return (
     <TooltipProvider delayDuration={150}>
-      <Routes>
+      <ErrorBoundary
+        label="app"
+        fallback={
+          <div className="grid min-h-screen place-items-center bg-bg p-6">
+            <div className="w-full max-w-md rounded-lg border-2 border-fg bg-surface p-6 text-center shadow-brut">
+              <h1 className="font-display text-2xl font-bold text-fg">Algo se rompió</h1>
+              <p className="mt-2 text-sm text-fg-muted">
+                Ocurrió un error al cargar la página. Probá recargar.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="mt-4 rounded-md border-2 border-fg bg-accent-blue px-4 py-2 text-sm font-bold text-white shadow-brut-sm active:translate-x-[2px] active:translate-y-[2px]"
+              >
+                Recargar
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route
@@ -89,9 +110,10 @@ export default function App() {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <CommandPalette />
-      <ShortcutsDialog />
-      <Toaster />
+        <CommandPalette />
+        <ShortcutsDialog />
+        <Toaster />
+      </ErrorBoundary>
     </TooltipProvider>
   );
 }

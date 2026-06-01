@@ -5,6 +5,7 @@ import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -102,7 +103,11 @@ export function AppShell({ children }: AppShellProps) {
               {t('Logout')}
             </Button>
             <div className="flex items-center gap-2">
-              {profile ? <NotificationBell /> : null}
+              {profile ? (
+                <ErrorBoundary label="notification-bell">
+                  <NotificationBell />
+                </ErrorBoundary>
+              ) : null}
               <LanguageToggle />
               <ThemeToggle />
             </div>
@@ -121,7 +126,11 @@ export function AppShell({ children }: AppShellProps) {
         </button>
         <Logo size="sm" to="/" />
         <div className="flex shrink-0 items-center gap-2">
-          {profile ? <NotificationBell /> : null}
+          {profile ? (
+            <ErrorBoundary label="notification-bell">
+              <NotificationBell />
+            </ErrorBoundary>
+          ) : null}
           <LanguageToggle />
           <ThemeToggle />
         </div>
