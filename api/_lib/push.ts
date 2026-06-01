@@ -1,26 +1,35 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import webpush from 'web-push';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-// --- Supabase service-role client (bypasses RLS; server-only) ---
+// NOTE: heavy deps (@supabase/supabase-js, web-push) are imported DYNAMICALLY
+// inside functions, not at module top-level. This keeps the serverless function
+// from crashing at load time if bundling of those CJS libs misbehaves.
+
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-export function serviceClient(): SupabaseClient {
+export async function serviceClient(): Promise<SupabaseClient> {
+  const { createClient } = await import('@supabase/supabase-js');
   return createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
 
-// --- VAPID setup ---
-let vapidReady = false;
-function ensureVapid() {
-  if (vapidReady) return;
+// --- VAPID / web-push (lazy) ---
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _webpush: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function webpushClient(): Promise<any> {
+  if (_webpush) return _webpush;
+  const mod = await import('web-push');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wp = ((mod as any).default ?? mod) as any;
   const publicKey = process.env.VITE_VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || '';
   const privateKey = process.env.VAPID_PRIVATE_KEY || '';
   const subject = process.env.VAPID_SUBJECT || 'mailto:agustincasal@impulsex.com.ar';
   if (!publicKey || !privateKey) throw new Error('Missing VAPID keys');
-  webpush.setVapidDetails(subject, publicKey, privateKey);
-  vapidReady = true;
+  wp.setVapidDetails(subject, publicKey, privateKey);
+  _webpush = wp;
+  return wp;
 }
 
 export interface PushPayload {
@@ -44,7 +53,7 @@ export async function sendToUsers(
   payload: PushPayload,
 ): Promise<number> {
   if (userIds.length === 0) return 0;
-  ensureVapid();
+  const webpush = await webpushClient();
 
   const { data: subs } = await db
     .from('push_subscriptions')

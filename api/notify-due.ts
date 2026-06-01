@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
-  const db = serviceClient();
+  const db = await serviceClient();
   const now = new Date();
   const today = ymdInTz(now, 0);
   const tomorrow = ymdInTz(now, 1);

@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendToUsers, serviceClient, type PushPayload } from './_lib/push';
 
 // Called by the actor's browser right after they create a todo/idea/file or join
@@ -15,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   if (!token) return res.status(401).json({ error: 'no token' });
 
-  const db = serviceClient();
+  const db = await serviceClient();
   const { data: userData, error: userErr } = await db.auth.getUser(token);
   const actor = userData?.user;
   if (userErr || !actor) return res.status(401).json({ error: 'bad token' });
@@ -141,16 +142,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-async function displayName(db: ReturnType<typeof serviceClient>, userId: string): Promise<string> {
+async function displayName(db: SupabaseClient, userId: string): Promise<string> {
   const { data } = await db.from('users').select('display_name').eq('id', userId).single();
   return data?.display_name ?? 'Alguien';
 }
 
-async function isMember(
-  db: ReturnType<typeof serviceClient>,
-  chainId: string,
-  userId: string,
-): Promise<boolean> {
+async function isMember(db: SupabaseClient, chainId: string, userId: string): Promise<boolean> {
   const { data } = await db
     .from('chain_members')
     .select('user_id')
