@@ -135,6 +135,14 @@ export function bytesToMB(bytes: number): number {
 export const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
 export const DOC_MAX_BYTES = 25 * 1024 * 1024;
 
+/** Rough device classification from the user agent, for the presence indicator. */
+export function deviceType(): 'mobile' | 'desktop' {
+  if (typeof navigator === 'undefined') return 'desktop';
+  const ua = navigator.userAgent;
+  const mobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+  return mobile ? 'mobile' : 'desktop';
+}
+
 /** Classify an uploaded document file as a 'pdf' or 'html' attachment. */
 export function classifyDocFile(file: File): 'pdf' | 'html' | null {
   const name = file.name.toLowerCase();

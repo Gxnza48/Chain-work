@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { deviceType } from '@/lib/utils';
 import { useAuth } from './useAuth';
-import type { PresenceMember } from '@/types';
+import type { DeviceKind, PresenceMember } from '@/types';
 
 const LAST_SEEN_INTERVAL_MS = 45_000;
 const ONLINE_WINDOW_MS = 2 * 60_000;
@@ -11,6 +12,8 @@ interface Result {
   isOnline: (userId: string) => boolean;
   /** Best-known "last online" ISO time for a user (from presence), if any. */
   lastSeenAt: (userId: string) => string | null;
+  /** Device a user is currently online from, if known. */
+  deviceOf: (userId: string) => DeviceKind | null;
 }
 
 export function usePresence(chainId: string | undefined): Result {
@@ -71,6 +74,7 @@ export function usePresence(chainId: string | undefined): Result {
         username: profile.username,
         avatar_url: profile.avatar_url,
         online_at: new Date().toISOString(),
+        device: deviceType(),
       } satisfies PresenceMember);
 
     channel.subscribe(async (status) => {
@@ -116,5 +120,6 @@ export function usePresence(chainId: string | undefined): Result {
     online,
     isOnline: (userId: string) => Boolean(online[userId]),
     lastSeenAt: (userId: string) => lastSeen[userId] ?? null,
+    deviceOf: (userId: string) => online[userId]?.device ?? null,
   };
 }

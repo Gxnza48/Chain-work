@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Ban, Crown, ShieldCheck } from 'lucide-react';
+import { Ban, Crown, Monitor, ShieldCheck, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -22,7 +22,7 @@ interface Props {
 }
 
 export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
-  const { isOnline, lastSeenAt } = usePresence(chainId);
+  const { isOnline, lastSeenAt, deviceOf } = usePresence(chainId);
   useRelativeTimeTick();
   const t = useT();
   const myId = useAuthStore((s) => s.user?.id ?? null);
@@ -95,6 +95,7 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
       <ul className="mt-3 flex-1 overflow-y-auto px-2 pb-4">
         {sorted.map((m) => {
           const online = isOnline(m.id);
+          const device = online ? deviceOf(m.id) : null;
           const items = itemsFor(m);
           return (
             <ContextMenu key={m.id} items={items} disabled={items.length === 0}>
@@ -127,6 +128,19 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
                     </p>
                     <p className="truncate font-mono text-[11px] text-fg-muted">@{m.username}</p>
                   </div>
+                  {online && device ? (
+                    <span
+                      className="grid h-5 w-5 place-items-center rounded border border-fg/30 bg-surface-2 text-accent-emerald"
+                      title={device === 'mobile' ? t('Online from a phone') : t('Online from a computer')}
+                      aria-label={device === 'mobile' ? t('Online from a phone') : t('Online from a computer')}
+                    >
+                      {device === 'mobile' ? (
+                        <Smartphone className="h-3 w-3" />
+                      ) : (
+                        <Monitor className="h-3 w-3" />
+                      )}
+                    </span>
+                  ) : null}
                   <PresenceBadge online={online} />
                 </div>
                 {!online ? (
@@ -134,7 +148,18 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
                     {t('Last online {time}', { time: relativeTime(lastSeenAt(m.id) ?? m.last_seen) })}
                   </p>
                 ) : (
-                  <p className="mt-1 ml-12 text-[11px] font-semibold text-accent-emerald">{t('Online now')}</p>
+                  <p className="mt-1 ml-12 inline-flex items-center gap-1 text-[11px] font-semibold text-accent-emerald">
+                    {device === 'mobile' ? (
+                      <Smartphone className="h-3 w-3" />
+                    ) : device === 'desktop' ? (
+                      <Monitor className="h-3 w-3" />
+                    ) : null}
+                    {device === 'mobile'
+                      ? t('Online now · phone')
+                      : device === 'desktop'
+                        ? t('Online now · computer')
+                        : t('Online now')}
+                  </p>
                 )}
               </li>
             </ContextMenu>

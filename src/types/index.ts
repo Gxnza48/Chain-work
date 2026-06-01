@@ -21,12 +21,15 @@ export interface ChainMemberProfile extends UserRow {
   role: ChainRole;
 }
 
+export type DeviceKind = 'mobile' | 'desktop';
+
 export interface PresenceMember {
   user_id: string;
   display_name: string;
   username: string;
   avatar_url: string | null;
   online_at: string;
+  device?: DeviceKind;
 }
 
 export interface ChainSummary extends ChainRow {
