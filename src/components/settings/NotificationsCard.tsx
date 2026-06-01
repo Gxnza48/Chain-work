@@ -20,8 +20,11 @@ export function NotificationsCard() {
       } else {
         toast.success(t('Notifications enabled'));
       }
-    } catch {
-      toast.error(t('Could not enable notifications'));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(t('Could not enable notifications'), {
+        description: msg === 'unsupported' ? t("This browser doesn't support push notifications.") : msg,
+      });
     }
   }
 
