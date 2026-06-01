@@ -7,6 +7,7 @@ import {
   notificationPermission,
   pushSupported,
   subscribeToPush,
+  syncSubscription,
   unsubscribeFromPush,
 } from '@/lib/push';
 
@@ -31,8 +32,15 @@ export function usePushNotifications(): PushState {
 
   useEffect(() => {
     if (!supported) return;
-    isSubscribed().then(setSubscribed).catch(() => setSubscribed(false));
-  }, [supported]);
+    isSubscribed()
+      .then((sub) => {
+        setSubscribed(sub);
+        // Heal a missing DB row (e.g. the device subscribed before the table
+        // existed): re-persist the existing subscription, no prompt.
+        if (sub && user) void syncSubscription(user.id);
+      })
+      .catch(() => setSubscribed(false));
+  }, [supported, user]);
 
   const enable = useCallback(async () => {
     if (!user || busy) return;

@@ -90,6 +90,29 @@ export async function subscribeToPush(userId: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Re-persist the current device's existing subscription (no permission prompt).
+ * Idempotent — used to heal a missing DB row (e.g. after the table is created).
+ */
+export async function syncSubscription(userId: string): Promise<void> {
+  if (!pushSupported()) return;
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+  if (!sub) return;
+  const json = sub.toJSON();
+  const keys = json.keys ?? {};
+  await supabase.from('push_subscriptions').upsert(
+    {
+      user_id: userId,
+      endpoint: sub.endpoint,
+      p256dh: keys.p256dh ?? '',
+      auth: keys.auth ?? '',
+      user_agent: navigator.userAgent,
+    },
+    { onConflict: 'endpoint' },
+  );
+}
+
 /** Unsubscribe this device and remove its stored subscription. */
 export async function unsubscribeFromPush(): Promise<void> {
   if (!pushSupported()) return;
