@@ -448,6 +448,17 @@ const es: Record<string, string> = {
   'Uploading…': 'Subiendo…',
   'JPG, PNG, GIF, or WebP.': 'JPG, PNG, GIF o WebP.',
   'MP4 or WebM up to 50 MB.': 'MP4 o WebM hasta 50 MB.',
+  'Upload PDF / HTML': 'Subir PDF / HTML',
+  'PDF (preview inline) or .html (opens in a new tab) up to 25 MB.':
+    'PDF (vista previa integrada) o .html (se abre en una pestaña nueva) hasta 25 MB.',
+  'Choose a PDF or HTML file': 'Elegí un archivo PDF o HTML',
+  'File too large': 'El archivo es muy grande',
+  'Max 25 MB — yours is {mb} MB': 'Máx 25 MB; el tuyo tiene {mb} MB',
+  'View PDF': 'Ver PDF',
+  'PDF': 'PDF',
+  'HTML': 'HTML',
+  'Opens in a new tab': 'Se abre en una pestaña nueva',
+  'Close': 'Cerrar',
 
   // ---- NotFound ----
   "That page doesn't exist.": 'Esa página no existe.',

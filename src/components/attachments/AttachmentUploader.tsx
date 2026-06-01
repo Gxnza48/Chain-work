@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react';
-import { Image as ImageIcon, Link as LinkIcon, Loader2, Upload, Video } from 'lucide-react';
+import { FileText, Image as ImageIcon, Link as LinkIcon, Loader2, Upload, Video } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import { bytesToMB, classifyUrl, VIDEO_MAX_BYTES } from '@/lib/utils';
+import { bytesToMB, classifyDocFile, classifyUrl, DOC_MAX_BYTES, VIDEO_MAX_BYTES } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
   onCreated?: () => void;
 }
 
-type Mode = 'url' | 'image' | 'video';
+type Mode = 'url' | 'image' | 'video' | 'doc';
 
 export function AttachmentUploader({ projectId, onCreated }: Props) {
   const { user } = useAuth();
@@ -58,6 +58,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     if (!file || !user) return;
     const bucket = mode === 'video' ? 'videos' : 'attachments';
     const isVideo = mode === 'video';
+    const isDoc = mode === 'doc';
 
     if (isVideo && file.size > VIDEO_MAX_BYTES) {
       toast.error(t('Video too large'), {
@@ -73,11 +74,26 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
       toast.error(t('Choose a video file'));
       return;
     }
+    let docType: 'pdf' | 'html' | null = null;
+    if (isDoc) {
+      docType = classifyDocFile(file);
+      if (!docType) {
+        toast.error(t('Choose a PDF or HTML file'));
+        return;
+      }
+      if (file.size > DOC_MAX_BYTES) {
+        toast.error(t('File too large'), {
+          description: t('Max 25 MB — yours is {mb} MB', { mb: bytesToMB(file.size) }),
+        });
+        return;
+      }
+    }
 
     setSubmitting(true);
     const path = `${projectId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]+/g, '_')}`;
     const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
       cacheControl: '3600',
+      contentType: file.type || (docType === 'pdf' ? 'application/pdf' : 'text/html'),
     });
     if (upErr) {
       toast.error(t('Upload failed'), { description: upErr.message });
@@ -89,7 +105,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
 
     const { error } = await supabase.from('attachments').insert({
       project_id: projectId,
-      type: isVideo ? 'video' : 'image',
+      type: isVideo ? 'video' : isDoc ? (docType as 'pdf' | 'html') : 'image',
       url: publicUrl,
       title: file.name,
       uploaded_by: user.id,
@@ -114,6 +130,9 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
         </ModeButton>
         <ModeButton active={mode === 'video'} onClick={() => setMode('video')} icon={<Video className="h-4 w-4" />}>
           {t('Upload video (≤50 MB)')}
+        </ModeButton>
+        <ModeButton active={mode === 'doc'} onClick={() => setMode('doc')} icon={<FileText className="h-4 w-4" />}>
+          {t('Upload PDF / HTML')}
         </ModeButton>
       </div>
 
@@ -147,7 +166,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
           <Input
             ref={fileRef}
             type="file"
-            accept={mode === 'image' ? 'image/*' : 'video/*'}
+            accept={mode === 'image' ? 'image/*' : mode === 'video' ? 'video/*' : '.pdf,.html,.htm,application/pdf,text/html'}
             onChange={onUpload}
             disabled={submitting}
           />
@@ -157,7 +176,11 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
             </p>
           ) : (
             <p className="text-xs text-fg-muted">
-              {mode === 'image' ? t('JPG, PNG, GIF, or WebP.') : t('MP4 or WebM up to 50 MB.')}
+              {mode === 'image'
+                ? t('JPG, PNG, GIF, or WebP.')
+                : mode === 'video'
+                  ? t('MP4 or WebM up to 50 MB.')
+                  : t('PDF (preview inline) or .html (opens in a new tab) up to 25 MB.')}
             </p>
           )}
         </div>

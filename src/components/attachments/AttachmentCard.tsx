@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { ExternalLink, Github, ImageIcon, Trash2, Video as VideoIcon, Link as LinkIcon } from 'lucide-react';
+import {
+  ExternalLink,
+  FileCode,
+  FileText,
+  Github,
+  ImageIcon,
+  Maximize2,
+  Trash2,
+  Video as VideoIcon,
+  Link as LinkIcon,
+  X,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/Badge';
 import { supabase } from '@/lib/supabase';
@@ -20,6 +31,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
   const t = useT();
   useRelativeTimeTick();
   const [lightbox, setLightbox] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const isOwner = user?.id === attachment.uploaded_by;
 
   async function remove() {
@@ -67,6 +79,31 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
               <video src={attachment.url} controls className="aspect-video w-full bg-black" preload="metadata" />
             );
           })()
+        ) : attachment.type === 'pdf' ? (
+          <button
+            type="button"
+            onClick={() => setPdfOpen(true)}
+            className="group relative block w-full aspect-video overflow-hidden bg-surface-2 focus:outline-none"
+            aria-label={t('View PDF')}
+          >
+            <iframe
+              src={`${attachment.url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+              title={attachment.title ?? t('PDF')}
+              className="pointer-events-none h-full w-full bg-white"
+              loading="lazy"
+            />
+            <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/40">
+              <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-brut-sm transition-opacity group-hover:opacity-100">
+                <Maximize2 className="h-3.5 w-3.5" /> {t('View PDF')}
+              </span>
+            </span>
+          </button>
+        ) : attachment.type === 'html' ? (
+          <FilePreview
+            attachment={attachment}
+            icon={<FileCode className="h-5 w-5" />}
+            hint={t('Opens in a new tab')}
+          />
         ) : (
           <LinkPreview attachment={attachment} />
         )}
@@ -124,6 +161,36 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
           />
         </button>
       ) : null}
+      {pdfOpen ? (
+        <div className="fixed inset-0 z-[60] flex flex-col gap-3 bg-black/90 p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <p className="truncate font-bold text-white">{attachment.title ?? t('PDF')}</p>
+            <div className="flex items-center gap-2">
+              <a
+                href={attachment.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+              >
+                <ExternalLink className="h-4 w-4" /> {t('Open')}
+              </a>
+              <button
+                type="button"
+                onClick={() => setPdfOpen(false)}
+                aria-label={t('Close')}
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+              >
+                <X className="h-4 w-4" /> {t('Close')}
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={attachment.url}
+            title={attachment.title ?? t('PDF')}
+            className="min-h-0 flex-1 w-full rounded-md border-2 border-white bg-white shadow-brut-lg"
+          />
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -145,6 +212,18 @@ function TypeBadge({ type, t }: { type: AttachmentRow['type']; t: TFn }) {
     return (
       <Badge variant="rose">
         <VideoIcon className="h-3 w-3" /> {t('Video')}
+      </Badge>
+    );
+  if (type === 'pdf')
+    return (
+      <Badge variant="amber">
+        <FileText className="h-3 w-3" /> {t('PDF')}
+      </Badge>
+    );
+  if (type === 'html')
+    return (
+      <Badge variant="emerald">
+        <FileCode className="h-3 w-3" /> {t('HTML')}
       </Badge>
     );
   return (
@@ -182,6 +261,35 @@ function LinkPreview({ attachment }: { attachment: AttachmentRow }) {
       <div className="min-w-0">
         <p className="truncate font-bold text-fg">{attachment.title ?? host}</p>
         <p className="truncate text-xs text-fg-muted font-mono">{host}</p>
+      </div>
+    </a>
+  );
+}
+
+function FilePreview({
+  attachment,
+  icon,
+  hint,
+}: {
+  attachment: AttachmentRow;
+  icon: React.ReactNode;
+  hint: string;
+}) {
+  return (
+    <a
+      href={attachment.url}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-3 p-5 hover:bg-surface"
+    >
+      <span className="grid h-12 w-12 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="truncate font-bold text-fg">{attachment.title ?? attachment.url}</p>
+        <p className="flex items-center gap-1 truncate text-xs text-fg-muted font-mono">
+          <ExternalLink className="h-3 w-3" /> {hint}
+        </p>
       </div>
     </a>
   );

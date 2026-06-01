@@ -2,7 +2,7 @@
 
 export type TodoStatus = 'pending' | 'in_progress' | 'done';
 export type TodoPriority = 'low' | 'medium' | 'high' | 'critical';
-export type AttachmentType = 'repo' | 'image' | 'video' | 'link';
+export type AttachmentType = 'repo' | 'image' | 'video' | 'link' | 'pdf' | 'html';
 export type ChainRole = 'owner' | 'member';
 
 export type Json =
