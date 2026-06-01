@@ -13,9 +13,11 @@ interface Props {
   projectId: string;
   members: UserRow[];
   onChange?: () => void;
+  /** Bump to force a reload (e.g. when a todo is completed elsewhere on the page). */
+  refreshSignal?: number;
 }
 
-export function Roadmap({ projectId, members, onChange }: Props) {
+export function Roadmap({ projectId, members, onChange, refreshSignal }: Props) {
   const t = useT();
   const [items, setItems] = useState<TodoRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,12 +25,15 @@ export function Roadmap({ projectId, members, onChange }: Props) {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('todos')
       .select('*')
       .eq('project_id', projectId)
       .eq('status', 'done')
       .order('completed_at', { ascending: false });
+    if (error) {
+      toast.error(t('Could not load the Roadmap'), { description: error.message });
+    }
     setItems(data ?? []);
     setLoading(false);
   }
@@ -47,7 +52,7 @@ export function Roadmap({ projectId, members, onChange }: Props) {
       supabase.removeChannel(ch).catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, refreshSignal]);
 
   async function reopen(todo: TodoRow) {
     const { error } = await supabase

@@ -23,9 +23,11 @@ interface Props {
   projectId?: string | null;
   members: UserRow[];
   heading?: string;
+  /** Called whenever the todo set is (re)loaded — lets a sibling Roadmap refresh. */
+  onChanged?: () => void;
 }
 
-export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Props) {
+export function TodoList({ chainId, projectId, members, heading = 'Todos', onChanged }: Props) {
   const t = useT();
   const [todos, setTodos] = useState<TodoRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,7 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos' }: Pro
       setTodos(data ?? []);
     }
     setLoading(false);
+    onChanged?.();
   }
 
   useEffect(() => {

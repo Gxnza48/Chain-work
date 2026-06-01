@@ -28,6 +28,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
+  const [todoRev, setTodoRev] = useState(0);
 
   async function load() {
     setLoading(true);
@@ -147,6 +148,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
             projectId={project.id}
             members={members}
             heading="Project todos"
+            onChanged={() => setTodoRev((r) => r + 1)}
           />
         </TabsContent>
         <TabsContent value="ideas">
@@ -157,7 +159,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
         </TabsContent>
       </Tabs>
 
-      <Roadmap projectId={project.id} members={members} />
+      <Roadmap projectId={project.id} members={members} refreshSignal={todoRev} />
     </div>
   );
 }

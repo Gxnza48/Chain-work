@@ -422,6 +422,7 @@ const es: Record<string, string> = {
   'Links & Media': 'Links y media',
 
   // ---- Roadmap ----
+  'Could not load the Roadmap': 'No se pudo cargar el Roadmap',
   'Could not reopen': 'No se pudo reabrir',
   'Re-opened, removed from Roadmap': 'Reabierta, quitada del Roadmap',
   'append-only history': 'historial que solo crece',
