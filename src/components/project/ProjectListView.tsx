@@ -83,8 +83,8 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h2 className="font-display text-2xl font-bold tracking-tight">{t('Projects')}</h2>
           <p className="text-sm text-fg-muted">
             {projects ? t('{n} / {cap} used', { n: projects.length, cap: PROJECT_CAP }) : '…'}
@@ -94,13 +94,14 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
             aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           <Button
             size="md"
+            className="flex-1 sm:flex-none"
             onClick={() => {
               if (atCap) {
                 toast.error(t('Project limit reached'), {

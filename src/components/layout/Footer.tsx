@@ -105,8 +105,8 @@ export function Footer() {
 
       {/* Made-in-Argentina credit — flag via flagcdn (emoji flags don't render on desktop) */}
       <div className="border-t-2 border-fg/30">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-6 py-5 text-center text-sm font-semibold text-fg-muted">
-          <Flag code="ar" alt="Argentina" className="h-3.5 w-5 rounded-[2px] border border-fg/40" />
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 px-6 py-5 text-center text-sm font-semibold text-fg-muted">
+          <Flag code="ar" alt="Argentina" className="h-3.5 w-5 shrink-0 rounded-[2px] border border-fg/40" />
           <span>{t('Made in Argentina by Gonzalo Bonadeo & Agustin Casal')}</span>
         </div>
       </div>

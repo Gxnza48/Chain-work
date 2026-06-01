@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 import type { ChainRow, ChainSummary } from '@/types';
 
 export default function Dashboard() {
@@ -77,25 +78,32 @@ export default function Dashboard() {
 
         <section className="mt-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight">{t('Your chains')}</h2>
-              <p className="text-sm text-fg-muted">{t('Shared workspaces you are a member of.')}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="font-display text-2xl font-bold tracking-tight">{t('Your chains')}</h2>
+                <p className="text-sm text-fg-muted">{t('Shared workspaces you are a member of.')}</p>
+              </div>
+              {/* On mobile the refresh sits beside the title; on desktop it joins the action row below. */}
+              <RefreshButton onClick={load} label={t('Refresh')} className="sm:hidden" />
             </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" size="md" onClick={() => setJoining(true)}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setJoining(true)}
+                className="w-full sm:w-auto"
+              >
                 <KeyRound className="h-4 w-4" /> {t('Join Chain')}
               </Button>
-              <Button variant="primary" size="md" onClick={() => setCreating(true)}>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => setCreating(true)}
+                className="w-full sm:w-auto"
+              >
                 <Plus className="h-4 w-4" /> {t('Create New Chain')}
               </Button>
-              <button
-                type="button"
-                onClick={load}
-                aria-label={t('Refresh')}
-                className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
+              <RefreshButton onClick={load} label={t('Refresh')} className="hidden sm:inline-grid" />
             </div>
           </div>
 
@@ -125,6 +133,32 @@ export default function Dashboard() {
   );
 }
 
+function RefreshButton({
+  onClick,
+  label,
+  className,
+}: {
+  onClick: () => void;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm',
+        'transition-transform duration-150 hover:-translate-x-[1px] hover:-translate-y-[1px] active:translate-x-0 active:translate-y-0',
+        className,
+      )}
+    >
+      <RefreshCw className="h-4 w-4" />
+    </button>
+  );
+}
+
 function EmptyState({ onCreate, onJoin }: { onCreate: () => void; onJoin: () => void }) {
   const t = useT();
   return (
@@ -139,11 +173,11 @@ function EmptyState({ onCreate, onJoin }: { onCreate: () => void; onJoin: () => 
             {t('A chain is a shared workspace. Make one, invite a teammate, and start building.')}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={onJoin}>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button variant="secondary" onClick={onJoin} className="w-full sm:w-auto">
             <KeyRound className="h-4 w-4" /> {t('Join with code')}
           </Button>
-          <Button onClick={onCreate}>
+          <Button onClick={onCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" /> {t('Create chain')}
           </Button>
         </div>

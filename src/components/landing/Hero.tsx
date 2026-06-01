@@ -56,7 +56,7 @@ export function Hero() {
         </motion.div>
 
         <h1
-          className="font-display text-5xl font-bold tracking-tight text-fg leading-[0.95] sm:text-6xl md:text-7xl lg:text-[7rem]"
+          className="font-display text-4xl font-bold tracking-tight text-fg leading-[0.95] break-words sm:text-6xl md:text-7xl lg:text-[7rem]"
           style={{ letterSpacing: '-0.04em' }}
         >
           {headlineWords.map((w, i) => (

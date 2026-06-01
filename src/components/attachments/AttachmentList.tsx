@@ -48,16 +48,16 @@ export function AttachmentList({ projectId, members }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-rose text-white shadow-brut-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-rose text-white shadow-brut-sm">
             <Paperclip className="h-4 w-4" />
           </span>
-          <h3 className="font-display text-lg font-bold tracking-tight">{t('Links & Media')}</h3>
-          <Badge variant="neutral">{items.length}</Badge>
+          <h3 className="truncate font-display text-lg font-bold tracking-tight">{t('Links & Media')}</h3>
+          <Badge variant="neutral" className="shrink-0">{items.length}</Badge>
         </div>
         {!adding ? (
-          <Button size="sm" onClick={() => setAdding(true)}>
+          <Button size="sm" onClick={() => setAdding(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" /> {t('Add attachment')}
           </Button>
         ) : null}

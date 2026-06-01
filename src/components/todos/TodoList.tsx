@@ -102,13 +102,13 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
             <ListTodo className="h-4 w-4" />
           </span>
-          <h3 className="font-display text-lg font-bold tracking-tight">{t(heading)}</h3>
-          <Badge variant="neutral">
+          <h3 className="truncate font-display text-lg font-bold tracking-tight">{t(heading)}</h3>
+          <Badge variant="neutral" className="shrink-0">
             {t('{active} active · {done} done', {
               active: pending.length + inProgress.length,
               done: done.length,
@@ -119,13 +119,13 @@ export function TodoList({ chainId, projectId, members, heading = 'Todos', onCha
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
             aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {!adding ? (
-            <Button size="sm" onClick={() => setAdding(true)}>
+            <Button size="sm" onClick={() => setAdding(true)} className="flex-1 sm:flex-none">
               <Plus className="h-4 w-4" /> {t('Add todo')}
             </Button>
           ) : null}

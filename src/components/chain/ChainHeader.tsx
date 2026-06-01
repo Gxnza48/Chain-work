@@ -104,7 +104,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
 
   return (
     <header className="sticky top-0 z-20 border-b-2 border-fg bg-bg/90 backdrop-blur-md">
-      <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
+      <div className="flex h-14 items-center gap-1.5 px-3 sm:gap-3 sm:px-6">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link to="/dashboard" aria-label={t('Back to dashboard')}>
             <ArrowLeft className="h-4 w-4" />
@@ -121,7 +121,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                 e.preventDefault();
                 saveName();
               }}
-              className="flex items-center gap-2"
+              className="flex min-w-0 items-center gap-2"
             >
               <Input
                 ref={inputRef}
@@ -133,14 +133,14 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                     setEditing(false);
                   }
                 }}
-                className="h-9 max-w-xs font-display text-lg font-bold"
+                className="h-9 w-full min-w-0 max-w-xs font-display text-lg font-bold"
                 aria-label={t('Chain name')}
               />
               <button
                 type="submit"
                 disabled={saving}
                 aria-label={t('Save name')}
-                className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
+                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               </button>
@@ -151,7 +151,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                   setEditing(false);
                 }}
                 aria-label={t('Cancel rename')}
-                className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -190,31 +190,34 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
         <button
           type="button"
           onClick={copyCode}
-          className="hidden items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 font-mono text-sm font-bold tracking-widest text-fg shadow-brut-sm hover:bg-surface md:inline-flex"
+          className="hidden shrink-0 items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 font-mono text-sm font-bold tracking-widest text-fg shadow-brut-sm hover:bg-surface md:inline-flex"
         >
           {copied ? <Check className="h-4 w-4 text-accent-emerald" /> : <Copy className="h-4 w-4" />}
           {chain.code}
         </button>
 
-        <button
-          type="button"
-          onClick={onOpenMembers}
-          className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm lg:hidden"
-          aria-label={t('Open members')}
-        >
-          <Users className="h-5 w-5" />
-        </button>
+        {/* Group the secondary controls so they can be hidden together while renaming on mobile. */}
+        <div className={cn('flex items-center gap-1.5 sm:gap-2', editing && 'hidden sm:flex')}>
+          <button
+            type="button"
+            onClick={onOpenMembers}
+            className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm lg:hidden"
+            aria-label={t('Open members')}
+          >
+            <Users className="h-5 w-5" />
+          </button>
 
-        <LanguageToggle />
+          <LanguageToggle className="shrink-0" />
 
-        <ThemeToggle />
+          <ThemeToggle className="shrink-0" />
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label={t('Chain settings')}
-              className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
+              className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
             >
               <Settings className="h-5 w-5" />
             </button>

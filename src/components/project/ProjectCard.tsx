@@ -116,7 +116,7 @@ export function ProjectCard({ project, canManage, onOpen, onRenamed }: Props) {
                           saveName();
                         }
                       }}
-                      className="h-9 font-display text-base font-bold"
+                      className="h-9 min-w-0 flex-1 font-display text-base font-bold"
                       aria-label={t('Project name')}
                     />
                     <button

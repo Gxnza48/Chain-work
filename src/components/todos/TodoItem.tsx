@@ -206,8 +206,8 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
             </Badge>
           ) : null}
           {assignees.length > 0 ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
-              <span className="flex -space-x-1.5">
+            <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 text-xs font-semibold text-fg-muted">
+              <span className="flex shrink-0 -space-x-1.5">
                 {assignees.slice(0, 4).map((a) => (
                   <Avatar key={a.id} className="h-5 w-5 ring-2 ring-surface">
                     {a.avatar_url ? <AvatarImage src={a.avatar_url} alt={a.display_name} /> : null}
@@ -215,7 +215,9 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
                   </Avatar>
                 ))}
               </span>
-              {assignees.length === 1 ? assignees[0].display_name : t('{n} assigned', { n: assignees.length })}
+              <span className="truncate">
+                {assignees.length === 1 ? assignees[0].display_name : t('{n} assigned', { n: assignees.length })}
+              </span>
             </span>
           ) : null}
         </div>
@@ -244,7 +246,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
             type="button"
             onClick={() => setEditing(true)}
             aria-label={t('Edit todo')}
-            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
+            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -254,7 +256,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
             type="button"
             onClick={deleteTodo}
             aria-label={t('Delete todo')}
-            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose group-hover:opacity-100"
+            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-accent-rose/10 hover:text-accent-rose sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -263,7 +265,7 @@ export function TodoItem({ todo, members, draggable = false, onChanged }: Props)
             type="button"
             onClick={() => cycleStatus('pending')}
             aria-label={t('Re-open todo')}
-            className="rounded-md p-1 text-fg-muted opacity-0 transition-opacity hover:bg-surface-2 hover:text-fg group-hover:opacity-100"
+            className="rounded-md p-2 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <RotateCcw className="h-4 w-4" />
           </button>

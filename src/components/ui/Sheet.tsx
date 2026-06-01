@@ -10,7 +10,7 @@ export const SheetClose = DialogPrimitive.Close;
 export const SheetPortal = DialogPrimitive.Portal;
 
 const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-surface border-2 border-fg shadow-brut-lg p-6 transition ease-in-out',
+  'fixed z-50 gap-4 bg-surface border-2 border-fg shadow-brut-lg p-4 sm:p-6 transition ease-in-out',
   {
     variants: {
       side: {

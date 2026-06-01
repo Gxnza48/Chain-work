@@ -107,16 +107,16 @@ export function AppShell({ children }: AppShellProps) {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between gap-3 border-b-2 border-fg bg-bg px-4 lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between gap-2 border-b-2 border-fg bg-bg px-4 sm:gap-3 lg:hidden">
         <button
-          className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
+          className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
           onClick={() => setOpen(true)}
           aria-label={t('Open menu')}
         >
           <Menu className="h-5 w-5" />
         </button>
         <Logo size="sm" to="/" />
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
         </div>

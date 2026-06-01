@@ -87,7 +87,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 mb-2">
             <ArrowLeft className="h-4 w-4" />
@@ -120,7 +120,7 @@ export function ProjectView({ projectId, members, onBack }: Props) {
             </div>
           ) : (
             <>
-              <h2 className="font-display text-3xl font-bold tracking-tight">{project.name}</h2>
+              <h2 className="font-display text-3xl font-bold tracking-tight break-words">{project.name}</h2>
               {project.description ? (
                 <p className="mt-1 max-w-3xl text-base text-fg-muted">{project.description}</p>
               ) : (
@@ -130,7 +130,12 @@ export function ProjectView({ projectId, members, onBack }: Props) {
           )}
         </div>
         {!editing ? (
-          <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setEditing(true)}
+            className="shrink-0 self-start"
+          >
             <Pencil className="h-4 w-4" /> {t('Edit')}
           </Button>
         ) : null}

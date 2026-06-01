@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useT } from '@/lib/i18n';
 
-const VIEW = 264; // square preview size in px
+const VIEW = 240; // square preview size in px (fits a ~320px phone inside the modal padding)
 const OUT = 512; // exported avatar size in px
 
 interface Props {
@@ -111,7 +111,7 @@ export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
         if (!open && !busy) onCancel();
       }}
     >
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t('Adjust your photo')}</DialogTitle>
           <DialogDescription>{t('Drag to reposition and zoom to frame it just right.')}</DialogDescription>

@@ -107,9 +107,9 @@ export function IdeaList({ chainId, projectId, members }: Props) {
           <h3 className="font-display text-lg font-bold tracking-tight">{t('Ideas')}</h3>
           <Badge variant="neutral">{ideas.length}</Badge>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
-            <SelectTrigger className="h-9 w-44">
+            <SelectTrigger className="h-9 min-w-0 flex-1 sm:w-44 sm:flex-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -121,13 +121,13 @@ export function IdeaList({ chainId, projectId, members }: Props) {
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
             aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {!adding ? (
-            <Button size="sm" onClick={() => setAdding(true)}>
+            <Button size="sm" onClick={() => setAdding(true)} className="shrink-0">
               <Plus className="h-4 w-4" /> {t('Add idea')}
             </Button>
           ) : null}
