@@ -1,5 +1,6 @@
 import { AppShell } from '@/components/layout/AppShell';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
+import { NotificationsCard } from '@/components/settings/NotificationsCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +29,10 @@ export default function Settings() {
         <section>
           <h2 className="mb-3 font-display text-lg font-bold tracking-tight">{t('Profile')}</h2>
           <ProfileCard />
+        </section>
+
+        <section>
+          <NotificationsCard />
         </section>
 
         <section>

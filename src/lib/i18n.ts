@@ -257,6 +257,29 @@ const es: Record<string, string> = {
   'Sign out': 'Cerrar sesión',
   'Logout': 'Cerrar sesión',
 
+  // ---- Notifications ----
+  'Notifications': 'Notificaciones',
+  'Get a push when a teammate adds a todo, idea or file, joins the chain, or a todo is due.':
+    'Recibí un aviso cuando alguien agrega un todo, idea o archivo, se une a la chain, o vence un todo.',
+  "This browser doesn't support push notifications.":
+    'Este navegador no soporta notificaciones push.',
+  'Install the app to get notifications on iPhone':
+    'Instalá la app para recibir notificaciones en iPhone',
+  'Tap': 'Tocá',
+  'then “Add to Home Screen”, open it from there, and come back.':
+    'luego “Agregar a inicio”, abrila desde ahí y volvé.',
+  'Notifications are on for this device.': 'Las notificaciones están activadas en este dispositivo.',
+  'Turn off': 'Desactivar',
+  'Enable notifications': 'Activar notificaciones',
+  'Notifications are blocked. Allow them for this site in your browser settings.':
+    'Las notificaciones están bloqueadas. Permitilas para este sitio en la configuración del navegador.',
+  'Notifications are blocked': 'Las notificaciones están bloqueadas',
+  'Allow notifications for this site in your browser settings.':
+    'Permití las notificaciones para este sitio en la configuración del navegador.',
+  'Notifications enabled': 'Notificaciones activadas',
+  'Could not enable notifications': 'No se pudieron activar las notificaciones',
+  'Notifications disabled': 'Notificaciones desactivadas',
+
   // ---- Chain page ----
   'Loading chain…': 'Cargando chain…',
   'All todos': 'Todas las tareas',

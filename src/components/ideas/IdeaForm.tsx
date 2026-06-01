@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/lib/supabase';
+import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/lib/i18n';
 
@@ -32,18 +33,23 @@ export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
     }
     setSubmitting(true);
     const cleaned = description === '<p></p>' ? null : description;
-    const { error } = await supabase.from('ideas').insert({
-      chain_id: chainId,
-      project_id: projectId ?? null,
-      title: title.trim(),
-      description: cleaned,
-      created_by: user.id,
-    });
+    const { data, error } = await supabase
+      .from('ideas')
+      .insert({
+        chain_id: chainId,
+        project_id: projectId ?? null,
+        title: title.trim(),
+        description: cleaned,
+        created_by: user.id,
+      })
+      .select('id')
+      .single();
     setSubmitting(false);
     if (error) {
       toast.error(t('Could not save idea'), { description: error.message });
       return;
     }
+    if (data) void notifyEvent('idea', { id: data.id });
     setTitle('');
     setDescription('<p></p>');
     onCreated?.();

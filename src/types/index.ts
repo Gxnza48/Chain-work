@@ -12,6 +12,7 @@ export type TodoRow = T['todos']['Row'];
 export type IdeaRow = T['ideas']['Row'];
 export type IdeaVoteRow = T['idea_votes']['Row'];
 export type AttachmentRow = T['attachments']['Row'];
+export type PushSubscriptionRow = T['push_subscriptions']['Row'];
 
 export type Theme = 'dark' | 'light';
 

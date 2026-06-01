@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { supabase } from '@/lib/supabase';
+import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -65,21 +66,26 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
       return;
     }
 
-    const { error } = await supabase.from('todos').insert({
-      chain_id: chainId,
-      project_id: projectId ?? null,
-      title: title.trim(),
-      description: description.trim() || null,
-      assigned_to: assignedTo === 'unassigned' ? null : assignedTo,
-      due_date: dueDate || null,
-      priority,
-      created_by: user.id,
-    });
+    const { data, error } = await supabase
+      .from('todos')
+      .insert({
+        chain_id: chainId,
+        project_id: projectId ?? null,
+        title: title.trim(),
+        description: description.trim() || null,
+        assigned_to: assignedTo === 'unassigned' ? null : assignedTo,
+        due_date: dueDate || null,
+        priority,
+        created_by: user.id,
+      })
+      .select('id')
+      .single();
     setSubmitting(false);
     if (error) {
       toast.error(t('Could not create todo'), { description: error.message });
       return;
     }
+    if (data) void notifyEvent('todo', { id: data.id });
     setTitle('');
     setDescription('');
     setAssignedTo('unassigned');

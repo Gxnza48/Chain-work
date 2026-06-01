@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
+import { notifyEvent } from '@/lib/push';
 import { useT } from '@/lib/i18n';
 
 interface Props {
@@ -54,6 +55,7 @@ export function JoinChainModal({ open, onOpenChange, onJoined }: Props) {
       return;
     }
     const chainId = data as unknown as string;
+    void notifyEvent('join', { chainId });
     onJoined?.();
     toast.success(t('Joined chain'));
     onOpenChange(false);

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { supabase } from '@/lib/supabase';
+import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { bytesToMB, classifyDocFile, classifyUrl, DOC_MAX_BYTES, VIDEO_MAX_BYTES } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
@@ -36,18 +37,23 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     }
     setSubmitting(true);
     const type = classifyUrl(url);
-    const { error } = await supabase.from('attachments').insert({
-      project_id: projectId,
-      type,
-      url,
-      title: title.trim() || null,
-      uploaded_by: user.id,
-    });
+    const { data, error } = await supabase
+      .from('attachments')
+      .insert({
+        project_id: projectId,
+        type,
+        url,
+        title: title.trim() || null,
+        uploaded_by: user.id,
+      })
+      .select('id')
+      .single();
     setSubmitting(false);
     if (error) {
       toast.error(t('Could not add link'), { description: error.message });
       return;
     }
+    if (data) void notifyEvent('file', { id: data.id });
     setUrl('');
     setTitle('');
     onCreated?.();
@@ -103,18 +109,23 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
     const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
     const publicUrl = pub.publicUrl;
 
-    const { error } = await supabase.from('attachments').insert({
-      project_id: projectId,
-      type: isVideo ? 'video' : isDoc ? (docType as 'pdf' | 'html') : 'image',
-      url: publicUrl,
-      title: file.name,
-      uploaded_by: user.id,
-    });
+    const { data, error } = await supabase
+      .from('attachments')
+      .insert({
+        project_id: projectId,
+        type: isVideo ? 'video' : isDoc ? (docType as 'pdf' | 'html') : 'image',
+        url: publicUrl,
+        title: file.name,
+        uploaded_by: user.id,
+      })
+      .select('id')
+      .single();
     setSubmitting(false);
     if (error) {
       toast.error(t('Could not save attachment'), { description: error.message });
       return;
     }
+    if (data) void notifyEvent('file', { id: data.id });
     if (fileRef.current) fileRef.current.value = '';
     onCreated?.();
   }
