@@ -42,6 +42,9 @@ coverage/
 
 # misc
 .turbo/
+# local workflow artifacts
+.wf-v02/
+.wf-*/
 
 # python __pycache__ from installed skills
 **/__pycache__/
