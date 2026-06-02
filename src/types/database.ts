@@ -379,6 +379,11 @@ export interface Database {
           reply_to: string | null;
           edited_at: string | null;
           deleted_at: string | null;
+          file_url: string | null;
+          file_name: string | null;
+          file_type: string | null;
+          file_size: number | null;
+          poll_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -391,6 +396,11 @@ export interface Database {
           reply_to?: string | null;
           edited_at?: string | null;
           deleted_at?: string | null;
+          file_url?: string | null;
+          file_name?: string | null;
+          file_type?: string | null;
+          file_size?: number | null;
+          poll_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -403,6 +413,62 @@ export interface Database {
           reply_to?: string | null;
           edited_at?: string | null;
           deleted_at?: string | null;
+          file_url?: string | null;
+          file_name?: string | null;
+          file_type?: string | null;
+          file_size?: number | null;
+          poll_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      chat_polls: {
+        Row: {
+          id: string;
+          chain_id: string;
+          question: string;
+          options: string[];
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          question: string;
+          options: string[];
+          created_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          question?: string;
+          options?: string[];
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      chat_poll_votes: {
+        Row: {
+          poll_id: string;
+          user_id: string;
+          chain_id: string;
+          option_index: number;
+          created_at: string;
+        };
+        Insert: {
+          poll_id: string;
+          user_id: string;
+          chain_id: string;
+          option_index: number;
+          created_at?: string;
+        };
+        Update: {
+          poll_id?: string;
+          user_id?: string;
+          chain_id?: string;
+          option_index?: number;
           created_at?: string;
         };
         Relationships: [];
@@ -428,6 +494,45 @@ export interface Database {
           chain_id?: string;
           emoji?: string;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      chat_mentions: {
+        Row: {
+          message_id: string;
+          user_id: string;
+          chain_id: string;
+          created_at: string;
+        };
+        Insert: {
+          message_id: string;
+          user_id: string;
+          chain_id: string;
+          created_at?: string;
+        };
+        Update: {
+          message_id?: string;
+          user_id?: string;
+          chain_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      chat_reads: {
+        Row: {
+          chain_id: string;
+          user_id: string;
+          last_read_at: string;
+        };
+        Insert: {
+          chain_id: string;
+          user_id: string;
+          last_read_at?: string;
+        };
+        Update: {
+          chain_id?: string;
+          user_id?: string;
+          last_read_at?: string;
         };
         Relationships: [];
       };

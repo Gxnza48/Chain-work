@@ -150,7 +150,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else if (event === 'chat') {
       const { data } = await db
         .from('chat_messages')
-        .select('body, chain_id')
+        .select('body, chain_id, file_url, poll_id, chat_polls(question)')
         .eq('id', body.id)
         .single();
       if (!data) return res.status(404).json({ error: 'not found' });
@@ -159,11 +159,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!(await isMember(db, chainId, actor.id))) {
         return res.status(403).json({ error: 'not a member' });
       }
+      const poll = (data as { chat_polls?: { question: string } | null }).chat_polls;
       const snippet = data.body
         ? data.body.length > 80
           ? `${data.body.slice(0, 80)}…`
           : data.body
-        : '🎤 Audio';
+        : poll?.question
+          ? `📊 ${poll.question}`
+          : data.file_url
+            ? '📎 Archivo'
+            : '🎤 Audio';
       payload = {
         title: await chainName(chainId),
         body: `${actorName}: ${snippet}`,

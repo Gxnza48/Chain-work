@@ -126,7 +126,7 @@ export function useChat(chainId: string, members: UserRow[]) {
   }, [chainId, channelId, load, resolve]);
 
   const send = useCallback(
-    async (body: string, replyTo?: string | null) => {
+    async (body: string, replyTo?: string | null, mentionedUserIds: string[] = []) => {
       const text = body.trim();
       if (!user || !text) return;
       const { data, error } = await supabase
@@ -135,6 +135,13 @@ export function useChat(chainId: string, members: UserRow[]) {
         .select('id')
         .single();
       if (error) throw error;
+      // Persist @-mentions (excluding self) so those members get the tab alert.
+      const mentioned = mentionedUserIds.filter((id) => id !== user.id);
+      if (mentioned.length > 0) {
+        await supabase
+          .from('chat_mentions')
+          .insert(mentioned.map((uid) => ({ message_id: data.id, user_id: uid, chain_id: chainId })));
+      }
       // Optimistic append so the sender sees it instantly; the realtime INSERT
       // echo is de-duped by id (see the INSERT handler), so this never doubles.
       const row: ChatMessageRow = {
@@ -144,6 +151,11 @@ export function useChat(chainId: string, members: UserRow[]) {
         body: text,
         audio_url: null,
         audio_duration: null,
+        file_url: null,
+        file_name: null,
+        file_type: null,
+        file_size: null,
+        poll_id: null,
         reply_to: replyTo ?? null,
         edited_at: null,
         deleted_at: null,
@@ -151,6 +163,54 @@ export function useChat(chainId: string, members: UserRow[]) {
       };
       setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, resolve(row)]));
       // Fire-and-forget web push to the other chain members.
+      void notifyEvent('chat', { id: data.id });
+    },
+    [user, chainId, resolve],
+  );
+
+  const sendFile = useCallback(
+    async (file: File, replyTo?: string | null) => {
+      if (!user) return;
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_');
+      const path = `${chainId}/${Date.now()}-${safe}`;
+      const { error: upErr } = await supabase.storage
+        .from('chat-files')
+        .upload(path, file, { cacheControl: '3600', contentType: file.type || undefined });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('chat-files').getPublicUrl(path);
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .insert({
+          chain_id: chainId,
+          user_id: user.id,
+          body: null,
+          reply_to: replyTo ?? null,
+          file_url: pub.publicUrl,
+          file_name: file.name,
+          file_type: file.type || null,
+          file_size: file.size,
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      const row: ChatMessageRow = {
+        id: data.id,
+        chain_id: chainId,
+        user_id: user.id,
+        body: null,
+        audio_url: null,
+        audio_duration: null,
+        file_url: pub.publicUrl,
+        file_name: file.name,
+        file_type: file.type || null,
+        file_size: file.size,
+        poll_id: null,
+        reply_to: replyTo ?? null,
+        edited_at: null,
+        deleted_at: null,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, resolve(row)]));
       void notifyEvent('chat', { id: data.id });
     },
     [user, chainId, resolve],
@@ -197,5 +257,5 @@ export function useChat(chainId: string, members: UserRow[]) {
     [user, chainId, reactions],
   );
 
-  return { messages, reactions, loading, send, edit, remove, react, reload: load };
+  return { messages, reactions, loading, send, sendFile, edit, remove, react, reload: load };
 }

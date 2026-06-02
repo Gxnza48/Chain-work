@@ -12,6 +12,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Sheet, SheetContent, SheetTitle, SheetHeader } from '@/components/ui/Sheet';
 import { useChain } from '@/hooks/useChain';
+import { useChatMentions } from '@/hooks/useChatMentions';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ type Tab = 'projects' | 'ideas' | 'todos' | 'chat';
 export default function ChainPage() {
   const { chainId } = useParams<{ chainId: string }>();
   const { chain, members, myRole, loading, error, refresh } = useChain(chainId);
+  const chatUnread = useChatMentions(chainId);
   const t = useT();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -124,6 +126,7 @@ export default function ChainPage() {
               setNavOpen(false);
             }}
             icon={<MessageSquare className="h-4 w-4" />}
+            badge={chatUnread}
           >
             {t('Chat')}
           </NavButton>
@@ -215,9 +218,10 @@ interface NavButtonProps {
   onClick: () => void;
   icon: React.ReactNode;
   children: React.ReactNode;
+  badge?: number;
 }
 
-function NavButton({ active, onClick, icon, children }: NavButtonProps) {
+function NavButton({ active, onClick, icon, children, badge }: NavButtonProps) {
   return (
     <button
       type="button"
@@ -231,6 +235,11 @@ function NavButton({ active, onClick, icon, children }: NavButtonProps) {
     >
       {icon}
       {children}
+      {badge && badge > 0 ? (
+        <span className="ml-auto grid min-w-[1.15rem] place-items-center rounded-full border-2 border-fg bg-accent-rose px-1 text-[10px] font-bold leading-none text-white font-mono">
+          {badge > 9 ? '9+' : badge}
+        </span>
+      ) : null}
     </button>
   );
 }

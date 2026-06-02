@@ -728,6 +728,22 @@ Object.assign(es, {
   'Could not delete message': 'No se pudo borrar el mensaje',
   'React': 'Reaccionar',
   'Something went wrong. Try reloading.': 'Algo salió mal. Probá recargar.',
+  'Message info': 'Info del mensaje',
+  'Information': 'Información',
+  'Seen': 'Visto',
+  'Not seen': 'No visto',
+  'Project': 'Proyecto',
+  'Attach a file': 'Adjuntar un archivo',
+  'Could not send file': 'No se pudo enviar el archivo',
+  'Copy image': 'Copiar imagen',
+  'Image copied': 'Imagen copiada',
+  'Could not copy image': 'No se pudo copiar la imagen',
+  'Create poll': 'Crear votación',
+  'Ask a question': 'Hacé una pregunta',
+  'Option': 'Opción',
+  'Add option': 'Agregar opción',
+  '{n} votes': '{n} votos',
+  'Could not create poll': 'No se pudo crear la votación',
 });
 
 function interpolate(str: string, vars?: Record<string, string | number>): string {

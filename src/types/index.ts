@@ -69,6 +69,10 @@ export interface ChatMessageWithAuthor extends ChatMessageRow {
 }
 
 export type ChatReactionRow = T['chat_reactions']['Row'];
+export type ChatReadRow = T['chat_reads']['Row'];
+export type ChatMentionRow = T['chat_mentions']['Row'];
+export type ChatPollRow = T['chat_polls']['Row'];
+export type ChatPollVoteRow = T['chat_poll_votes']['Row'];
 
 /** The 5 preset reaction emojis. */
 export const CHAT_REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮'] as const;
