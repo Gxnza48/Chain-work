@@ -229,14 +229,16 @@ export function ChatPanel({ chainId, members }: Props) {
 
   function applyMention(s: { insert: string }) {
     if (!mention) return;
-    const ta = taRef.current;
-    const cursor = ta ? ta.selectionStart : text.length;
+    // Slice deterministically from the token's known position (@ + query),
+    // not the live caret — robust regardless of where the cursor sits.
     const before = text.slice(0, mention.start);
-    const next = `${before}${s.insert}${text.slice(cursor)}`;
+    const after = text.slice(mention.start + mention.query.length + 1);
+    const next = `${before}${s.insert}${after}`;
     setText(next);
     setMention(null);
     const pos = before.length + s.insert.length;
     requestAnimationFrame(() => {
+      const ta = taRef.current;
       if (ta) {
         ta.focus();
         ta.selectionStart = pos;
