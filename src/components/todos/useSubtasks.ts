@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +8,7 @@ import type { SubtaskRow } from '@/types';
 export function useSubtasks(todoId: string, chainId: string) {
   const { user } = useAuth();
   const t = useT();
+  const channelId = useId();
   const [items, setItems] = useState<SubtaskRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +31,7 @@ export function useSubtasks(todoId: string, chainId: string) {
   useEffect(() => {
     load();
     const ch = supabase
-      .channel(`subtasks:${todoId}`)
+      .channel(`subtasks:${todoId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'subtasks', filter: `todo_id=eq.${todoId}` },
@@ -40,7 +41,7 @@ export function useSubtasks(todoId: string, chainId: string) {
     return () => {
       supabase.removeChannel(ch).catch(() => {});
     };
-  }, [todoId, load]);
+  }, [todoId, load, channelId]);
 
   const add = useCallback(
     async (title: string) => {

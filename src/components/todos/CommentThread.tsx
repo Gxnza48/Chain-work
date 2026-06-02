@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Loader2, Send, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -22,6 +22,7 @@ interface Props {
 export function CommentThread({ chainId, todoId, members, onCountChange }: Props) {
   const { user } = useAuth();
   const t = useT();
+  const channelId = useId();
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [body, setBody] = useState('');
@@ -57,7 +58,7 @@ export function CommentThread({ chainId, todoId, members, onCountChange }: Props
   useEffect(() => {
     load();
     const ch = supabase
-      .channel(`comments:${todoId}`)
+      .channel(`comments:${todoId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'comments', filter: `todo_id=eq.${todoId}` },

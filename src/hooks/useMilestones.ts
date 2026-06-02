@@ -2,13 +2,16 @@
 // and compute each milestone's progress from project todos.
 // Mirrors the Roadmap/ProjectStats channel + reload pattern.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { MilestoneRow, MilestoneWithProgress } from '@/types';
 
 export function useMilestones(projectId: string, refreshSignal?: number) {
   const [milestones, setMilestones] = useState<MilestoneWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
+  // Unique per hook instance: useMilestones runs in both MilestonesPanel and
+  // TodoList for the same projectId, so the channel topic must not collide.
+  const channelId = useId();
 
   const load = useCallback(async () => {
     // No project context (the chain-level "All todos" view passes ''): nothing
@@ -63,7 +66,7 @@ export function useMilestones(projectId: string, refreshSignal?: number) {
   useEffect(() => {
     if (!projectId) return;
     const ch = supabase
-      .channel(`milestones:${projectId}`)
+      .channel(`milestones:${projectId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'milestones', filter: `project_id=eq.${projectId}` },
@@ -78,7 +81,7 @@ export function useMilestones(projectId: string, refreshSignal?: number) {
     return () => {
       supabase.removeChannel(ch).catch(() => {});
     };
-  }, [projectId, load]);
+  }, [projectId, load, channelId]);
 
   return { milestones, loading, reload: load };
 }

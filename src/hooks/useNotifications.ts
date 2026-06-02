@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth';
 import type { NotificationRow, NotificationWithActor } from '@/types';
@@ -16,6 +16,10 @@ interface Result {
 
 export function useNotifications(): Result {
   const userId = useAuthStore((s) => s.user?.id ?? null);
+  // Unique per hook instance: AppShell mounts two bells (sidebar + mobile bar),
+  // so the channel topic must not collide — supabase-js reuses a channel by
+  // topic and throws if you .on() an already-subscribed one.
+  const channelId = useId();
   const [items, setItems] = useState<NotificationWithActor[]>([]);
   const [loading, setLoading] = useState(true);
   const itemsRef = useRef(items);
@@ -54,7 +58,7 @@ export function useNotifications(): Result {
     })();
 
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
@@ -79,7 +83,7 @@ export function useNotifications(): Result {
       active = false;
       supabase.removeChannel(channel).catch(() => {});
     };
-  }, [userId, hydrateActor]);
+  }, [userId, hydrateActor, channelId]);
 
   const markRead = useCallback(async (id: string) => {
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));

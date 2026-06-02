@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import type { LabelColor, LabelRow } from '@/types';
 
 export function useLabels(chainId: string) {
   const { user } = useAuth();
+  const channelId = useId();
   const [labels, setLabels] = useState<LabelRow[]>([]);
   const [linksByTodo, setLinksByTodo] = useState<Map<string, string[]>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -32,12 +33,12 @@ export function useLabels(chainId: string) {
   useEffect(() => {
     load();
     const ch = supabase
-      .channel(`labels:${chainId}`)
+      .channel(`labels:${chainId}:${channelId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'labels', filter: `chain_id=eq.${chainId}` }, () => load())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'todo_labels' }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch).catch(() => {}); };
-  }, [chainId, load]);
+  }, [chainId, load, channelId]);
 
   const labelsForTodo = useCallback(
     (todoId: string): LabelRow[] => {
