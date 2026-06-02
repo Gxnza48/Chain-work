@@ -368,6 +368,42 @@ export interface Database {
         };
         Relationships: [];
       };
+      chat_messages: {
+        Row: {
+          id: string;
+          chain_id: string;
+          user_id: string;
+          body: string | null;
+          audio_url: string | null;
+          audio_duration: number | null;
+          reply_to: string | null;
+          edited_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          user_id: string;
+          body?: string | null;
+          audio_url?: string | null;
+          audio_duration?: number | null;
+          reply_to?: string | null;
+          edited_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          user_id?: string;
+          body?: string | null;
+          audio_url?: string | null;
+          audio_duration?: number | null;
+          reply_to?: string | null;
+          edited_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       milestones: {
         Row: {
           id: string;

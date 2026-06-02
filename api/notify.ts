@@ -10,7 +10,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 // chain, or tap the bell. Authenticated with the user's Supabase JWT; the server
 // re-reads the record and notifies the relevant chain members.
 
-type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge' | 'comment';
+type Event = 'todo' | 'idea' | 'file' | 'join' | 'nudge' | 'comment' | 'chat';
 const NUDGE_COOLDOWN_HOURS = 12;
 
 interface PushPayload {
@@ -146,6 +146,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: `${actorName} comentó en "${todo.title}": ${snippet}`,
         url: `/chain/${chainId}`,
         tag: `comment-${body.id}`,
+      };
+    } else if (event === 'chat') {
+      const { data } = await db
+        .from('chat_messages')
+        .select('body, chain_id')
+        .eq('id', body.id)
+        .single();
+      if (!data) return res.status(404).json({ error: 'not found' });
+      chainId = data.chain_id;
+      // Fail fast: only a member of the message's chain may trigger its push.
+      if (!(await isMember(db, chainId, actor.id))) {
+        return res.status(403).json({ error: 'not a member' });
+      }
+      const snippet = data.body
+        ? data.body.length > 80
+          ? `${data.body.slice(0, 80)}…`
+          : data.body
+        : '🎤 Audio';
+      payload = {
+        title: await chainName(chainId),
+        body: `${actorName}: ${snippet}`,
+        url: `/chain/${chainId}?tab=chat`,
+        // Collapse every chat push from this chain into one stacked notification.
+        tag: `chat-${chainId}`,
       };
     }
 

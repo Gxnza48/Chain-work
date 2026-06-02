@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
-import { Folder, Lightbulb, ListTodo, Menu } from 'lucide-react';
+import { Folder, Lightbulb, ListTodo, Menu, MessageSquare } from 'lucide-react';
 import { ChainLoader } from '@/components/ui/ChainLoader';
 import { ChainHeader } from '@/components/chain/ChainHeader';
 import { MembersPanel } from '@/components/chain/MembersPanel';
@@ -8,12 +8,13 @@ import { ProjectListView } from '@/components/project/ProjectListView';
 import { ProjectView } from '@/components/project/ProjectView';
 import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
+import { ChatPanel } from '@/components/chat/ChatPanel';
 import { Sheet, SheetContent, SheetTitle, SheetHeader } from '@/components/ui/Sheet';
 import { useChain } from '@/hooks/useChain';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
-type Tab = 'projects' | 'ideas' | 'todos';
+type Tab = 'projects' | 'ideas' | 'todos' | 'chat';
 
 export default function ChainPage() {
   const { chainId } = useParams<{ chainId: string }>();
@@ -21,7 +22,9 @@ export default function ChainPage() {
   const t = useT();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<Tab>('projects');
+  const [activeTab, setActiveTab] = useState<Tab>(() =>
+    searchParams.get('tab') === 'chat' ? 'chat' : 'projects',
+  );
   const [openProject, setOpenProject] = useState<string | null>(() => searchParams.get('project'));
   const [navOpen, setNavOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
@@ -113,6 +116,16 @@ export default function ChainPage() {
           >
             {t('All todos')}
           </NavButton>
+          <NavButton
+            active={activeTab === 'chat'}
+            onClick={() => {
+              setActiveTab('chat');
+              setNavOpen(false);
+            }}
+            icon={<MessageSquare className="h-4 w-4" />}
+          >
+            {t('Chat')}
+          </NavButton>
         </aside>
 
         {/* Mobile open-left-rail trigger */}
@@ -163,6 +176,7 @@ export default function ChainPage() {
               heading="All chain todos"
             />
           ) : null}
+          {activeTab === 'chat' ? <ChatPanel chainId={chain.id} members={members} /> : null}
         </main>
 
         {/* Right rail: members */}

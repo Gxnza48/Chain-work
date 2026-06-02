@@ -60,6 +60,14 @@ export interface NotificationWithActor extends NotificationRow {
   actor: Pick<UserRow, 'id' | 'display_name' | 'username' | 'avatar_url'> | null;
 }
 
+// ---- Chat ----
+export type ChatMessageRow = T['chat_messages']['Row'];
+
+/** A chat message joined with its author profile, as rendered in the panel. */
+export interface ChatMessageWithAuthor extends ChatMessageRow {
+  author: { id: string; display_name: string; username: string; avatar_url: string | null } | null;
+}
+
 export type Theme = 'dark' | 'light';
 
 /** A chain member's public profile plus their role in that chain. */

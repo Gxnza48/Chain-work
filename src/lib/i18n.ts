@@ -709,6 +709,25 @@ Object.assign(es, {
   'New member joined': 'Se unió un nuevo miembro',
 });
 
+// ---- Chain group chat (added 2026-06-01). ----
+Object.assign(es, {
+  'Chat': 'Chat',
+  '{n} members': '{n} miembros',
+  'Write a message…': 'Escribí un mensaje…',
+  'Send': 'Enviar',
+  'No messages yet. Say hi 👋': 'Todavía no hay mensajes. Saludá 👋',
+  'Reply': 'Responder',
+  'Copy': 'Copiar',
+  'Replying to {name}': 'Respondiendo a {name}',
+  'deleted message': 'mensaje eliminado',
+  'edited': 'editado',
+  'Message actions': 'Acciones del mensaje',
+  'Delete this message?': '¿Borrar este mensaje?',
+  'Could not send message': 'No se pudo enviar el mensaje',
+  'Could not edit message': 'No se pudo editar el mensaje',
+  'Could not delete message': 'No se pudo borrar el mensaje',
+});
+
 function interpolate(str: string, vars?: Record<string, string | number>): string {
   if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
