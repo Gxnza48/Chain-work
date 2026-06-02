@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Ban,
   Check,
   CornerUpLeft,
   Copy,
@@ -8,6 +9,7 @@ import {
   MoreVertical,
   Pencil,
   Send,
+  Smile,
   Trash2,
   X,
 } from 'lucide-react';
@@ -26,7 +28,8 @@ import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
 import { useT, type TFn } from '@/lib/i18n';
 import { cn, copyToClipboard, initials } from '@/lib/utils';
-import type { ChatMessageWithAuthor, UserRow } from '@/types';
+import { CHAT_REACTION_EMOJIS } from '@/types';
+import type { ChatMessageWithAuthor, ChatReactionRow, UserRow } from '@/types';
 
 interface Props {
   chainId: string;
@@ -37,15 +40,34 @@ function shortTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+/** Render **bold** and *italic* inline markdown into React nodes (no raw HTML). */
+function renderRich(text: string): React.ReactNode {
+  const out: React.ReactNode[] = [];
+  const re = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const tok = m[0];
+    if (tok.startsWith('**')) out.push(<strong key={k++}>{tok.slice(2, -2)}</strong>);
+    else out.push(<em key={k++}>{tok.slice(1, -1)}</em>);
+    last = m.index + tok.length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
 export function ChatPanel({ chainId, members }: Props) {
   const { user } = useAuth();
   const t = useT();
-  const { messages, loading, send, edit, remove } = useChat(chainId, members);
+  const { messages, reactions, loading, send, edit, remove, react } = useChat(chainId, members);
 
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessageWithAuthor | null>(null);
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
 
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
@@ -69,7 +91,33 @@ export function ChatPanel({ chainId, members }: Props) {
     }
   }
 
+  // Wrap the current selection with a markdown marker (Ctrl/Cmd+B / +I).
+  function wrapSelection(marker: string) {
+    const ta = taRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    if (start === end) return; // nothing selected
+    const next = `${text.slice(0, start)}${marker}${text.slice(start, end)}${marker}${text.slice(end)}`;
+    setText(next);
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.selectionStart = start + marker.length;
+      ta.selectionEnd = end + marker.length;
+    });
+  }
+
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+      e.preventDefault();
+      wrapSelection('**');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'i' || e.key === 'I')) {
+      e.preventDefault();
+      wrapSelection('*');
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       void onSend();
@@ -100,9 +148,7 @@ export function ChatPanel({ chainId, members }: Props) {
           <MessageSquare className="h-4 w-4" />
         </span>
         <h2 className="font-display text-lg font-bold tracking-tight">{t('Chat')}</h2>
-        <span className="font-mono text-xs text-fg-muted">
-          {t('{n} members', { n: members.length })}
-        </span>
+        <span className="font-mono text-xs text-fg-muted">{t('{n} members', { n: members.length })}</span>
       </header>
 
       <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4">
@@ -120,6 +166,9 @@ export function ChatPanel({ chainId, members }: Props) {
                 message={m}
                 isOwn={m.user_id === user?.id}
                 repliedTo={m.reply_to ? byId.get(m.reply_to) ?? null : null}
+                reactions={reactions.get(m.id) ?? []}
+                currentUserId={user?.id ?? null}
+                onReact={(emoji) => react(m.id, emoji)}
                 onReply={() => setReplyTo(m)}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -159,6 +208,7 @@ export function ChatPanel({ chainId, members }: Props) {
         className="flex items-end gap-2 border-t-2 border-fg p-2.5 sm:p-3"
       >
         <Textarea
+          ref={taRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}
@@ -179,16 +229,54 @@ interface RowProps {
   message: ChatMessageWithAuthor;
   isOwn: boolean;
   repliedTo: ChatMessageWithAuthor | null;
+  reactions: ChatReactionRow[];
+  currentUserId: string | null;
+  onReact: (emoji: string) => void;
   onReply: () => void;
   onEdit: (id: string, body: string) => void;
   onDelete: (id: string) => void;
   t: TFn;
 }
 
-function MessageRow({ message, isOwn, repliedTo, onReply, onEdit, onDelete, t }: RowProps) {
+function MessageRow({
+  message,
+  isOwn,
+  repliedTo,
+  reactions,
+  currentUserId,
+  onReact,
+  onReply,
+  onEdit,
+  onDelete,
+  t,
+}: RowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(message.body ?? '');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const name = message.author?.display_name ?? t('Unknown');
+
+  // Group this message's reactions by emoji -> { count, mine }.
+  const grouped = useMemo(() => {
+    const map = new Map<string, { count: number; mine: boolean }>();
+    for (const r of reactions) {
+      const cur = map.get(r.emoji) ?? { count: 0, mine: false };
+      cur.count += 1;
+      if (r.user_id === currentUserId) cur.mine = true;
+      map.set(r.emoji, cur);
+    }
+    return [...map.entries()];
+  }, [reactions, currentUserId]);
+
+  if (message.deleted_at) {
+    return (
+      <li className={cn('flex px-1', isOwn ? 'justify-end' : 'justify-start')}>
+        <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-dashed border-fg/40 bg-surface-2 px-3 py-1.5 text-xs italic text-fg-muted">
+          <Ban className="h-3.5 w-3.5" />
+          {t('deleted message')}
+        </span>
+      </li>
+    );
+  }
 
   async function copy() {
     const ok = await copyToClipboard(message.body ?? '');
@@ -228,7 +316,7 @@ function MessageRow({ message, isOwn, repliedTo, onReply, onEdit, onDelete, t }:
             >
               <p className="font-bold">{repliedTo?.author?.display_name ?? t('Unknown')}</p>
               <p className={cn('truncate', isOwn ? 'text-white/80' : 'text-fg-muted')}>
-                {repliedTo ? repliedTo.body ?? '🎤' : t('deleted message')}
+                {repliedTo && !repliedTo.deleted_at ? repliedTo.body ?? '🎤' : t('deleted message')}
               </p>
             </div>
           ) : null}
@@ -250,26 +338,16 @@ function MessageRow({ message, isOwn, repliedTo, onReply, onEdit, onDelete, t }:
                 className="min-w-[12rem] text-sm text-fg"
               />
               <div className="flex justify-end gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  className="rounded-md p-1 hover:bg-black/10"
-                  aria-label={t('Cancel')}
-                >
+                <button type="button" onClick={() => setEditing(false)} className="rounded-md p-1 hover:bg-black/10" aria-label={t('Cancel')}>
                   <X className="h-4 w-4" />
                 </button>
-                <button
-                  type="button"
-                  onClick={saveEdit}
-                  className="rounded-md p-1 hover:bg-black/10"
-                  aria-label={t('Save')}
-                >
+                <button type="button" onClick={saveEdit} className="rounded-md p-1 hover:bg-black/10" aria-label={t('Save')}>
                   <Check className="h-4 w-4" />
                 </button>
               </div>
             </div>
           ) : (
-            <p className="whitespace-pre-wrap break-words text-sm">{message.body ?? '🎤'}</p>
+            <p className="whitespace-pre-wrap break-words text-sm">{renderRich(message.body ?? '🎤')}</p>
           )}
 
           <div
@@ -282,52 +360,92 @@ function MessageRow({ message, isOwn, repliedTo, onReply, onEdit, onDelete, t }:
             {message.edited_at ? <span>· {t('edited')}</span> : null}
           </div>
         </div>
+
+        {grouped.length > 0 ? (
+          <div className={cn('mt-1 flex flex-wrap gap-1', isOwn ? 'justify-end' : 'justify-start')}>
+            {grouped.map(([emoji, { count, mine }]) => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => onReact(emoji)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full border-2 border-fg px-1.5 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
+                  mine ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
+                )}
+              >
+                <span>{emoji}</span>
+                <span className="font-mono">{count}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {!editing ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              aria-label={t('Message actions')}
-              className="mb-1 rounded-md p-1 text-fg-muted opacity-100 transition-opacity hover:bg-surface-2 hover:text-fg sm:opacity-0 sm:group-hover/msg:opacity-100"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align={isOwn ? 'end' : 'start'}>
-            <DropdownMenuItem onSelect={onReply}>
-              <CornerUpLeft className="h-4 w-4" />
-              {t('Reply')}
-            </DropdownMenuItem>
-            {message.body ? (
-              <DropdownMenuItem onSelect={() => void copy()}>
-                <Copy className="h-4 w-4" />
-                {t('Copy')}
+        <div className="mb-1 flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/msg:opacity-100">
+          <DropdownMenu open={pickerOpen} onOpenChange={setPickerOpen}>
+            <DropdownMenuTrigger asChild>
+              <button type="button" aria-label={t('React')} className="rounded-md p-1 text-fg-muted hover:bg-surface-2 hover:text-fg">
+                <Smile className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={isOwn ? 'end' : 'start'} className="flex gap-1 p-1.5">
+              {CHAT_REACTION_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => {
+                    onReact(emoji);
+                    setPickerOpen(false);
+                  }}
+                  className="grid h-8 w-8 place-items-center rounded-md text-lg transition-transform hover:scale-125 hover:bg-surface-2"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" aria-label={t('Message actions')} className="rounded-md p-1 text-fg-muted hover:bg-surface-2 hover:text-fg">
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={isOwn ? 'end' : 'start'}>
+              <DropdownMenuItem onSelect={onReply}>
+                <CornerUpLeft className="h-4 w-4" />
+                {t('Reply')}
               </DropdownMenuItem>
-            ) : null}
-            {isOwn && message.body ? (
-              <DropdownMenuItem
-                onSelect={() => {
-                  setDraft(message.body ?? '');
-                  setEditing(true);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-                {t('Edit')}
-              </DropdownMenuItem>
-            ) : null}
-            {isOwn ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => onDelete(message.id)}>
-                  <Trash2 className="h-4 w-4" />
-                  {t('Delete')}
+              {message.body ? (
+                <DropdownMenuItem onSelect={() => void copy()}>
+                  <Copy className="h-4 w-4" />
+                  {t('Copy')}
                 </DropdownMenuItem>
-              </>
-            ) : null}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              ) : null}
+              {isOwn && message.body ? (
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setDraft(message.body ?? '');
+                    setEditing(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                  {t('Edit')}
+                </DropdownMenuItem>
+              ) : null}
+              {isOwn ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => onDelete(message.id)}>
+                    <Trash2 className="h-4 w-4" />
+                    {t('Delete')}
+                  </DropdownMenuItem>
+                </>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       ) : null}
     </li>
   );

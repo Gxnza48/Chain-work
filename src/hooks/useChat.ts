@@ -2,11 +2,21 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
-import type { ChatMessageRow, ChatMessageWithAuthor, UserRow } from '@/types';
+import type { ChatMessageRow, ChatMessageWithAuthor, ChatReactionRow, UserRow } from '@/types';
 
 // Newest slice kept in memory. Chains are small teams; if a stream ever grows
 // past this, add "load older" pagination — not needed for v1.
 const PAGE = 200;
+
+function groupReactions(rows: ChatReactionRow[]): Map<string, ChatReactionRow[]> {
+  const map = new Map<string, ChatReactionRow[]>();
+  for (const r of rows) {
+    const arr = map.get(r.message_id) ?? [];
+    arr.push(r);
+    map.set(r.message_id, arr);
+  }
+  return map;
+}
 
 export function useChat(chainId: string, members: UserRow[]) {
   const { user } = useAuth();
@@ -14,6 +24,7 @@ export function useChat(chainId: string, members: UserRow[]) {
   // (supabase-js reuses channels by name). See [[realtime-channel-uniqueness]].
   const channelId = useId();
   const [messages, setMessages] = useState<ChatMessageWithAuthor[]>([]);
+  const [reactions, setReactions] = useState<Map<string, ChatReactionRow[]>>(new Map());
   const [loading, setLoading] = useState(true);
 
   // Author resolution reads the latest members without re-subscribing realtime.
@@ -45,6 +56,9 @@ export function useChat(chainId: string, members: UserRow[]) {
     }
     const rows = ((data ?? []) as ChatMessageRow[]).reverse(); // oldest -> newest
     setMessages(rows.map(resolve));
+
+    const { data: rx } = await supabase.from('chat_reactions').select('*').eq('chain_id', chainId);
+    setReactions(groupReactions((rx ?? []) as ChatReactionRow[]));
     setLoading(false);
   }, [chainId, resolve]);
 
@@ -77,6 +91,34 @@ export function useChat(chainId: string, members: UserRow[]) {
           setMessages((prev) => prev.filter((m) => m.id !== old.id));
         },
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chat_reactions', filter: `chain_id=eq.${chainId}` },
+        (payload) => {
+          const r = payload.new as ChatReactionRow;
+          setReactions((prev) => {
+            const arr = prev.get(r.message_id) ?? [];
+            if (arr.some((x) => x.user_id === r.user_id && x.emoji === r.emoji)) return prev;
+            const next = new Map(prev);
+            next.set(r.message_id, [...arr, r]);
+            return next;
+          });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'chat_reactions', filter: `chain_id=eq.${chainId}` },
+        (payload) => {
+          const old = payload.old as { message_id: string; user_id: string; emoji: string };
+          setReactions((prev) => {
+            const arr = prev.get(old.message_id);
+            if (!arr) return prev;
+            const next = new Map(prev);
+            next.set(old.message_id, arr.filter((x) => !(x.user_id === old.user_id && x.emoji === old.emoji)));
+            return next;
+          });
+        },
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(ch).catch(() => {});
@@ -104,6 +146,7 @@ export function useChat(chainId: string, members: UserRow[]) {
         audio_duration: null,
         reply_to: replyTo ?? null,
         edited_at: null,
+        deleted_at: null,
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, resolve(row)]));
@@ -124,9 +167,35 @@ export function useChat(chainId: string, members: UserRow[]) {
   }, []);
 
   const remove = useCallback(async (id: string) => {
-    const { error } = await supabase.from('chat_messages').delete().eq('id', id);
+    // Soft delete: keep the row as a tombstone for everyone, drop its content.
+    const { error } = await supabase
+      .from('chat_messages')
+      .update({ deleted_at: new Date().toISOString(), body: null })
+      .eq('id', id);
     if (error) throw error;
   }, []);
 
-  return { messages, loading, send, edit, remove, reload: load };
+  const react = useCallback(
+    async (messageId: string, emoji: string) => {
+      if (!user) return;
+      const mine = (reactions.get(messageId) ?? []).some(
+        (r) => r.user_id === user.id && r.emoji === emoji,
+      );
+      if (mine) {
+        await supabase
+          .from('chat_reactions')
+          .delete()
+          .eq('message_id', messageId)
+          .eq('user_id', user.id)
+          .eq('emoji', emoji);
+      } else {
+        await supabase
+          .from('chat_reactions')
+          .insert({ message_id: messageId, user_id: user.id, chain_id: chainId, emoji });
+      }
+    },
+    [user, chainId, reactions],
+  );
+
+  return { messages, reactions, loading, send, edit, remove, react, reload: load };
 }

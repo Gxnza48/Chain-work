@@ -68,6 +68,11 @@ export interface ChatMessageWithAuthor extends ChatMessageRow {
   author: { id: string; display_name: string; username: string; avatar_url: string | null } | null;
 }
 
+export type ChatReactionRow = T['chat_reactions']['Row'];
+
+/** The 5 preset reaction emojis. */
+export const CHAT_REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮'] as const;
+
 export type Theme = 'dark' | 'light';
 
 /** A chain member's public profile plus their role in that chain. */

@@ -378,6 +378,7 @@ export interface Database {
           audio_duration: number | null;
           reply_to: string | null;
           edited_at: string | null;
+          deleted_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -389,6 +390,7 @@ export interface Database {
           audio_duration?: number | null;
           reply_to?: string | null;
           edited_at?: string | null;
+          deleted_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -400,6 +402,31 @@ export interface Database {
           audio_duration?: number | null;
           reply_to?: string | null;
           edited_at?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      chat_reactions: {
+        Row: {
+          message_id: string;
+          user_id: string;
+          chain_id: string;
+          emoji: string;
+          created_at: string;
+        };
+        Insert: {
+          message_id: string;
+          user_id: string;
+          chain_id: string;
+          emoji: string;
+          created_at?: string;
+        };
+        Update: {
+          message_id?: string;
+          user_id?: string;
+          chain_id?: string;
+          emoji?: string;
           created_at?: string;
         };
         Relationships: [];

@@ -726,6 +726,8 @@ Object.assign(es, {
   'Could not send message': 'No se pudo enviar el mensaje',
   'Could not edit message': 'No se pudo editar el mensaje',
   'Could not delete message': 'No se pudo borrar el mensaje',
+  'React': 'Reaccionar',
+  'Something went wrong. Try reloading.': 'Algo salió mal. Probá recargar.',
 });
 
 function interpolate(str: string, vars?: Record<string, string | number>): string {

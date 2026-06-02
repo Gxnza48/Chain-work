@@ -9,6 +9,7 @@ import { ProjectView } from '@/components/project/ProjectView';
 import { TodoList } from '@/components/todos/TodoList';
 import { IdeaList } from '@/components/ideas/IdeaList';
 import { ChatPanel } from '@/components/chat/ChatPanel';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Sheet, SheetContent, SheetTitle, SheetHeader } from '@/components/ui/Sheet';
 import { useChain } from '@/hooks/useChain';
 import { useT } from '@/lib/i18n';
@@ -176,7 +177,18 @@ export default function ChainPage() {
               heading="All chain todos"
             />
           ) : null}
-          {activeTab === 'chat' ? <ChatPanel chainId={chain.id} members={members} /> : null}
+          {activeTab === 'chat' ? (
+            <ErrorBoundary
+              label="chat"
+              fallback={
+                <div className="grid h-[40vh] place-items-center rounded-lg border-2 border-dashed border-fg bg-surface-2 p-6 text-center">
+                  <p className="text-sm text-fg-muted">{t('Something went wrong. Try reloading.')}</p>
+                </div>
+              }
+            >
+              <ChatPanel chainId={chain.id} members={members} />
+            </ErrorBoundary>
+          ) : null}
         </main>
 
         {/* Right rail: members */}
