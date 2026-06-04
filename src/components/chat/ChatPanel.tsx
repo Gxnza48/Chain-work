@@ -58,6 +58,16 @@ function shortTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+// A compact set for the composer's emoji picker (distinct from the 5 quick
+// reaction emojis). Kept inline to avoid pulling in a heavy emoji-mart dep.
+const COMPOSE_EMOJIS = [
+  '😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😎',
+  '🤔', '😅', '🙂', '😉', '😴', '🥳', '😭', '😡',
+  '👍', '👎', '👏', '🙌', '🙏', '💪', '🤝', '🤙',
+  '🔥', '🎉', '✨', '⭐', '💡', '✅', '❌', '⏰',
+  '❤️', '🧡', '💛', '💚', '💙', '💜', '🚀', '☕',
+];
+
 interface ProjectRef {
   id: string;
   name: string;
@@ -92,6 +102,7 @@ function renderBody(
   members: UserRow[],
   projects: ProjectRef[],
   onProject: (id: string) => void,
+  onMember: (id: string) => void,
 ): React.ReactNode {
   const out: React.ReactNode[] = [];
   const re = /(@\[[^\]]+\]|@\w+|\*\*[^*]+\*\*|\*[^*]+\*)/g;
@@ -123,9 +134,14 @@ function renderBody(
       const mem = members.find((x) => x.username === tok.slice(1));
       out.push(
         mem ? (
-          <span key={k++} className="font-bold underline decoration-dotted">
+          <button
+            key={k++}
+            type="button"
+            onClick={() => onMember(mem.id)}
+            className="font-bold underline decoration-dotted underline-offset-2 hover:opacity-80"
+          >
             @{mem.display_name}
-          </span>
+          </button>
         ) : (
           tok
         ),
@@ -147,17 +163,27 @@ export function ChatPanel({ chainId, members }: Props) {
   const navigate = useNavigate();
   const { messages, reactions, loading, send, sendFile, edit, remove, react } = useChat(chainId, members);
   const { reads, markRead } = useChatReads(chainId);
-  const activeIds = useChatPresence(chainId);
+  const { activeIds, typingIds, setTyping } = useChatPresence(chainId);
   const { polls, votes, vote, createPoll } = usePolls(chainId);
 
-  const [text, setText] = useState('');
+  const draftKey = `chainwork:chat-draft:${chainId}`;
+  const [text, setText] = useState(() => {
+    try {
+      return localStorage.getItem(`chainwork:chat-draft:${chainId}`) ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [replyTo, setReplyTo] = useState<ChatMessageWithAuthor | null>(null);
   const [sending, setSending] = useState(false);
   const [infoMsg, setInfoMsg] = useState<ChatMessageWithAuthor | null>(null);
+  const [profileMember, setProfileMember] = useState<UserRow | null>(null);
+  const [lightbox, setLightbox] = useState<{ url: string; name: string } | null>(null);
   const [projects, setProjects] = useState<ProjectRef[]>([]);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   const [mentionIdx, setMentionIdx] = useState(0);
   const [pollOpen, setPollOpen] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const [newCount, setNewCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const atBottomRef = useRef(true);
@@ -165,6 +191,49 @@ export function ChatPanel({ chainId, members }: Props) {
   const prevLenRef = useRef(0);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Persist the composer text as a draft per chain (restored on return).
+  useEffect(() => {
+    try {
+      if (text) localStorage.setItem(draftKey, text);
+      else localStorage.removeItem(draftKey);
+    } catch {
+      /* storage unavailable — ignore */
+    }
+  }, [text, draftKey]);
+
+  // Broadcast that I'm typing, auto-stopping ~2.5s after the last keystroke.
+  const pingTyping = () => {
+    setTyping(true);
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => setTyping(false), 2500);
+  };
+  const stopTyping = () => {
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    setTyping(false);
+  };
+
+  useEffect(() => () => {
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+  }, []);
+
+  function insertEmoji(emoji: string) {
+    const ta = taRef.current;
+    const start = ta?.selectionStart ?? text.length;
+    const end = ta?.selectionEnd ?? text.length;
+    const next = `${text.slice(0, start)}${emoji}${text.slice(end)}`;
+    setText(next);
+    setEmojiOpen(false);
+    const pos = start + emoji.length;
+    requestAnimationFrame(() => {
+      if (ta) {
+        ta.focus();
+        ta.selectionStart = pos;
+        ta.selectionEnd = pos;
+      }
+    });
+  }
 
   const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
     const el = scrollRef.current;
@@ -221,10 +290,15 @@ export function ChatPanel({ chainId, members }: Props) {
   }, [chainId]);
 
   const openProject = (projectId: string) => navigate(`/chain/${chainId}?project=${projectId}`);
+  const openMember = (memberId: string) => {
+    const mem = members.find((m) => m.id === memberId);
+    if (mem) setProfileMember(mem);
+  };
 
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
   // Everyone currently in the chat *except* me — my own presence is implicit.
   const activeMembers = members.filter((mem) => mem.id !== user?.id && activeIds.includes(mem.id));
+  const typingMembers = members.filter((mem) => mem.id !== user?.id && typingIds.includes(mem.id));
 
   const suggestions = useMemo(() => {
     if (!mention)
@@ -246,6 +320,7 @@ export function ChatPanel({ chainId, members }: Props) {
     setText(value);
     setMention(detectMention(value, e.target.selectionStart ?? value.length));
     setMentionIdx(0);
+    pingTyping();
   }
 
   function applyMention(s: { insert: string }) {
@@ -311,6 +386,7 @@ export function ChatPanel({ chainId, members }: Props) {
     const body = text.trim();
     if (!body || sending) return;
     setSending(true);
+    stopTyping();
     try {
       await send(body, replyTo?.id ?? null, parseMentionedUserIds(body, members));
       setText('');
@@ -425,6 +501,8 @@ export function ChatPanel({ chainId, members }: Props) {
                 members={members}
                 projects={projects}
                 onProject={openProject}
+                onMember={openMember}
+                onImage={(url, name) => setLightbox({ url, name })}
                 poll={m.poll_id ? polls.get(m.poll_id) ?? null : null}
                 pollVotes={m.poll_id ? votes.get(m.poll_id) ?? [] : []}
                 onVote={(idx) => {
@@ -518,6 +596,19 @@ export function ChatPanel({ chainId, members }: Props) {
         </div>
       ) : null}
 
+      {typingMembers.length > 0 ? (
+        <div className="flex items-center gap-1.5 px-3 pb-1 pt-1 text-xs italic text-fg-muted sm:px-4">
+          <span className="flex gap-0.5">
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:-0.2s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:-0.1s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-fg-muted" />
+          </span>
+          {typingMembers.length === 1
+            ? t('{name} is typing…', { name: typingMembers[0].display_name })
+            : t('Several people are typing…')}
+        </div>
+      ) : null}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -553,6 +644,27 @@ export function ChatPanel({ chainId, members }: Props) {
         >
           <BarChart3 className="h-4 w-4" />
         </Button>
+        <DropdownMenu open={emojiOpen} onOpenChange={setEmojiOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" variant="outline" size="icon" aria-label={t('Add emoji')}>
+              <Smile className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-auto p-1.5">
+            <div className="grid max-h-52 grid-cols-8 gap-0.5 overflow-y-auto">
+              {COMPOSE_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => insertEmoji(emoji)}
+                  className="grid h-8 w-8 place-items-center rounded-md text-lg transition-transform hover:scale-125 hover:bg-surface-2"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Textarea
           ref={taRef}
           value={text}
@@ -579,7 +691,69 @@ export function ChatPanel({ chainId, members }: Props) {
       </Dialog>
 
       <PollDialog open={pollOpen} onOpenChange={setPollOpen} onCreate={createPoll} t={t} />
+
+      <Dialog open={Boolean(profileMember)} onOpenChange={(o) => !o && setProfileMember(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="sr-only">{t('Profile')}</DialogTitle>
+          </DialogHeader>
+          {profileMember ? <MemberProfile member={profileMember} /> : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(lightbox)} onOpenChange={(o) => !o && setLightbox(null)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="sr-only">{lightbox?.name || t('Image')}</DialogTitle>
+          </DialogHeader>
+          {lightbox ? (
+            <div className="flex flex-col gap-3">
+              <img
+                src={lightbox.url}
+                alt={lightbox.name}
+                className="mx-auto max-h-[70vh] w-auto max-w-full rounded-md border-2 border-fg object-contain"
+              />
+              <a
+                href={lightbox.url}
+                download={lightbox.name || true}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 self-center rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm hover:bg-surface"
+              >
+                <Download className="h-4 w-4" />
+                {t('Download')}
+              </a>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </section>
+  );
+}
+
+function MemberProfile({ member }: { member: UserRow }) {
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <Avatar className="h-20 w-20 border-2 border-fg shadow-brut-sm">
+        {member.avatar_url ? <AvatarImage src={member.avatar_url} alt={member.display_name} /> : null}
+        <AvatarFallback className="text-xl">{initials(member.display_name)}</AvatarFallback>
+      </Avatar>
+      <div>
+        <p className="font-display text-xl font-bold tracking-tight">{member.display_name}</p>
+        <p className="font-mono text-sm text-fg-muted">@{member.username}</p>
+      </div>
+      {member.bio ? <p className="max-w-xs text-sm text-fg-muted">{member.bio}</p> : null}
+      {member.website ? (
+        <a
+          href={member.website}
+          target="_blank"
+          rel="noreferrer"
+          className="max-w-full truncate text-sm font-semibold text-accent-blue underline decoration-2 underline-offset-2 hover:opacity-80"
+        >
+          {member.website.replace(/^https?:\/\//, '')}
+        </a>
+      ) : null}
+    </div>
   );
 }
 
@@ -768,6 +942,8 @@ interface RowProps {
   members: UserRow[];
   projects: ProjectRef[];
   onProject: (id: string) => void;
+  onMember: (id: string) => void;
+  onImage: (url: string, name: string) => void;
   poll: ChatPollRow | null;
   pollVotes: ChatPollVoteRow[];
   onVote: (optionIndex: number) => void;
@@ -789,6 +965,8 @@ function MessageRow({
   members,
   projects,
   onProject,
+  onMember,
+  onImage,
   poll,
   pollVotes,
   onVote,
@@ -888,13 +1066,17 @@ function MessageRow({
 
           {message.file_url ? (
             message.file_type?.startsWith('image/') ? (
-              <a href={message.file_url} target="_blank" rel="noreferrer" className="mb-1 block">
+              <button
+                type="button"
+                onClick={() => onImage(message.file_url!, message.file_name ?? '')}
+                className="mb-1 block cursor-zoom-in"
+              >
                 <img
                   src={message.file_url}
                   alt={message.file_name ?? ''}
                   className="max-h-64 max-w-full rounded-md border-2 border-fg object-cover"
                 />
-              </a>
+              </button>
             ) : (
               <a
                 href={message.file_url}
@@ -941,7 +1123,7 @@ function MessageRow({
             </div>
           ) : message.body ? (
             <p className="whitespace-pre-wrap break-words text-sm">
-              {renderBody(message.body, members, projects, onProject)}
+              {renderBody(message.body, members, projects, onProject, onMember)}
             </p>
           ) : !message.file_url && !message.poll_id ? (
             <p className="whitespace-pre-wrap break-words text-sm">🎤</p>

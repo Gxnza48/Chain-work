@@ -745,6 +745,10 @@ Object.assign(es, {
   '{n} votes': '{n} votos',
   'Could not create poll': 'No se pudo crear la votación',
   '{n} new messages': '{n} mensajes nuevos',
+  'Add emoji': 'Agregar emoji',
+  '{name} is typing…': '{name} está escribiendo…',
+  'Several people are typing…': 'Varias personas están escribiendo…',
+  'Download': 'Descargar',
 });
 
 function interpolate(str: string, vars?: Record<string, string | number>): string {
