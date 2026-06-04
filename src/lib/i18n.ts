@@ -701,6 +701,12 @@ Object.assign(es, {
   'Delete milestone': 'Eliminar hito',
   'overdue': 'vencido',
   '{done}/{total}': '{done}/{total}',
+  'Showing todos in milestone: {name}': 'Mostrando tareas del hito: {name}',
+  'View only this milestone’s todos': 'Ver sólo las tareas de este hito',
+  // Task detail modal
+  'Status': 'Estado',
+  'Edit details': 'Editar detalles',
+  'Comments': 'Comentarios',
   // In-app notifications
   'Mark all read': 'Marcar todo como leído',
   'No notifications yet': 'Todavía no hay notificaciones',

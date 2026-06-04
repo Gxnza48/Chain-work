@@ -40,6 +40,8 @@ export function ProjectView({ projectId, members, onBack }: Props) {
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [todoRev, setTodoRev] = useState(0);
+  const [tab, setTab] = useState('todos');
+  const [milestoneFilter, setMilestoneFilter] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -216,9 +218,18 @@ export function ProjectView({ projectId, members, onBack }: Props) {
 
       <ProjectStats projectId={project.id} refreshSignal={todoRev} />
 
-      <MilestonesPanel chainId={project.chain_id} projectId={project.id} refreshSignal={todoRev} />
+      <MilestonesPanel
+        chainId={project.chain_id}
+        projectId={project.id}
+        refreshSignal={todoRev}
+        selectedId={milestoneFilter}
+        onSelect={(id) => {
+          setMilestoneFilter(id);
+          if (id) setTab('todos');
+        }}
+      />
 
-      <Tabs defaultValue="todos">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="todos">{t('Todos')}</TabsTrigger>
           <TabsTrigger value="ideas">{t('Ideas')}</TabsTrigger>
@@ -231,6 +242,8 @@ export function ProjectView({ projectId, members, onBack }: Props) {
             members={members}
             heading="Project todos"
             onChanged={() => setTodoRev((r) => r + 1)}
+            milestoneFilter={milestoneFilter}
+            onClearMilestoneFilter={() => setMilestoneFilter(null)}
           />
         </TabsContent>
         <TabsContent value="ideas">

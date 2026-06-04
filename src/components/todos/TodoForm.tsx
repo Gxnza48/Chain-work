@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Loader2, Plus, Save, X } from 'lucide-react';
+import { Check, Loader2, Plus, Save, Tag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -7,13 +7,14 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Label } from '@/components/ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { PRIORITY_META, PRIORITY_ORDER } from './priority';
+import { labelColorMeta } from './labelColors';
 import { supabase } from '@/lib/supabase';
 import { notifyEvent } from '@/lib/push';
 import { useAuth } from '@/hooks/useAuth';
 import { useMilestones } from '@/hooks/useMilestones';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import type { TodoPriority, TodoRow, UserRow } from '@/types';
+import type { LabelRow, TodoPriority, TodoRow, UserRow } from '@/types';
 
 interface Props {
   chainId: string;
@@ -21,12 +22,27 @@ interface Props {
   members: UserRow[];
   /** When provided, the form edits this todo instead of creating a new one. */
   todo?: TodoRow;
+  /** Labels feature: the chain's labels + this todo's current label ids. */
+  allLabels?: LabelRow[];
+  initialLabelIds?: string[];
+  onManageLabels?: () => void;
   onCreated?: () => void;
   onSaved?: () => void;
   onCancel?: () => void;
 }
 
-export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved, onCancel }: Props) {
+export function TodoForm({
+  chainId,
+  projectId,
+  members,
+  todo,
+  allLabels,
+  initialLabelIds,
+  onManageLabels,
+  onCreated,
+  onSaved,
+  onCancel,
+}: Props) {
   const { user } = useAuth();
   const t = useT();
   const editing = Boolean(todo);
@@ -37,13 +53,32 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
   );
   const [dueDate, setDueDate] = useState(todo?.due_date ?? '');
   const [milestoneId, setMilestoneId] = useState(todo?.milestone_id ?? '');
+  const [labelIds, setLabelIds] = useState<string[]>(initialLabelIds ?? []);
   const { milestones } = useMilestones(projectId ?? '');
 
   function toggleAssignee(id: string) {
     setAssignees((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
+  function toggleLabel(id: string) {
+    setLabelIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
   const [priority, setPriority] = useState<TodoPriority>(todo?.priority ?? 'medium');
   const [submitting, setSubmitting] = useState(false);
+
+  // Reconcile the todo_labels junction against the picked label ids.
+  async function syncLabels(todoId: string) {
+    const initial = initialLabelIds ?? [];
+    const toAdd = labelIds.filter((id) => !initial.includes(id));
+    const toRemove = initial.filter((id) => !labelIds.includes(id));
+    await Promise.all([
+      toAdd.length
+        ? supabase.from('todo_labels').insert(toAdd.map((label_id) => ({ todo_id: todoId, label_id })))
+        : Promise.resolve(),
+      toRemove.length
+        ? supabase.from('todo_labels').delete().eq('todo_id', todoId).in('label_id', toRemove)
+        : Promise.resolve(),
+    ]);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,6 +102,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
           priority,
         })
         .eq('id', todo.id);
+      if (!error) await syncLabels(todo.id);
       setSubmitting(false);
       if (error) {
         toast.error(t('Could not save todo'), { description: error.message });
@@ -93,6 +129,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
       })
       .select('id')
       .single();
+    if (data && labelIds.length) await syncLabels(data.id);
     setSubmitting(false);
     if (error) {
       toast.error(t('Could not create todo'), { description: error.message });
@@ -105,6 +142,7 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
     setDueDate('');
     setMilestoneId('');
     setPriority('medium');
+    setLabelIds([]);
     onCreated?.();
   }
 
@@ -196,6 +234,54 @@ export function TodoForm({ chainId, projectId, members, todo, onCreated, onSaved
         <Label htmlFor="due">{t('Due')}</Label>
         <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
       </div>
+      {allLabels ? (
+        <div className="flex flex-col gap-1.5">
+          <Label>{t('Labels')}</Label>
+          {allLabels.length === 0 ? (
+            <button
+              type="button"
+              onClick={onManageLabels}
+              className="self-start text-xs font-semibold text-accent-blue hover:underline"
+            >
+              {t('No labels yet — create one')}
+            </button>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {allLabels.map((l) => {
+                const on = labelIds.includes(l.id);
+                return (
+                  <button
+                    type="button"
+                    key={l.id}
+                    onClick={() => toggleLabel(l.id)}
+                    aria-pressed={on}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2.5 py-1 text-xs font-bold shadow-brut-sm transition-colors',
+                      on ? labelColorMeta(l.color).chip : 'bg-surface text-fg hover:bg-surface-2',
+                    )}
+                  >
+                    {on ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <span className={cn('h-2 w-2 rounded-full border border-fg', labelColorMeta(l.color).dot)} />
+                    )}
+                    {l.name}
+                  </button>
+                );
+              })}
+              {onManageLabels ? (
+                <button
+                  type="button"
+                  onClick={onManageLabels}
+                  className="inline-flex items-center gap-1 rounded-md border-2 border-dashed border-fg/40 px-2 py-1 text-xs font-semibold text-fg-muted hover:text-fg"
+                >
+                  <Tag className="h-3 w-3" /> {t('Manage labels')}
+                </button>
+              ) : null}
+            </div>
+          )}
+        </div>
+      ) : null}
       <div className="flex gap-2 justify-end">
         {onCancel ? (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
