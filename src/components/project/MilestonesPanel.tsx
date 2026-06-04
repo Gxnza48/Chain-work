@@ -16,9 +16,12 @@ interface Props {
   projectId: string;
   /** Bump to force a reload (mirrors Roadmap/ProjectStats). */
   refreshSignal?: number;
+  /** Milestone filter: the selected milestone id and a toggle callback. */
+  selectedId?: string | null;
+  onSelect?: (id: string | null) => void;
 }
 
-export function MilestonesPanel({ chainId, projectId, refreshSignal }: Props) {
+export function MilestonesPanel({ chainId, projectId, refreshSignal, selectedId, onSelect }: Props) {
   const t = useT();
   const { milestones, loading, reload } = useMilestones(projectId, refreshSignal);
   const [adding, setAdding] = useState(false);
@@ -101,6 +104,8 @@ export function MilestonesPanel({ chainId, projectId, refreshSignal }: Props) {
               <MilestoneCard
                 key={m.id}
                 milestone={m}
+                selected={selectedId === m.id}
+                onSelect={onSelect ? () => onSelect(selectedId === m.id ? null : m.id) : undefined}
                 onEdit={() => setEditingId(m.id)}
                 onToggle={() => setStatus(m, m.status === 'done' ? 'open' : 'done')}
                 onDelete={() => remove(m)}
@@ -115,11 +120,15 @@ export function MilestonesPanel({ chainId, projectId, refreshSignal }: Props) {
 
 function MilestoneCard({
   milestone,
+  selected,
+  onSelect,
   onEdit,
   onToggle,
   onDelete,
 }: {
   milestone: MilestoneWithProgress;
+  selected?: boolean;
+  onSelect?: () => void;
   onEdit: () => void;
   onToggle: () => void;
   onDelete: () => void;
@@ -132,7 +141,12 @@ function MilestoneCard({
     due?.state === 'overdue' ? 'rose' : due?.state === 'today' || due?.state === 'soon' ? 'amber' : 'neutral';
 
   return (
-    <div className="group rounded-md border-2 border-fg bg-surface-2 p-3">
+    <div
+      className={cn(
+        'group rounded-md border-2 border-fg bg-surface-2 p-3 transition-shadow',
+        selected ? 'ring-2 ring-accent-violet' : '',
+      )}
+    >
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -144,9 +158,23 @@ function MilestoneCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className={cn('font-bold text-fg break-words', done ? 'line-through opacity-60' : '')}>
-              {milestone.title}
-            </p>
+            {onSelect ? (
+              <button
+                type="button"
+                onClick={onSelect}
+                title={t('View only this milestone’s todos')}
+                className={cn(
+                  'break-words text-left font-bold text-fg underline-offset-2 hover:underline hover:decoration-dotted',
+                  done ? 'line-through opacity-60' : '',
+                )}
+              >
+                {milestone.title}
+              </button>
+            ) : (
+              <p className={cn('font-bold text-fg break-words', done ? 'line-through opacity-60' : '')}>
+                {milestone.title}
+              </p>
+            )}
             {done ? <Badge variant="emerald"><CheckCircle2 className="h-3 w-3" /> {t('Done')}</Badge> : null}
             {milestone.due_date ? (
               <Badge variant={dueVariant}>

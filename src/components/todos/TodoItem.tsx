@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { TodoForm } from './TodoForm';
+import { TodoDetailModal } from './TodoDetailModal';
 import { PriorityBadge, PRIORITY_META, PRIORITY_ORDER } from './priority';
 import { CommentThread } from './CommentThread';
 import { SubtaskList } from './SubtaskList';
@@ -83,6 +84,7 @@ export function TodoItem({
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState<number | null>(null);
   const [showSubtasks, setShowSubtasks] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const canDrag = draggable && !selectable;
   const sortable = useSortable({ id: todo.id, disabled: !canDrag || editing });
 
@@ -230,6 +232,9 @@ export function TodoItem({
           projectId={todo.project_id}
           members={members}
           todo={todo}
+          allLabels={allLabels}
+          initialLabelIds={(todoLabels ?? []).map((l) => l.id)}
+          onManageLabels={onManageLabels}
           onCancel={() => setEditing(false)}
           onSaved={() => {
             setEditing(false);
@@ -282,14 +287,22 @@ export function TodoItem({
       )}
 
       <div className="min-w-0 flex-1">
-        <p
-          className={cn(
-            'font-semibold leading-snug text-fg break-words',
-            isDone ? 'line-through opacity-60' : '',
-          )}
-        >
-          {todo.title}
-        </p>
+        {selectable ? (
+          <p className={cn('font-semibold leading-snug text-fg break-words', isDone ? 'line-through opacity-60' : '')}>
+            {todo.title}
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setDetailOpen(true)}
+            className={cn(
+              'block w-full break-words text-left font-semibold leading-snug text-fg underline-offset-2 hover:underline hover:decoration-dotted',
+              isDone ? 'line-through opacity-60' : '',
+            )}
+          >
+            {todo.title}
+          </button>
+        )}
         {todo.description ? (
           <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-fg-muted">{todo.description}</p>
         ) : null}
@@ -466,6 +479,21 @@ export function TodoItem({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      ) : null}
+
+      {!selectable ? (
+        <TodoDetailModal
+          todo={todo}
+          members={members}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          onChanged={onChanged}
+          allLabels={allLabels}
+          todoLabels={todoLabels}
+          onToggleLabel={onToggleLabel}
+          onManageLabels={onManageLabels}
+          milestoneTitle={milestoneTitle}
+        />
       ) : null}
     </li>
   );
