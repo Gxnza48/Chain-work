@@ -763,6 +763,29 @@ Object.assign(es, {
   'Download': 'Descargar',
 });
 
+// ---- Landing: Developers / MCP section (added 2026-06-04). ----
+Object.assign(es, {
+  'Developers': 'Developers',
+  'For developers': 'Para developers',
+  'Your coding agent, plugged into ChainWork.': 'Tu agente de código, enchufado a ChainWork.',
+  'Connect Claude Code over MCP, point it at a chain, and let it run: it reads the next task, writes the code, pushes to GitHub, and marks it completed.':
+    'Conectá Claude Code por MCP, apuntalo a una chain y dejalo trabajar: lee la próxima tarea, escribe el código, pushea a GitHub y la marca como completada.',
+  'do the next task in my chain and ship it': 'hacé la próxima tarea de mi chain y entregala',
+  'Connect once': 'Conectá una vez',
+  'Add the ChainWork MCP server to Claude Code with one command and an API key you generate in Settings.':
+    'Agregá el servidor MCP de ChainWork a Claude Code con un comando y una API key que generás en Configuración.',
+  'Ask in plain language': 'Pedíselo en lenguaje natural',
+  "Tell Claude Code to take your chain's next task. It pulls the title, description and priority straight from ChainWork.":
+    'Decile a Claude Code que agarre la próxima tarea de tu chain. Saca el título, la descripción y la prioridad directo de ChainWork.',
+  'It ships and checks it off': 'Lo entrega y lo tilda',
+  'Claude writes the code, pushes to GitHub, and flips the task to done — your whole chain sees it update in real time.':
+    'Claude escribe el código, lo pushea a GitHub y pasa la tarea a hecha — toda tu chain lo ve actualizarse en tiempo real.',
+  'Tools your agent gets': 'Las tools que recibe tu agente',
+  'Get your API key': 'Generá tu API key',
+  'Free · hosted on Supabase Edge · works with Claude Code':
+    'Gratis · corre en Supabase Edge · funciona con Claude Code',
+});
+
 // ---- Integrations / MCP for Claude Code (added 2026-06-04). ----
 Object.assign(es, {
   'Integrations': 'Integraciones',

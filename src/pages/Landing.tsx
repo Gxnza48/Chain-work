@@ -5,6 +5,7 @@ import { ScrollProgress } from '@/components/layout/ScrollProgress';
 import { Hero } from '@/components/landing/Hero';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { Features } from '@/components/landing/Features';
+import { Developers } from '@/components/landing/Developers';
 import { FAQ } from '@/components/landing/FAQ';
 import { initLenis, destroyLenis } from '@/lib/lenis';
 
@@ -24,6 +25,7 @@ export default function Landing() {
         <Hero />
         <HowItWorks />
         <Features />
+        <Developers />
         <FAQ />
       </main>
       <Footer />
