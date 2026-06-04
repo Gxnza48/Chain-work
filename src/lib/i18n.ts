@@ -744,6 +744,7 @@ Object.assign(es, {
   'Add option': 'Agregar opción',
   '{n} votes': '{n} votos',
   'Could not create poll': 'No se pudo crear la votación',
+  '{n} new messages': '{n} mensajes nuevos',
 });
 
 function interpolate(str: string, vars?: Record<string, string | number>): string {

@@ -81,7 +81,10 @@ export default function ChainPage() {
         <aside
           className={cn(
             'fixed inset-y-14 left-0 z-30 w-60 border-r-2 border-fg bg-surface p-3 flex flex-col gap-1',
-            'transition-transform duration-200 lg:relative lg:inset-y-0 lg:translate-x-0',
+            'transition-transform duration-200 lg:translate-x-0',
+            // Desktop: pin the rail under the sticky header (h-14) and keep it below
+            // the header in the stacking order so it can't paint over it on scroll.
+            'lg:sticky lg:top-14 lg:z-10 lg:h-[calc(100vh-3.5rem)] lg:self-start lg:overflow-y-auto',
             navOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
