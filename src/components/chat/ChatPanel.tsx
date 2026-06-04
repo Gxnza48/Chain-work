@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  ArrowDown,
   AtSign,
   Ban,
   BarChart3,
@@ -157,9 +158,28 @@ export function ChatPanel({ chainId, members }: Props) {
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   const [mentionIdx, setMentionIdx] = useState(0);
   const [pollOpen, setPollOpen] = useState(false);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [newCount, setNewCount] = useState(0);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const atBottomRef = useRef(true);
+  const initializedRef = useRef(false);
+  const prevLenRef = useRef(0);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior });
+  };
+
+  // Track whether the user is parked near the bottom; only then do we follow new
+  // messages. Reading older history must not be yanked down (WhatsApp behaviour).
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    atBottomRef.current = near;
+    if (near) setNewCount(0);
+  }
 
   async function uploadFile(file: File) {
     if (file.size > 25 * 1024 * 1024) {
@@ -203,7 +223,8 @@ export function ChatPanel({ chainId, members }: Props) {
   const openProject = (projectId: string) => navigate(`/chain/${chainId}?project=${projectId}`);
 
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
-  const activeMembers = members.filter((mem) => activeIds.includes(mem.id));
+  // Everyone currently in the chat *except* me — my own presence is implicit.
+  const activeMembers = members.filter((mem) => mem.id !== user?.id && activeIds.includes(mem.id));
 
   const suggestions = useMemo(() => {
     if (!mention)
@@ -257,10 +278,29 @@ export function ChatPanel({ chainId, members }: Props) {
     });
   };
 
-  // Stick to the bottom as new messages arrive.
+  // On open, land on the most recent messages (not scrolled up at the top).
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages.length]);
+    if (loading || initializedRef.current || messages.length === 0) return;
+    initializedRef.current = true;
+    prevLenRef.current = messages.length;
+    requestAnimationFrame(() => scrollToBottom('auto'));
+  }, [loading, messages.length]);
+
+  // Follow new messages only when already at the bottom (or it's my own send);
+  // otherwise surface a "new messages" pill instead of yanking the view down.
+  useEffect(() => {
+    const prev = prevLenRef.current;
+    const curr = messages.length;
+    if (initializedRef.current && curr > prev) {
+      const mine = messages[curr - 1]?.user_id === user?.id;
+      if (mine || atBottomRef.current) {
+        requestAnimationFrame(() => scrollToBottom('smooth'));
+      } else {
+        setNewCount((n) => n + (curr - prev));
+      }
+    }
+    prevLenRef.current = curr;
+  }, [messages, user?.id]);
 
   // Mark the chat read on mount and as messages arrive (throttled in the hook).
   useEffect(() => {
@@ -364,7 +404,7 @@ export function ChatPanel({ chainId, members }: Props) {
         <span className="font-mono text-xs text-fg-muted">{t('{n} members', { n: members.length })}</span>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4">
+      <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto px-3 py-4 sm:px-4">
         {loading ? (
           <p className="text-center text-sm text-fg-muted">{t('Loading…')}</p>
         ) : messages.length === 0 ? (
@@ -398,10 +438,23 @@ export function ChatPanel({ chainId, members }: Props) {
                 t={t}
               />
             ))}
-            <div ref={bottomRef} />
           </ul>
         )}
       </div>
+
+      {newCount > 0 ? (
+        <button
+          type="button"
+          onClick={() => {
+            scrollToBottom('smooth');
+            setNewCount(0);
+          }}
+          className="absolute bottom-[4.5rem] left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border-2 border-fg bg-accent-blue px-3 py-1.5 text-xs font-bold text-white shadow-brut-sm transition-transform hover:-translate-y-0.5"
+        >
+          <ArrowDown className="h-3.5 w-3.5" />
+          {t('{n} new messages', { n: newCount })}
+        </button>
+      ) : null}
 
       {activeMembers.length > 0 ? (
         <div className="pointer-events-none absolute bottom-[4.5rem] left-3 z-10 flex -space-x-2">
@@ -809,7 +862,7 @@ function MessageRow({
       <div className={cn('flex max-w-[78%] flex-col', isOwn ? 'items-end' : 'items-start')}>
         <div
           className={cn(
-            'rounded-lg border-2 border-fg px-3 py-2 shadow-brut-sm',
+            'select-text rounded-lg border-2 border-fg px-3 py-2 shadow-brut-sm [-webkit-user-select:text]',
             isOwn ? 'bg-accent-blue text-white' : 'bg-surface-2 text-fg',
           )}
         >

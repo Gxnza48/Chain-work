@@ -245,7 +245,7 @@ export function TodoItem({
       ref={canDrag ? sortable.setNodeRef : undefined}
       style={style}
       className={cn(
-        'group flex items-start gap-3 rounded-md border-2 border-fg bg-surface p-3 shadow-brut-sm transition-shadow',
+        'group flex flex-wrap items-start gap-3 rounded-md border-2 border-fg bg-surface p-3 shadow-brut-sm transition-shadow sm:flex-nowrap',
         sortable.isDragging && canDrag ? 'ring-2 ring-accent-blue' : '',
         selectable && selected ? 'ring-2 ring-accent-blue' : '',
       )}
@@ -291,7 +291,7 @@ export function TodoItem({
           {todo.title}
         </p>
         {todo.description ? (
-          <p className="mt-0.5 whitespace-pre-wrap text-sm text-fg-muted">{todo.description}</p>
+          <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-fg-muted">{todo.description}</p>
         ) : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
           {/* Priority badge doubles as a quick picker */}
@@ -378,7 +378,8 @@ export function TodoItem({
       </div>
 
       {!selectable ? (
-        <div className="flex items-center gap-1">
+        <div className="flex w-full basis-full items-center justify-end gap-1 sm:w-auto sm:basis-auto sm:justify-start">
+
           {!isDone && assignees.length > 0 ? (
             <button
               type="button"
