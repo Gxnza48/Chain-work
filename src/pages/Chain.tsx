@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
-import { Folder, Lightbulb, ListTodo, Menu, MessageSquare } from 'lucide-react';
+import { AtSign, Folder, Lightbulb, ListTodo, Menu, MessageSquare } from 'lucide-react';
 import { ChainLoader } from '@/components/ui/ChainLoader';
 import { ChainHeader } from '@/components/chain/ChainHeader';
 import { MembersPanel } from '@/components/chain/MembersPanel';
@@ -12,7 +12,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Sheet, SheetContent, SheetTitle, SheetHeader } from '@/components/ui/Sheet';
 import { useChain } from '@/hooks/useChain';
-import { useChatMentions } from '@/hooks/useChatMentions';
+import { useChatUnread } from '@/hooks/useChatUnread';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +21,7 @@ type Tab = 'projects' | 'ideas' | 'todos' | 'chat';
 export default function ChainPage() {
   const { chainId } = useParams<{ chainId: string }>();
   const { chain, members, myRole, loading, error, refresh } = useChain(chainId);
-  const chatUnread = useChatMentions(chainId);
+  const { total: chatUnread, mentions: chatMentions } = useChatUnread(chainId);
   const t = useT();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -130,6 +130,7 @@ export default function ChainPage() {
             }}
             icon={<MessageSquare className="h-4 w-4" />}
             badge={chatUnread}
+            mention={chatMentions > 0}
           >
             {t('Chat')}
           </NavButton>
@@ -222,9 +223,12 @@ interface NavButtonProps {
   icon: React.ReactNode;
   children: React.ReactNode;
   badge?: number;
+  /** Show a distinct "@" alert (an unread mention), WhatsApp-style. */
+  mention?: boolean;
 }
 
-function NavButton({ active, onClick, icon, children, badge }: NavButtonProps) {
+function NavButton({ active, onClick, icon, children, badge, mention }: NavButtonProps) {
+  const showCount = Boolean(badge && badge > 0);
   return (
     <button
       type="button"
@@ -238,9 +242,18 @@ function NavButton({ active, onClick, icon, children, badge }: NavButtonProps) {
     >
       {icon}
       {children}
-      {badge && badge > 0 ? (
-        <span className="ml-auto grid min-w-[1.15rem] place-items-center rounded-full border-2 border-fg bg-accent-rose px-1 text-[10px] font-bold leading-none text-white font-mono">
-          {badge > 9 ? '9+' : badge}
+      {mention || showCount ? (
+        <span className="ml-auto flex items-center gap-1">
+          {mention ? (
+            <span className="grid h-[1.15rem] w-[1.15rem] place-items-center rounded-full border-2 border-fg bg-accent-violet text-white">
+              <AtSign className="h-3 w-3" />
+            </span>
+          ) : null}
+          {showCount ? (
+            <span className="grid min-w-[1.15rem] place-items-center rounded-full border-2 border-fg bg-accent-rose px-1 text-[10px] font-bold leading-none text-white font-mono">
+              {badge! > 9 ? '9+' : badge}
+            </span>
+          ) : null}
         </span>
       ) : null}
     </button>
