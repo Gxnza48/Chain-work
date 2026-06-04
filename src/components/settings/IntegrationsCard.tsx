@@ -8,7 +8,9 @@ import { useMcpTokens } from '@/hooks/useMcpTokens';
 import { useT } from '@/lib/i18n';
 import { copyToClipboard, relativeTime } from '@/lib/utils';
 
-const MCP_ENDPOINT = `${(import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? 'https://<your-project>.supabase.co'}/functions/v1/mcp`;
+// The deployed Supabase Edge Function is named `dynamic-task` (the dashboard's
+// default name when it was created). The MCP server code lives there.
+const MCP_ENDPOINT = `${(import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? 'https://<your-project>.supabase.co'}/functions/v1/dynamic-task`;
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const t = useT();
