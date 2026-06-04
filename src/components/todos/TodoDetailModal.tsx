@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { TodoForm } from './TodoForm';
+import { TodoAttachments } from './TodoAttachments';
 import { SubtaskList } from './SubtaskList';
 import { CommentThread } from './CommentThread';
 import { LabelChip } from './LabelChip';
@@ -264,6 +265,12 @@ export function TodoDetailModal({
               ) : (
                 <p className="text-sm italic text-fg-muted">{t('No description')}</p>
               )}
+            </div>
+
+            {/* Attachments */}
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-bold uppercase tracking-wider text-fg-muted">{t('Attachments')}</p>
+              <TodoAttachments todoId={todo.id} chainId={todo.chain_id} readOnly={isDone} />
             </div>
 
             {/* Actions */}

@@ -707,6 +707,12 @@ Object.assign(es, {
   'Status': 'Estado',
   'Edit details': 'Editar detalles',
   'Comments': 'Comentarios',
+  'Attachments': 'Adjuntos',
+  'Attach file or screenshot': 'Adjuntar archivo o captura',
+  'No attachments yet.': 'Todavía no hay adjuntos.',
+  'Could not upload file': 'No se pudo subir el archivo',
+  'Remove this attachment?': '¿Quitar este adjunto?',
+  'Could not remove attachment': 'No se pudo quitar el adjunto',
   // In-app notifications
   'Mark all read': 'Marcar todo como leído',
   'No notifications yet': 'Todavía no hay notificaciones',

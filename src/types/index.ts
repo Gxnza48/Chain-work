@@ -32,6 +32,9 @@ export type LabelColor =
 // ---- Subtasks ----
 export type SubtaskRow = T['subtasks']['Row'];
 
+// ---- Todo attachments ----
+export type TodoAttachmentRow = T['todo_attachments']['Row'];
+
 // ---- Comments ----
 export type CommentRow = T['comments']['Row'];
 

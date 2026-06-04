@@ -368,6 +368,42 @@ export interface Database {
         };
         Relationships: [];
       };
+      todo_attachments: {
+        Row: {
+          id: string;
+          chain_id: string;
+          todo_id: string;
+          user_id: string;
+          url: string;
+          name: string;
+          type: string | null;
+          size: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chain_id: string;
+          todo_id: string;
+          user_id: string;
+          url: string;
+          name: string;
+          type?: string | null;
+          size?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chain_id?: string;
+          todo_id?: string;
+          user_id?: string;
+          url?: string;
+          name?: string;
+          type?: string | null;
+          size?: number | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       chat_messages: {
         Row: {
           id: string;
