@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/layout/AppShell';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { NotificationsCard } from '@/components/settings/NotificationsCard';
+import { IntegrationsCard } from '@/components/settings/IntegrationsCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +34,10 @@ export default function Settings() {
 
         <section>
           <NotificationsCard />
+        </section>
+
+        <section>
+          <IntegrationsCard />
         </section>
 
         <section>

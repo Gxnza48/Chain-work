@@ -763,6 +763,36 @@ Object.assign(es, {
   'Download': 'Descargar',
 });
 
+// ---- Integrations / MCP for Claude Code (added 2026-06-04). ----
+Object.assign(es, {
+  'Integrations': 'Integraciones',
+  'MCP for Claude Code': 'MCP para Claude Code',
+  'Connect Claude Code to ChainWork. Generate a key, run one command, then tell Claude Code to do a chain’s next task and mark it done.':
+    'Conectá Claude Code con ChainWork. Generá una clave, corré un comando y después pedile a Claude Code que haga la próxima tarea de una chain y la marque como completada.',
+  'Then just say to Claude Code:': 'Después solo decile a Claude Code:',
+  '“From chain AB12CD34, do the next task, push the changes to GitHub and mark it completed.”':
+    '“De la chain AB12CD34, hacé la próxima tarea, pusheá los cambios a GitHub y marcala como completada.”',
+  'Your new API key': 'Tu nueva clave de API',
+  "Copy it now — you won't be able to see it again.": 'Copiala ahora — no la vas a poder ver de nuevo.',
+  'Copy API key': 'Copiar clave de API',
+  'Run this to connect Claude Code:': 'Corré esto para conectar Claude Code:',
+  'Connect command (uses your key):': 'Comando de conexión (usa tu clave):',
+  'Copy command': 'Copiar comando',
+  'API keys': 'Claves de API',
+  'Key name (e.g. My laptop)': 'Nombre de la clave (ej. Mi laptop)',
+  'Generate API key': 'Generar clave de API',
+  'No API keys yet.': 'Todavía no hay claves de API.',
+  'used {time}': 'usada {time}',
+  'never used': 'nunca usada',
+  'Revoke': 'Revocar',
+  'Revoke this API key? Any Claude Code using it will stop working.':
+    '¿Revocar esta clave de API? Cualquier Claude Code que la use va a dejar de funcionar.',
+  'API key created': 'Clave de API creada',
+  'Could not create API key': 'No se pudo crear la clave de API',
+  'API key revoked': 'Clave de API revocada',
+  'Could not revoke API key': 'No se pudo revocar la clave de API',
+});
+
 function interpolate(str: string, vars?: Record<string, string | number>): string {
   if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
