@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { AgentIcon } from "@/components/ui/AgentIcon";
+import { AgentState, type AgentStatus } from "@/components/ui/agent-state";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { connectionSnippet, mcpEndpoint } from "@/lib/mcp-connection";
 import { useMcpTokens } from "@/hooks/useMcpTokens";
@@ -71,6 +72,12 @@ export function IntegrationsCard() {
     return connectionSnippet(client, MCP_ENDPOINT);
   }, [client]);
 
+  const connectionStatus: AgentStatus = loading
+    ? "thinking"
+    : tokens.length > 0
+      ? "complete"
+      : "needs-input";
+
   async function handleCreate() {
     if (busy) return;
     setBusy(true);
@@ -118,6 +125,22 @@ export function IntegrationsCard() {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-5">
+        <AgentState
+          status={connectionStatus}
+          size="sm"
+          label={
+            loading
+              ? t("Checking MCP connection")
+              : tokens.length > 0
+                ? t("MCP connection ready")
+                : t("Create an API key to connect")
+          }
+          description={
+            tokens.length > 0
+              ? t("Codex and Claude Code can use your workspace context.")
+              : t("Your assistants stay disconnected until you create a key.")
+          }
+        />
         {/* What you can say */}
         <div className="rounded-md border border-dashed border-border bg-surface-2 p-4 text-sm">
           <p className="font-semibold">

@@ -1,4 +1,9 @@
 export const esV2: Record<string, string> = {
+  "Checking MCP connection": "Comprobando conexión MCP",
+  "MCP connection ready": "Conexión MCP lista",
+  "Create an API key to connect": "Creá una clave para conectar",
+  "Codex and Claude Code can use your workspace context.": "Codex y Claude Code pueden usar el contexto de tu espacio.",
+  "Your assistants stay disconnected until you create a key.": "Tus asistentes quedan desconectados hasta que crees una clave.",
   "Create task in": "Crear tarea en",
   Filters: "Filtros",
   "Toggle theme": "Cambiar tema",
@@ -129,6 +134,7 @@ export const esV2: Record<string, string> = {
   "Revoke this API key? Connected assistants using it will stop working.":
     "¿Revocar esta clave? Los asistentes que la usen van a desconectarse.",
   "Your AI, connected": "Tu IA, conectada",
+  "Everything connected. Nothing in your way.": "Todo conectado. Nada en el medio.",
   "Connect Codex or Claude Code to your projects, tasks and team context. One workspace, wherever you build.":
     "Conectá Codex o Claude Code a tus proyectos, tareas y contexto. Un solo espacio, trabajes donde trabajes.",
   "Give your assistant a clear next step:":

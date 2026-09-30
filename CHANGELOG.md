@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.1 — 2026-09-30
+
+### 000h interaction layer
+
+- Migrated the frontend to React 19 and Tailwind CSS 4 with the official Vite integration.
+- Added 000h Agent State to the MCP integrations panel, Scroll Reveal to the landing hero, and Empty states to task loading, filtered and first-use views.
+- Bridged the existing theme store to the 000h `data-mode` contract and preserved reduced-motion behavior across generated components.
+- Added the 000h component support files and registry notices without changing the database schema or existing user data.
+
 ## 2.0.0 — 2026-09-30
 
 ### A clearer workspace

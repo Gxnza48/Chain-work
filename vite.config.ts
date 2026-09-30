@@ -1,42 +1,48 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
-import path from 'node:path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
+import path from "node:path";
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     VitePWA({
-      strategies: 'injectManifest',
-      srcDir: 'src',
-      filename: 'sw.ts',
-      registerType: 'autoUpdate',
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
+      registerType: "autoUpdate",
       injectRegister: null,
       devOptions: {
         enabled: true,
-        type: 'module',
+        type: "module",
       },
-      includeAssets: ['favicon.svg', 'brand-mark.png', 'icons/apple-touch-180.png'],
+      includeAssets: [
+        "favicon.svg",
+        "brand-mark.png",
+        "icons/apple-touch-180.png",
+      ],
       manifest: {
-        name: 'ChainWork',
-        short_name: 'ChainWork',
-        description: 'Build together in shared chains.',
-        id: '/',
-        start_url: '/',
-        scope: '/',
-        display: 'standalone',
-        orientation: 'portrait',
-        background_color: '#0A0A0A',
-        theme_color: '#0A0A0A',
-        lang: 'es',
+        name: "ChainWork",
+        short_name: "ChainWork",
+        description: "Build together in shared chains.",
+        id: "/",
+        start_url: "/",
+        scope: "/",
+        display: "standalone",
+        orientation: "portrait",
+        background_color: "#0A0A0A",
+        theme_color: "#0A0A0A",
+        lang: "es",
         icons: [
-          { src: '/icons/pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/pwa-512.png', sizes: '512x512', type: 'image/png' },
+          { src: "/icons/pwa-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icons/pwa-512.png", sizes: "512x512", type: "image/png" },
           {
-            src: '/icons/maskable-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
+            src: "/icons/maskable-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
@@ -44,7 +50,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   server: {

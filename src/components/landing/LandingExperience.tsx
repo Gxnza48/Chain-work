@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/Accordion";
 import { AgentIcon } from "@/components/ui/AgentIcon";
 import { ProductPreview } from "./ProductPreview";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MotionPresence, MotionSurface } from "@/components/ui/Presence";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
@@ -75,16 +76,14 @@ export function LandingExperience() {
             scrub: 1,
           },
         });
-        gsap.utils
-          .toArray<HTMLElement>("[data-reveal]")
-          .forEach((el) =>
-            gsap.from(el, {
-              y: 22,
-              opacity: 0.15,
-              duration: 0.65,
-              scrollTrigger: { trigger: el, start: "top 90%", once: true },
-            }),
-          );
+        gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) =>
+          gsap.from(el, {
+            y: 22,
+            opacity: 0.15,
+            duration: 0.65,
+            scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          }),
+        );
       });
       return () => mm.revert();
     },
@@ -165,11 +164,16 @@ export function LandingExperience() {
             <p className="mb-4 text-sm text-fg-muted">
               {t("A little structure. A lot of momentum.")}
             </p>
-            <h2 className="text-balance text-4xl font-medium leading-tight tracking-[-.045em] sm:text-5xl">
-              {t("Everything connected.")}
-              <br />
-              <span className="text-fg-muted">{t("Nothing in your way.")}</span>
-            </h2>
+            <div
+              role="heading"
+              aria-level={2}
+              className="max-w-3xl text-balance text-4xl font-medium leading-tight tracking-[-.045em] sm:text-5xl"
+            >
+              <ScrollReveal
+                text={t("Everything connected. Nothing in your way.")}
+                className="landing-reveal"
+              />
+            </div>
           </div>
           <div className="mt-14 grid grid-flow-dense gap-8 md:grid-cols-3">
             {workflow.map(({ icon: Icon, title, body }) => (

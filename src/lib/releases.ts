@@ -1,5 +1,35 @@
 export const releases = [
   {
+    version: "2.0.1",
+    date: "2026-09-30",
+    title: {
+      es: "Movimiento que acompaña.",
+      en: "Motion that gets out of the way.",
+    },
+    summary: {
+      es: "Componentes 000h integrados en landing, conexiones MCP y tareas.",
+      en: "000h components integrated across the landing, MCP connections and tasks.",
+    },
+    changes: [
+      {
+        es: "Agent State muestra en vivo el estado de tus conexiones MCP.",
+        en: "Agent State now shows the live state of your MCP connections.",
+      },
+      {
+        es: "Scroll Reveal mejora la entrada de mensajes clave en la landing.",
+        en: "Scroll Reveal improves the entrance of key landing messages.",
+      },
+      {
+        es: "Empty states unifica carga, filtros y primer uso de tareas.",
+        en: "Empty states unify loading, filtering and first-use task views.",
+      },
+      {
+        es: "Actualización a React 19 y Tailwind CSS 4, sin cambios en tus datos.",
+        en: "Updated to React 19 and Tailwind CSS 4, with no data changes.",
+      },
+    ],
+  },
+  {
     version: "2.0.0",
     date: "2026-09-30",
     title: {

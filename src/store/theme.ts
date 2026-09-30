@@ -15,6 +15,7 @@ function apply(theme: Theme): void {
   const el = document.documentElement;
   el.classList.remove('dark', 'light');
   el.classList.add(theme);
+  el.dataset.mode = theme;
   try {
     window.localStorage.setItem(STORAGE_KEY, theme);
   } catch {

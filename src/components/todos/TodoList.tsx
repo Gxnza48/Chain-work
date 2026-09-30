@@ -36,6 +36,11 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import {
+  EmptyState,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from "@/components/ui/empty";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -783,24 +788,25 @@ export function TodoList({
       ) : null}
 
       {loadError ? (
-        <div role="alert" className="rounded-lg border border-border p-6">
-          <p className="text-sm text-fg-muted">{t("Could not load todos")}</p>
+        <EmptyState role="alert" variant="error">
+          <EmptyStateTitle>{t("Could not load todos")}</EmptyStateTitle>
+          <EmptyStateDescription>{t("Try again")}</EmptyStateDescription>
           <Button variant="outline" size="sm" onClick={load} className="mt-3">
             {t("Try again")}
           </Button>
-        </div>
+        </EmptyState>
       ) : loading ? (
         <p className="text-sm text-fg-muted">{t("Loading…")}</p>
       ) : todos.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
-          <p className="font-semibold">{t("No todos here yet.")}</p>
-          <p className="mt-1 text-sm text-fg-muted">
+        <EmptyState>
+          <EmptyStateTitle>{t("No todos here yet.")}</EmptyStateTitle>
+          <EmptyStateDescription>
             {t("Add the first one to kick this off.")}
-          </p>
-        </div>
+          </EmptyStateDescription>
+        </EmptyState>
       ) : !anyVisible ? (
-        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
-          <p className="font-semibold">{t("No todos match your filters.")}</p>
+        <EmptyState variant="filtered">
+          <EmptyStateTitle>{t("No todos match your filters.")}</EmptyStateTitle>
           <button
             type="button"
             onClick={clearFilters}
@@ -808,7 +814,7 @@ export function TodoList({
           >
             {t("Clear filters")}
           </button>
-        </div>
+        </EmptyState>
       ) : (
         <div className="flex flex-col gap-6">
           {pending.length > 0 ? (

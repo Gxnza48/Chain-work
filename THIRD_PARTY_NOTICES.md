@@ -5,12 +5,16 @@ class-variance-authority and application-owned React components.
 
 ## 000h by Cojeev
 
-`src/components/ui/Presence.tsx` and `src/styles/presence.css` are sourced from
-the [000h Presence registry](https://000h.cojeev.com/r/presence.json), retrieved
-2026-09-30. Source: [Presence documentation](https://000h.cojeev.com/docs/presence/).
-Adaptations: use the existing `framer-motion` runtime, a small local choreography
-adapter and React 18-compatible exiting accessibility attributes. No global
-000h theme or appearance engine is imported.
+`src/components/ui/Presence.tsx`, `src/components/ui/agent-state.tsx`,
+`src/components/ui/scroll-reveal.tsx`, `src/components/ui/empty.tsx` and their
+supporting styles are sourced from the [000h registry](https://000h.cojeev.com/),
+retrieved 2026-09-30. Sources: [Presence](https://000h.cojeev.com/docs/presence/),
+[Agent State](https://000h.cojeev.com/docs/agent-state/), [Scroll Reveal](https://000h.cojeev.com/docs/scroll-reveal/)
+and [Empty](https://000h.cojeev.com/docs/empty/). The generated components use
+the `motion` runtime, the local choreography adapter and the existing ChainWork
+theme bridge. Their documented reduced-motion behavior remains enabled. The
+registry's font license files and notices are kept in `src/styles/fonts` and
+`src/lib/cojeev/NOTICES.txt`.
 
 ## Brand assets
 
