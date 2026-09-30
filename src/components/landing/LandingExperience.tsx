@@ -29,6 +29,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
+import { BentoGrid } from "@/components/ui/bento-grid";
+import { generateBento } from "@/lib/cojeev/bento-layout";
 
 const workflow = [
   {
@@ -54,6 +56,18 @@ export function LandingExperience() {
   const { user } = useAuth();
   const [agent, setAgent] = useState<"codex" | "claude">("codex");
   const destination = user ? "/dashboard" : "/auth?mode=register";
+  const featureLayout = generateBento(
+    6,
+    3,
+    22,
+    [
+      { id: "tasks", label: "Tasks" },
+      { id: "context", label: "Context" },
+      { id: "projects", label: "Projects" },
+      { id: "assistants", label: "Assistants" },
+    ],
+    "Dashboard",
+  );
   useGSAP(
     () => {
       registerGsap();
@@ -217,7 +231,50 @@ export function LandingExperience() {
               )}
             </p>
           </div>
-          <div className="grid grid-flow-dense gap-4 md:grid-cols-2">
+          <BentoGrid
+            layout={featureLayout}
+            variant="classic"
+            className="mt-4"
+            aria-label={t("ChainWork workspace capabilities")}
+            renderTile={(tile) => (
+              <div className="flex h-full min-h-36 flex-col justify-between p-5 sm:p-7">
+                <div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-muted">
+                    {tile.id === "tasks"
+                      ? "01"
+                      : tile.id === "context"
+                        ? "02"
+                        : tile.id === "projects"
+                          ? "03"
+                          : "04"}
+                  </span>
+                  <h3 className="mt-5 text-lg font-medium tracking-tight">
+                    {t(
+                      tile.id === "tasks"
+                        ? "A clear view of what is next."
+                        : tile.id === "context"
+                          ? "The conversation stays close."
+                          : tile.id === "projects"
+                            ? "Every project has a direction."
+                            : "Your AI, in the same flow.",
+                    )}
+                  </h3>
+                </div>
+                <p className="mt-4 max-w-sm text-sm leading-6 text-fg-muted">
+                  {t(
+                    tile.id === "tasks"
+                      ? "One task list across your projects. Filter by owner, priority or project, and focus on the next move."
+                      : tile.id === "context"
+                        ? "Chat, comments, files and ideas live beside the work. Your team always has the full picture."
+                        : tile.id === "projects"
+                          ? "Keep milestones, ideas and files attached to the decisions that move work forward."
+                          : "Connect Codex and Claude Code to your workspace without losing the human context.",
+                  )}
+                </p>
+              </div>
+            )}
+          />
+          <div className="sr-only">
             <article
               data-reveal
               className="group overflow-hidden rounded-xl border border-border bg-surface p-6 sm:p-8"

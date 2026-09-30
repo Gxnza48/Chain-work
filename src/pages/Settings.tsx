@@ -15,6 +15,7 @@ import { useT } from "@/lib/i18n";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import { AppearanceControls } from "@/components/ui/appearance";
 
 export default function Settings() {
   const { signOut } = useAuth();
@@ -52,6 +53,20 @@ export default function Settings() {
 
         <section>
           <NotificationsCard />
+        </section>
+
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("Appearance")}</CardTitle>
+              <CardDescription>
+                {t("Tune the palette and contrast for your workspace.")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AppearanceControls />
+            </CardContent>
+          </Card>
         </section>
 
         <section id="integrations" className="scroll-mt-20">

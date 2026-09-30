@@ -1,0 +1,33 @@
+@layer cojeev-states {
+/* Radix owns value positions, hidden form inputs, RTL, inversion and keyboard. */
+[data-slot="slider"].v-slider { position:relative; display:flex; align-items:center; width:100%; height:14px; margin:var(--s-3) 0; padding:0; border:0; background:none; touch-action:none; user-select:none; cursor:pointer; --slider-fill:var(--v-pink); --slider-thumb:var(--v-ink); }
+[data-slot="slider"].-pink { --slider-fill:var(--v-pink); }
+[data-slot="slider"].-ink { --slider-fill:var(--v-ink); }
+[data-slot="slider-track"] { position:relative; flex-grow:1; height:100%; color:var(--v-beige); }
+[data-slot="slider-range"] { position:absolute; height:100%; color:var(--slider-fill); }
+.v-slider__paint { position:absolute; inset:0; display:block; width:100%; height:100%; overflow:visible; pointer-events:none; fill:currentColor; }
+[data-slot="slider"][data-appearance="line"] .v-slider__paint path,[data-slot="slider"][data-appearance="segmented"] .v-slider__paint path { fill:none; stroke:currentColor; stroke-width:3px; stroke-linecap:round; }
+[data-slot="slider"][data-appearance="segmented"] .v-slider__paint path { stroke-width:7px; stroke-dasharray:12px 6px; }
+[data-slot="slider-thumb"] { position:relative; display:block; width:28px; height:28px; padding:0; margin:0; border:0; border-radius:50%; outline-offset:5px; background:none; color:var(--slider-thumb); cursor:grab; }
+[data-slot="slider-thumb"]::before { content:""; position:absolute; inset:-8px; border-radius:50%; }
+.v-slider__thumb-paint { display:block; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.v-slider__thumb-paint path { fill:currentColor; stroke:var(--v-canvas); stroke-width:2.2px; stroke-linejoin:round; }
+[data-slot="slider-thumb"]:focus-visible { outline:2px solid var(--v-brand); }
+[data-slot="slider"][data-pressed="true"] [data-slot="slider-thumb"] { cursor:grabbing; }
+[data-slot="slider"][data-orientation="vertical"] { flex-direction:column; width:14px; height:var(--h,200px); margin:var(--s-2) var(--s-3); }
+[data-slot="slider"][data-orientation="vertical"] [data-slot="slider-track"] { width:100%; height:100%; }
+[data-slot="slider"][data-orientation="vertical"] [data-slot="slider-range"] { width:100%; height:auto; }
+[data-slot="slider"][data-disabled] { --slider-fill:var(--v-disabled-fill); --slider-thumb:var(--v-disabled-fill); cursor:not-allowed; }
+[data-slot="slider"][data-disabled] [data-slot="slider-thumb"] { cursor:not-allowed; }
+:root[data-mode="dark"] [data-slot="slider"]:not([data-disabled]) { --slider-thumb:var(--v-pink); }
+[data-slot="slider-wrapper"] { display:grid; gap:var(--s-3); min-width:0; }
+[data-slot="slider-row"] { display:flex; align-items:center; justify-content:space-between; gap:var(--s-4); font-size:var(--fs-control); color:var(--v-text); }
+[data-slot="slider-output"] { font-variant-numeric:tabular-nums; font-weight:var(--fw-semibold); color:var(--v-text); }
+
+/* A fine unfilled guide and a value-shaped, full-height elastic strand. */
+[data-slot="slider"].v-slider[data-appearance="rubber"] { height:24px; }
+[data-slot="slider"][data-appearance="rubber"] [data-slot="slider-track"] > .v-slider__paint { top:10px; height:4px; }
+[data-slot="slider"][data-appearance="rubber"][data-orientation="vertical"] { width:24px; height:var(--h,200px); }
+[data-slot="slider"][data-appearance="rubber"][data-orientation="vertical"] [data-slot="slider-track"] > .v-slider__paint { top:0; left:10px; width:4px; height:100%; }
+
+}

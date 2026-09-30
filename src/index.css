@@ -8,6 +8,18 @@
 @import "@/styles/cojeev/control-appearance.css";
 @import "@/styles/cojeev/card.css";
 @import "@/styles/cojeev/empty.css";
+@import "@/styles/cojeev/bento-grid.css";
+@import "@/styles/cojeev/scroll-area.css";
+@import "@/styles/cojeev/label.css";
+@import "@/styles/cojeev/slider.css";
+@import "@/styles/cojeev/icon.css";
+@import "@/styles/cojeev/shape.css";
+@import "@/styles/cojeev/popover.css";
+@import "@/styles/cojeev/tooltip.css";
+@import "@/styles/cojeev/animated-icon.css";
+@import "@/styles/cojeev/item-adornment.css";
+@import "@/styles/cojeev/select.css";
+@import "@/styles/cojeev/appearance.css";
 
 @custom-variant dark (&:is(.dark *));
 @config "../tailwind.config.ts";
@@ -50,7 +62,8 @@
     --wordmark-fill: rgba(10, 10, 10, 0.05);
   }
 
-  :root:not(.light), .dark {
+  :root:not(.light),
+  .dark {
     color-scheme: dark;
     --bg: 9 9 11;
     --surface: 15 15 17;
@@ -80,7 +93,7 @@
   #root {
     background-color: rgb(var(--bg));
     color: rgb(var(--fg));
-    font-family: 'Geist', system-ui, sans-serif;
+    font-family: "Geist", system-ui, sans-serif;
     min-height: 100%;
   }
 
@@ -145,11 +158,14 @@
   }
 
   .surface-hover {
-    transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .surface-hover:hover {
-    border-color: rgb(var(--fg-muted) / .5);
+    border-color: rgb(var(--fg-muted) / 0.5);
     background-color: rgb(var(--surface-2));
   }
 
@@ -165,7 +181,10 @@
   }
 
   .dot-bg {
-    background-image: radial-gradient(rgb(var(--fg) / 0.12) 1px, transparent 1px);
+    background-image: radial-gradient(
+      rgb(var(--fg) / 0.12) 1px,
+      transparent 1px
+    );
     background-size: 24px 24px;
   }
 
@@ -174,7 +193,7 @@
   }
 
   .noise::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -195,7 +214,7 @@
     border-radius: 6px;
   }
   .skeleton::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
@@ -210,12 +229,37 @@
 }
 
 /* Lenis */
-.landing-glow { background-image: radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / .065), transparent 65%); }
-.product-preview { box-shadow: 0 0 0 8px rgb(255 255 255 / .015), 0 32px 100px rgb(0 0 0 / .45); }
-.landing-section { padding-block: clamp(5rem, 10vw, 9rem); }
-.text-balance { text-wrap: balance; }
-.skip-link { position: fixed; left: 1rem; top: -5rem; z-index: 100; padding: .75rem 1rem; border-radius: .5rem; background: rgb(var(--fg)); color: rgb(var(--bg)); }
-.skip-link:focus { top: 1rem; }
+.landing-glow {
+  background-image: radial-gradient(
+    ellipse at 50% 0%,
+    rgb(255 255 255 / 0.065),
+    transparent 65%
+  );
+}
+.product-preview {
+  box-shadow:
+    0 0 0 8px rgb(255 255 255 / 0.015),
+    0 32px 100px rgb(0 0 0 / 0.45);
+}
+.landing-section {
+  padding-block: clamp(5rem, 10vw, 9rem);
+}
+.text-balance {
+  text-wrap: balance;
+}
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -5rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: rgb(var(--fg));
+  color: rgb(var(--bg));
+}
+.skip-link:focus {
+  top: 1rem;
+}
 
 html.lenis,
 html.lenis body {
@@ -475,38 +519,39 @@ html.lenis body {
   --font-cojeev-text: var(--font-text);
   --font-cojeev-display: var(--font-display);
 }
-  :root, :root[data-mode] {
-    --background: var(--v-canvas);
-    --foreground: var(--v-text);
-    --card: var(--v-paper);
-    --card-foreground: var(--v-text);
-    --card-2: var(--v-beige-2);
-    --popover: var(--v-paper);
-    --popover-foreground: var(--v-text);
-    --primary: var(--v-ink);
-    --primary-foreground: var(--v-on-ink);
-    --secondary: var(--v-beige);
-    --secondary-foreground: var(--v-text);
-    --accent: var(--v-pink);
-    --accent-foreground: var(--v-on-accent);
-    --muted: var(--v-beige-2);
-    --muted-foreground: var(--v-text-2);
-    --border: var(--v-border);
-    --input: var(--v-beige);
-    --ring: var(--v-brand);
-    --destructive: var(--v-danger-fill);
-    --destructive-foreground: #fff;
-    --chart-1: var(--v-yellow);
-    --chart-2: var(--v-pink);
-    --chart-3: var(--v-olive);
-    --chart-4: var(--v-blue);
-    --chart-5: var(--v-ink);
-    --sidebar: var(--v-structure);
-    --sidebar-foreground: var(--on-structure);
-    --sidebar-muted: #B4BDCA;
-    --sidebar-primary: var(--v-pink);
-    --muted-foreground-ink: #2E2A24;
-    --muted-foreground-tinted: #4A443C;
+:root,
+:root[data-mode] {
+  --background: var(--v-canvas);
+  --foreground: var(--v-text);
+  --card: var(--v-paper);
+  --card-foreground: var(--v-text);
+  --card-2: var(--v-beige-2);
+  --popover: var(--v-paper);
+  --popover-foreground: var(--v-text);
+  --primary: var(--v-ink);
+  --primary-foreground: var(--v-on-ink);
+  --secondary: var(--v-beige);
+  --secondary-foreground: var(--v-text);
+  --accent: var(--v-pink);
+  --accent-foreground: var(--v-on-accent);
+  --muted: var(--v-beige-2);
+  --muted-foreground: var(--v-text-2);
+  --border: var(--v-border);
+  --input: var(--v-beige);
+  --ring: var(--v-brand);
+  --destructive: var(--v-danger-fill);
+  --destructive-foreground: #fff;
+  --chart-1: var(--v-yellow);
+  --chart-2: var(--v-pink);
+  --chart-3: var(--v-olive);
+  --chart-4: var(--v-blue);
+  --chart-5: var(--v-ink);
+  --sidebar: var(--v-structure);
+  --sidebar-foreground: var(--on-structure);
+  --sidebar-muted: #b4bdca;
+  --sidebar-primary: var(--v-pink);
+  --muted-foreground-ink: #2e2a24;
+  --muted-foreground-tinted: #4a443c;
 }
 
-  @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
+@custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));

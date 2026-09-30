@@ -1,0 +1,25 @@
+@layer cojeev-states {
+/* Cojeev authored subparts, state precedence, and irreducible shapes; scoped to this registry item. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="popover"],
+  [data-slot^="popover-"],
+  [data-slot="popover"]::before,
+  [data-slot="popover"]::after,
+  [data-slot^="popover-"]::before,
+  [data-slot^="popover-"]::after {
+    animation-duration: 0s;
+    animation-iteration-count: 1;
+    transition-duration: 0s;
+    scroll-behavior: auto;
+  }
+}
+
+
+[data-slot="popover-content"], [data-slot="popover-sub-content"] {
+ min-width:min(200px,calc(100vw - 24px)); max-width:calc(100vw - 24px);
+ max-height:min(480px,var(--radix-popover-content-available-height,calc(100dvh - 32px)));
+ overflow-y:auto; overscroll-behavior:contain; overflow-wrap:anywhere;
+}
+[data-slot="popover-item"] { min-width:0; height:auto; min-height:36px; white-space:normal; }
+
+}

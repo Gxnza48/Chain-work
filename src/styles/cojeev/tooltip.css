@@ -1,0 +1,160 @@
+@layer cojeev-states {
+/* Cojeev authored subparts, state precedence, and irreducible shapes; scoped to this registry item. */
+.v-tip:where([data-slot="tooltip"], [data-slot^="tooltip-"]) {
+  z-index: var(--z-tooltip);
+  background: var(--v-ink);
+  color: var(--v-on-ink);
+  font-size: var(--fs-meta);
+  line-height: 1.3;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--t-micro);
+  max-width: min(260px, calc(100vw - 24px));
+  overflow-wrap: anywhere;
+}
+.v-tip:where([data-slot="tooltip"], [data-slot^="tooltip-"]).-show {
+  opacity: 1;
+}
+.v-tip[data-appearance] {
+  --mfill: var(--v-ink);
+  --mstroke: var(--v-ink);
+  border-radius: var(--r-sm);
+  padding: var(--s-3) var(--s-3);
+  box-shadow: var(--shadow-float);
+}
+.v-tip[data-appearance]:has(> .v-tooltip-paint > svg.v-morph) {
+  background: transparent;
+}
+.v-tip[data-appearance] {
+  isolation: isolate;
+}
+.v-tooltip-paint {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
+.v-tip[data-appearance="shortcut"] {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  border-radius: var(--r-md);
+}
+.v-tip[data-appearance="shortcut"] kbd {
+  border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
+  border-bottom-width: 3px;
+  border-radius: var(--r-xs);
+  padding: var(--s-1) var(--s-2);
+  font-family: inherit;
+  white-space: nowrap;
+}
+.v-tip[data-appearance="annotation"] {
+  --mfill: var(--v-paper);
+  --mstroke: var(--v-border);
+  color: var(--v-text);
+  border-radius: var(--r-xs) var(--r-md) var(--r-md) var(--r-xs);
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--fs-meta);
+  line-height: 1.55;
+}
+.v-tip[data-appearance="annotation"] strong {
+  display: block;
+  font-size: var(--fs-caps);
+  color: var(--v-text-3);
+  margin-bottom: 3px;
+}
+.v-tip[data-appearance="annotation"]::before {
+  content: "";
+  position: absolute;
+  width: 3px;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  background: var(--v-pink);
+  border-radius: var(--r-xs);
+  pointer-events: none;
+}
+.v-tip[data-appearance="callout"]::after {
+  content: "";
+  position: absolute;
+  background: var(--v-ink);
+  pointer-events: none;
+}
+.v-tip[data-appearance="callout"][data-side="top"]::after {
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+}
+.v-tip[data-appearance="callout"][data-side="bottom"]::after {
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+}
+.v-tip[data-appearance="callout"][data-side="left"]::after {
+  left: 100%;
+  top: 50%;
+  height: 1px;
+  width: 6px;
+}
+.v-tip[data-appearance="callout"][data-side="right"]::after {
+  right: 100%;
+  top: 50%;
+  height: 1px;
+  width: 6px;
+}
+.v-tooltip-example {
+  display: grid;
+  gap: var(--s-5);
+  width: 100%;
+  max-width: 580px;
+  margin-inline: auto;
+  padding: var(--s-6);
+  border-left: 2px solid var(--v-edge);
+  color: var(--v-text);
+}
+.v-tooltip-example__label {
+  color: var(--v-text-3);
+  font-size: var(--fs-caps);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.v-tooltip-example h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-section);
+  line-height: 1.25;
+}
+.v-tooltip-example p {
+  margin: 0;
+  line-height: 1.6;
+  max-width: 42ch;
+}
+.v-tooltip-example__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: center;
+}
+.v-tooltip-example [data-slot="tooltip-trigger"] {
+  min-height: 44px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="tooltip"],
+  [data-slot^="tooltip-"],
+  [data-slot="tooltip"]::before,
+  [data-slot="tooltip"]::after,
+  [data-slot^="tooltip-"]::before,
+  [data-slot^="tooltip-"]::after {
+    animation-duration: 0s;
+    animation-iteration-count: 1;
+    transition-duration: 0s;
+    scroll-behavior: auto;
+  }
+}
+
+}
