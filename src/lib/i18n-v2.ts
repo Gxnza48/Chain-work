@@ -2,8 +2,10 @@ export const esV2: Record<string, string> = {
   "Checking MCP connection": "Comprobando conexión MCP",
   "MCP connection ready": "Conexión MCP lista",
   "Create an API key to connect": "Creá una clave para conectar",
-  "Codex and Claude Code can use your workspace context.": "Codex y Claude Code pueden usar el contexto de tu espacio.",
-  "Your assistants stay disconnected until you create a key.": "Tus asistentes quedan desconectados hasta que crees una clave.",
+  "Codex and Claude Code can use your workspace context.":
+    "Codex y Claude Code pueden usar el contexto de tu espacio.",
+  "Your assistants stay disconnected until you create a key.":
+    "Tus asistentes quedan desconectados hasta que crees una clave.",
   "Create task in": "Crear tarea en",
   Filters: "Filtros",
   "Toggle theme": "Cambiar tema",
@@ -51,6 +53,13 @@ export const esV2: Record<string, string> = {
     "Definí prioridades, asigná responsables y mirá qué necesita tu atención. Cada tarea terminada se convierte en progreso.",
   "Built for the way": "Pensado para cómo",
   "work actually happens.": "trabajás de verdad.",
+  Appearance: "Apariencia",
+  "Tune the palette and contrast for your workspace.":
+    "Ajustá la paleta y el contraste de tu espacio de trabajo.",
+  "ChainWork workspace capabilities":
+    "Capacidades del espacio de trabajo de ChainWork",
+  "Every project has a direction.": "Cada proyecto tiene un rumbo.",
+  "Your AI, in the same flow.": "Tu IA, en el mismo flujo.",
   "From the first messy idea to the final release. Keep the context, skip the tab switching.":
     "Desde esa primera idea hasta el lanzamiento. Todo el contexto, sin saltar entre pestañas.",
   "A clear view of what is next.": "Lo que sigue, a la vista.",
@@ -134,7 +143,8 @@ export const esV2: Record<string, string> = {
   "Revoke this API key? Connected assistants using it will stop working.":
     "¿Revocar esta clave? Los asistentes que la usen van a desconectarse.",
   "Your AI, connected": "Tu IA, conectada",
-  "Everything connected. Nothing in your way.": "Todo conectado. Nada en el medio.",
+  "Everything connected. Nothing in your way.":
+    "Todo conectado. Nada en el medio.",
   "Connect Codex or Claude Code to your projects, tasks and team context. One workspace, wherever you build.":
     "Conectá Codex o Claude Code a tus proyectos, tareas y contexto. Un solo espacio, trabajes donde trabajes.",
   "Give your assistant a clear next step:":

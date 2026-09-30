@@ -30,7 +30,7 @@ import { useT } from "@/lib/i18n";
 import { gsap, registerGsap } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 import { BentoGrid } from "@/components/ui/bento-grid";
-import { generateBento } from "@/lib/cojeev/bento-layout";
+import type { BentoLayout } from "@/components/ui/bento-grid";
 
 const workflow = [
   {
@@ -56,18 +56,24 @@ export function LandingExperience() {
   const { user } = useAuth();
   const [agent, setAgent] = useState<"codex" | "claude">("codex");
   const destination = user ? "/dashboard" : "/auth?mode=register";
-  const featureLayout = generateBento(
-    6,
-    3,
-    22,
-    [
-      { id: "tasks", label: "Tasks" },
-      { id: "context", label: "Context" },
-      { id: "projects", label: "Projects" },
-      { id: "assistants", label: "Assistants" },
+  const featureLayout: BentoLayout = {
+    columns: 4,
+    rows: 2,
+    seed: 22,
+    tiles: [
+      { id: "tasks", label: "Tasks", x: 0, y: 0, width: 2, height: 1 },
+      { id: "context", label: "Context", x: 2, y: 0, width: 2, height: 1 },
+      { id: "projects", label: "Projects", x: 0, y: 1, width: 2, height: 1 },
+      {
+        id: "assistants",
+        label: "Assistants",
+        x: 2,
+        y: 1,
+        width: 2,
+        height: 1,
+      },
     ],
-    "Dashboard",
-  );
+  };
   useGSAP(
     () => {
       registerGsap();

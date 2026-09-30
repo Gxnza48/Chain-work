@@ -38,6 +38,27 @@
   line-height: inherit;
 }
 
+/* The renderer supplies playful accent fills by default. ChainWork's product
+   surfaces stay graphite, so the composition reads as one system. */
+.landing-section .v-bento__tile {
+  min-height: 220px;
+  background: #17191d;
+  color: #f5f7fa;
+  border: 1px solid #30343b;
+}
+.landing-section .v-bento__tile:nth-child(n) {
+  --bento-fill: #17191d;
+}
+.landing-section .v-bento__tile p {
+  max-width: 42ch;
+  color: #aab1bd;
+}
+@media (max-width: 700px) {
+  .landing-section .v-bento__tile {
+    min-height: 180px;
+  }
+}
+
 /* ===========================================================================
    ChainWork 2.0 — graphite design tokens (RGB for Tailwind alpha support)
    =========================================================================== */
