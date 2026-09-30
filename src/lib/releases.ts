@@ -1,5 +1,39 @@
 export const releases = [
   {
+    version: "2.0.2",
+    date: "2026-09-30",
+    title: {
+      es: "Un lugar. Todo tu equipo.",
+      en: "One place. Your whole team.",
+    },
+    summary: {
+      es: "Landing renovada con componentes 000h, una vista interactiva del producto y un recorrido MCP para ambos asistentes.",
+      en: "A rebuilt landing with 000h components, an interactive product sample and an MCP walkthrough for both assistants.",
+    },
+    changes: [
+      {
+        es: "Componentes reales de Cojeev adaptados a negro y grafito, con temas claro y oscuro.",
+        en: "Real Cojeev components adapted to black and graphite, with light and dark themes.",
+      },
+      {
+        es: "Probá tareas, proyectos, contexto y progreso en una vista de ejemplo interactiva.",
+        en: "Explore tasks, projects, context and progress in an interactive sample workspace.",
+      },
+      {
+        es: "Elegí Codex o Claude Code y recorré cómo trabajan con el contexto de tu equipo.",
+        en: "Choose Codex or Claude Code and explore how they use your team's context.",
+      },
+      {
+        es: "Textos completos en español e inglés, navegación por teclado y movimiento reducido.",
+        en: "Complete Spanish and English copy, keyboard navigation and reduced motion.",
+      },
+      {
+        es: "Tus cuentas, chains, proyectos y tareas siguen intactos.",
+        en: "Your accounts, chains, projects and tasks stay intact.",
+      },
+    ],
+  },
+  {
     version: "2.0.1",
     date: "2026-09-30",
     title: {

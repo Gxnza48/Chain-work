@@ -16,6 +16,13 @@ theme bridge. Their documented reduced-motion behavior remains enabled. The
 registry's font license files and notices are kept in `src/styles/fonts` and
 `src/lib/cojeev/NOTICES.txt`.
 
+The landing also adapts the official registry Button, Card, Badge, Item, Tabs,
+Progress and Accordion sources in `src/components/landing/cojeev/`. Their source
+URLs and component documentation are listed in that directory's `SOURCES.md`.
+Existing 000h Bento Grid is reused for the feature layout. Adaptations include
+landing-scoped monochrome tokens, direct icon imports, native noninteractive
+sample items and Radix-owned removal of inactive tab panels.
+
 ## Brand assets
 
 The OpenAI mark (`public/openai.svg`) comes from Simple Icons 14.15.0 (CC0).

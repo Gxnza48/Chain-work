@@ -1,245 +1,407 @@
 import { useState } from "react";
 import {
-  ArrowUpRight,
+  ArrowRight,
   Check,
-  ChevronDown,
+  CheckCheck,
+  ChevronRight,
   Circle,
-  CircleDashed,
+  FileText,
+  Flag,
   Folder,
   Layers,
   ListTodo,
   MessageSquare,
-  Plus,
-  Search,
-  Settings,
-  SlidersHorizontal,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { ChainMark } from "@/components/layout/Logo";
+import { MotionPresence, MotionSurface } from "@/components/ui/Presence";
+import { AgentState } from "@/components/ui/agent-state";
+import {
+  Badge,
+  Button,
+  Card,
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  Progress,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/landing/cojeev";
+import "./product-preview.css";
 
 const tasks = [
   {
+    id: "onboarding",
     title: "Design the onboarding flow",
     project: "Website",
-    status: "progress",
     person: "AG",
     priority: "High",
   },
   {
+    id: "auth",
     title: "Connect the authentication",
     project: "Platform",
-    status: "progress",
     person: "GB",
     priority: "High",
   },
   {
+    id: "review",
     title: "Review the launch checklist",
     project: "Website",
-    status: "pending",
-    person: "AG",
+    person: "MR",
     priority: "Medium",
   },
   {
+    id: "release",
     title: "Ship the first release",
     project: "Platform",
-    status: "done",
-    person: "GB",
+    person: "TC",
     priority: "Medium",
   },
-];
+] as const;
 
-/** Interactive, local-only product illustration. Never reads or writes account data. */
+const projects = [
+  {
+    name: "Website",
+    description: "A clear first impression, from first click to first chain.",
+    icon: Layers,
+  },
+  {
+    name: "Platform",
+    description: "The shared foundation for every next step.",
+    icon: Folder,
+  },
+] as const;
+
+/** This interactive sample owns only local state; it never reads or writes account data. */
 export function ProductPreview() {
   const t = useT();
   const [view, setView] = useState("tasks");
-  const [completed, setCompleted] = useState<string[]>([tasks[3].title]);
+  const [completed, setCompleted] = useState<string[]>(["release"]);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
+  const [briefOpen, setBriefOpen] = useState(false);
+  const progress = (completed.length / tasks.length) * 100;
+  const visibleTasks = tasks.filter(
+    (task) => !projectFilter || task.project === projectFilter,
+  );
+
+  function showProject(name: string) {
+    setProjectFilter(name);
+    setView("tasks");
+  }
+
   return (
-    <div className="product-preview mx-auto w-full max-w-6xl overflow-hidden rounded-xl border border-white/15 bg-[#101012] text-left text-zinc-100">
-      <div className="flex h-11 items-center justify-between border-b border-white/10 px-4 text-[11px] text-zinc-500">
-        <div className="flex gap-1.5" aria-hidden="true">
-          <i className="h-2 w-2 rounded-full bg-zinc-600" />
-          <i className="h-2 w-2 rounded-full bg-zinc-700" />
-          <i className="h-2 w-2 rounded-full bg-zinc-700" />
+    <div className="cw-preview" aria-label={t("Interactive ChainWork preview")}>
+      <header className="cw-preview__bar">
+        <div className="cw-preview__brand">
+          <ChainMark aria-hidden="true" className="cw-preview__brand-mark" />
+          <span>ChainWork</span>
+          <span className="cw-preview__bar-divider" aria-hidden="true" />
+          <span className="cw-preview__studio">Studio</span>
         </div>
-        <span>chainwork · {t("Product preview")}</span>
-        <span className="font-mono">2.0</span>
-      </div>
-      <div className="flex min-h-[350px] sm:min-h-[410px]">
-        <aside className="hidden w-48 shrink-0 flex-col border-r border-white/10 bg-white/[.015] p-4 md:flex">
-          <div className="mb-8 flex items-center gap-2 text-sm font-semibold">
-            <ChainMark className="h-5 w-5" /> Studio{" "}
-            <ChevronDown className="ml-auto h-3 w-3 text-zinc-500" />
+        <Badge className="cw-preview__sample" size="sm">
+          {t("Interactive preview")}
+        </Badge>
+      </header>
+
+      <div className="cw-preview__workspace">
+        <aside
+          className="cw-preview__sidebar"
+          aria-label={t("Sample chain overview")}
+        >
+          <span className="cw-preview__eyebrow">{t("Your chain")}</span>
+          <div className="cw-preview__chain">
+            <span className="cw-preview__chain-icon">
+              <Layers size={18} aria-hidden="true" />
+            </span>
+            <strong>Studio</strong>
+            <span>{t("One team. A clear next step.")}</span>
           </div>
-          <div className="mb-5 flex items-center gap-2 text-xs text-zinc-500">
-            <Search className="h-3.5 w-3.5" />
-            {t("Search")}
-            <kbd className="ml-auto rounded border border-white/10 px-1">
-              ⌘ K
-            </kbd>
-          </div>
-          <p className="mb-3 text-[10px] font-medium text-zinc-500">
-            {t("Workspace")}
-          </p>
-          {[
-            { id: "tasks", label: "All tasks", icon: ListTodo },
-            { id: "projects", label: "Projects", icon: Folder },
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setView(id)}
-              aria-pressed={view === id}
-              className={cn(
-                "mb-1 flex items-center gap-2 rounded-md px-2 py-2 text-xs transition-colors",
-                view === id
-                  ? "bg-white/10 text-white"
-                  : "text-zinc-400 hover:bg-white/5",
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {t(label)}
-            </button>
-          ))}
-          <div className="mt-2 flex items-center gap-2 px-2 text-xs text-zinc-500">
-            <MessageSquare className="h-3.5 w-3.5" />
-            {t("Chat")}
-          </div>
-          <div className="mt-auto flex items-center gap-2 text-xs text-zinc-500">
-            <Settings className="h-3.5 w-3.5" />
-            {t("Settings")}
-            <span className="ml-auto h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="cw-preview__eyebrow">{t("Shared context")}</span>
+          <ul className="cw-preview__context-index">
+            <li>
+              <Folder size={15} aria-hidden="true" />
+              <span>{t("Projects")}</span>
+              <span>02</span>
+            </li>
+            <li>
+              <Flag size={15} aria-hidden="true" />
+              <span>{t("Milestone")}</span>
+              <span>01</span>
+            </li>
+            <li>
+              <FileText size={15} aria-hidden="true" />
+              <span>{t("Project brief")}</span>
+              <span>01</span>
+            </li>
+          </ul>
+          <div className="cw-preview__team">
+            <div className="cw-preview__avatars" aria-hidden="true">
+              <span>AG</span>
+              <span>GB</span>
+              <span>MR</span>
+              <span>TC</span>
+            </div>
+            <span>{t("Four people. One direction.")}</span>
           </div>
         </aside>
-        <div className="min-w-0 flex-1 p-4 sm:p-7">
-          <div className="mb-6 flex items-center gap-2 text-[11px] text-zinc-500">
-            Studio <span>/</span>{" "}
-            {t(view === "tasks" ? "All tasks" : "Projects")}
-            <span className="ml-auto inline-flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {t("In sync")}
-            </span>
-          </div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t(
-                view === "tasks"
-                  ? "Good work starts here."
-                  : "A place for every project.",
-              )}
-            </h2>
-            <Layers className="h-4 w-4 shrink-0 text-zinc-500" />
-          </div>
-          <p className="mb-6 text-xs text-zinc-400">
-            {t("One team. A clear next step.")}
-          </p>
-          <div className="mb-4 flex items-center gap-4 border-b border-white/10 pb-3 text-[11px]">
-            <button
-              onClick={() => setView("tasks")}
-              aria-pressed={view === "tasks"}
-              className={view === "tasks" ? "text-white" : "text-zinc-500"}
-            >
-              {t("All tasks")}
-            </button>
-            <button
-              onClick={() => setView("projects")}
-              aria-pressed={view === "projects"}
-              className={view === "projects" ? "text-white" : "text-zinc-500"}
-            >
-              {t("Projects")}
-            </button>
-            <span className="ml-auto flex items-center gap-1 text-zinc-500">
-              <SlidersHorizontal className="h-3 w-3" />
-              {t("Overview")}
-            </span>
-          </div>
-          {view === "tasks" ? (
+
+        <div className="cw-preview__main">
+          <div className="cw-preview__heading">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500">
-                <CircleDashed className="h-3 w-3" />
-                {t("This week")}
-                <span>{tasks.length}</span>
-              </div>
-              {tasks.map((task) => {
-                const done = completed.includes(task.title);
-                return (
-                  <div
-                    key={task.title}
-                    className="flex items-center gap-3 border-b border-white/[.055] py-3.5 text-xs"
+              <span className="cw-preview__eyebrow">{t("Product launch")}</span>
+              <h3>{t("Make the next step count.")}</h3>
+            </div>
+            <Badge className="cw-preview__release-badge" size="sm">
+              {t("Next release")}
+            </Badge>
+          </div>
+
+          <Tabs
+            value={view}
+            onValueChange={setView}
+            variant="underline"
+            className="cw-preview__tabs"
+          >
+            <TabsList
+              aria-label={t("Explore the sample workspace")}
+              className="cw-preview__tab-list"
+            >
+              <TabsTrigger value="tasks">
+                <ListTodo size={15} aria-hidden="true" />
+                {t("Tasks")}
+              </TabsTrigger>
+              <TabsTrigger value="projects">
+                <Folder size={15} aria-hidden="true" />
+                {t("Projects")}
+              </TabsTrigger>
+              <TabsTrigger value="context">
+                <MessageSquare size={15} aria-hidden="true" />
+                {t("Context")}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="tasks" className="cw-preview__panel">
+              <div className="cw-preview__list-heading">
+                <span>{projectFilter ? t(projectFilter) : t("This week")}</span>
+                {projectFilter ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProjectFilter(null)}
                   >
-                    <button
+                    {t("Show all tasks")}
+                  </Button>
+                ) : (
+                  <span>{t("{count} tasks", { count: tasks.length })}</span>
+                )}
+              </div>
+              <div className="cw-preview__task-list">
+                {visibleTasks.map((task) => {
+                  const done = completed.includes(task.id);
+                  return (
+                    <Item
+                      key={task.id}
+                      className={cn(
+                        "cw-preview__task",
+                        done && "cw-preview__task--done",
+                      )}
+                      aria-pressed={done}
                       aria-label={t(
                         done ? "Reopen {title}" : "Complete {title}",
                         { title: t(task.title) },
                       )}
-                      aria-pressed={done}
                       onClick={() =>
                         setCompleted((current) =>
                           done
-                            ? current.filter((title) => title !== task.title)
-                            : [...current, task.title],
+                            ? current.filter((id) => id !== task.id)
+                            : [...current, task.id],
                         )
                       }
-                      className={cn(
-                        "grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors",
-                        done
-                          ? "bg-emerald-400/15 text-emerald-400"
-                          : "text-zinc-500 hover:text-white",
-                      )}
                     >
-                      {done ? (
-                        <Check className="h-3 w-3" />
-                      ) : (
-                        <Circle className="h-4 w-4" />
-                      )}
-                    </button>
-                    <span
-                      className={cn(
-                        "min-w-0 flex-1",
-                        done && "text-zinc-500 line-through",
-                      )}
-                    >
-                      {t(task.title)}
-                    </span>
-                    <span className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[10px] text-zinc-400 sm:block">
-                      {task.project}
-                    </span>
-                    <span className="hidden w-12 text-[10px] text-zinc-500 lg:block">
-                      {t(task.priority)}
-                    </span>
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-zinc-800 text-[8px] text-zinc-300">
-                      {task.person}
-                    </span>
-                  </div>
-                );
-              })}
-              <p className="mt-4 flex items-center gap-2 text-[10px] text-zinc-500">
-                <Plus className="h-3 w-3" />
-                {t("Try completing a task. This is your playground.")}
+                      <span className="cw-preview__check" aria-hidden="true">
+                        {done ? <Check size={14} /> : <Circle size={18} />}
+                      </span>
+                      <ItemContent
+                        as="span"
+                        className="cw-preview__task-content"
+                      >
+                        <ItemTitle as="span" className="cw-preview__task-title">
+                          {t(task.title)}
+                        </ItemTitle>
+                        <ItemDescription
+                          as="span"
+                          className="cw-preview__task-project"
+                        >
+                          {t(task.project)}
+                        </ItemDescription>
+                      </ItemContent>
+                      <Badge className="cw-preview__priority" size="sm">
+                        {t(done ? "Done" : task.priority)}
+                      </Badge>
+                      <span className="cw-preview__assignee" aria-hidden="true">
+                        {task.person}
+                      </span>
+                    </Item>
+                  );
+                })}
+              </div>
+              <p className="cw-preview__hint">
+                <CheckCheck size={14} aria-hidden="true" />
+                {t("Check off a task. Watch the milestone move.")}
               </p>
+            </TabsContent>
+
+            <TabsContent value="projects" className="cw-preview__panel">
+              <div className="cw-preview__project-grid">
+                {projects.map(({ name, description, icon: Icon }) => {
+                  const projectTasks = tasks.filter(
+                    (task) => task.project === name,
+                  );
+                  const doneCount = projectTasks.filter((task) =>
+                    completed.includes(task.id),
+                  ).length;
+                  return (
+                    <Card key={name} className="cw-preview__project">
+                      <div className="cw-preview__project-top">
+                        <Icon size={21} aria-hidden="true" />
+                        <Badge size="sm">
+                          {t("{count} tasks", { count: projectTasks.length })}
+                        </Badge>
+                      </div>
+                      <h4>{t(name)}</h4>
+                      <p>{t(description)}</p>
+                      <Progress
+                        value={doneCount}
+                        max={projectTasks.length}
+                        appearance="line"
+                        size="sm"
+                        aria-label={t("{project} progress", {
+                          project: t(name),
+                        })}
+                        className="cw-preview__project-progress"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => showProject(name)}
+                        className="cw-preview__project-action"
+                      >
+                        {t("View tasks")}
+                        <ArrowRight size={15} aria-hidden="true" />
+                      </Button>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="context" className="cw-preview__panel">
+              <div className="cw-preview__context-grid">
+                <Card className="cw-preview__conversation">
+                  <div className="cw-preview__note-heading">
+                    <span className="cw-preview__assignee" aria-hidden="true">
+                      AG
+                    </span>
+                    <strong>Ana</strong>
+                    <span>{t("In the project")}</span>
+                  </div>
+                  <p>
+                    {t(
+                      "Onboarding is ready for review. The brief and decisions are here, so we can pick up where we left off.",
+                    )}
+                  </p>
+                  <Button
+                    className="cw-preview__file"
+                    variant="outline"
+                    size="sm"
+                    aria-expanded={briefOpen}
+                    aria-controls="preview-project-brief"
+                    onClick={() => setBriefOpen((open) => !open)}
+                  >
+                    <FileText size={16} aria-hidden="true" />
+                    <span>launch-brief.md</span>
+                    <ChevronRight
+                      className={
+                        briefOpen ? "cw-preview__chevron--open" : undefined
+                      }
+                      size={14}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                  <MotionPresence initial={false}>
+                    {briefOpen && (
+                      <MotionSurface
+                        key="brief"
+                        preset="fade"
+                        id="preview-project-brief"
+                        className="cw-preview__brief"
+                      >
+                        {t(
+                          "Goal: help a new teammate join a chain and find their first task in one clear flow.",
+                        )}
+                      </MotionSurface>
+                    )}
+                  </MotionPresence>
+                </Card>
+                <div className="cw-preview__assistant-context">
+                  <AgentState
+                    status="complete"
+                    size="sm"
+                    label={t("Context, ready to share.")}
+                    description={t(
+                      "Tasks, decisions and the project brief stay together.",
+                    )}
+                  />
+                  <span className="cw-preview__assistant-label">
+                    {t("For your team. And your AI.")}
+                  </span>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <div className="cw-preview__milestone">
+            <div className="cw-preview__milestone-copy">
+              <Flag size={15} aria-hidden="true" />
+              <span>{t("Launch milestone")}</span>
+              <strong>{progress}%</strong>
             </div>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {["Website", "Platform"].map((name) => (
-                <button
-                  key={name}
-                  onClick={() => setView("tasks")}
-                  className="group rounded-lg border border-white/10 p-4 text-left transition-colors hover:bg-white/5"
-                >
-                  <Folder className="mb-6 h-5 w-5 text-zinc-400" />
-                  <span className="flex items-center justify-between text-sm">
-                    {name}
-                    <ArrowUpRight className="h-3 w-3 text-zinc-500" />
-                  </span>
-                  <span className="mt-2 block text-[10px] text-zinc-500">
-                    {t("2 tasks · Launch")}
-                  </span>
-                  <span className="mt-4 block h-1 rounded-full bg-white/5">
-                    <span className="block h-1 w-1/2 rounded-full bg-zinc-400" />
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+            <Progress
+              value={completed.length}
+              max={tasks.length}
+              appearance="line"
+              size="sm"
+              aria-label={t("Launch milestone progress")}
+              className="cw-preview__milestone-progress"
+            />
+            <span className="cw-preview__progress-summary" role="status">
+              {t("{done} of {total} tasks complete", {
+                done: completed.length,
+                total: tasks.length,
+              })}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="cw-preview__reset"
+              onClick={() => {
+                setCompleted(["release"]);
+                setProjectFilter(null);
+                setBriefOpen(false);
+                setView("tasks");
+              }}
+              aria-label={t("Reset preview")}
+            >
+              <RotateCcw size={13} aria-hidden="true" />
+              <span>{t("Reset")}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

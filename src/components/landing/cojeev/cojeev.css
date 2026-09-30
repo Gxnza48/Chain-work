@@ -1,0 +1,539 @@
+/* 000h registry styles adapted for ChainWork. See SOURCES.md.
+   Scope every rule: the product application's existing UI remains independent. */
+.cw-landing {
+  --v-canvas: rgb(var(--bg));
+  --v-text: rgb(var(--fg));
+  --v-text-2: rgb(var(--fg-muted));
+  --v-ink: rgb(var(--fg));
+  --v-on-ink: rgb(var(--bg));
+  --v-beige: rgb(var(--surface-2));
+  --v-beige-2: rgb(var(--surface));
+  --v-border: rgb(var(--border));
+  --v-edge: rgb(var(--border));
+  --card: rgb(var(--surface));
+  --card-2: rgb(var(--surface-2));
+  --card-foreground: rgb(var(--fg));
+  --muted-foreground: rgb(var(--fg-muted));
+  --primary: rgb(var(--fg));
+  --primary-foreground: rgb(var(--bg));
+  --sel-bg: rgb(var(--fg) / 0.06);
+  --sel-ink: rgb(var(--fg));
+  --sel-edge: rgb(var(--border));
+  --r-card: 12px;
+  --r-card-sm: 8px;
+  --r-pill: 8px;
+  --card-pad: 24px;
+  --row-pad: 12px 14px;
+  --item-h: 48px;
+  --ctl-sm: 36px;
+  --ctl-md: 44px;
+  --ctl-lg: 48px;
+  --fs-control: 14px;
+  --fs-small: 13px;
+  --fs-meta: 12px;
+  --fs-caps: 11px;
+  --fs-body: 15px;
+  --fs-reading: 15px;
+  --glide-fg: rgb(var(--fg));
+  --glide-bg: rgb(var(--surface-2));
+}
+
+.cw-landing .v-btn[data-slot="button"] {
+  --mfill: rgb(var(--fg));
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: rgb(var(--fg));
+  color: rgb(var(--bg));
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+.cw-landing .v-btn[data-slot="button"]:hover {
+  background: rgb(var(--fg) / 0.88);
+}
+.cw-landing .v-btn[data-slot="button"].-outline {
+  --mfill: transparent;
+  background: transparent;
+  color: rgb(var(--fg));
+  border-color: rgb(var(--border));
+  box-shadow: none;
+}
+.cw-landing .v-btn[data-slot="button"].-ghost {
+  --mfill: transparent;
+  background: transparent;
+  color: rgb(var(--fg-muted));
+  box-shadow: none;
+}
+.cw-landing .v-btn[data-slot="button"]:is(.-outline, .-ghost):hover {
+  background: rgb(var(--fg) / 0.05);
+  color: rgb(var(--fg));
+}
+.cw-landing .v-btn[data-slot="button"].-sm {
+  min-height: 36px;
+  height: 36px;
+  padding-inline: 12px;
+  font-size: 13px;
+}
+.cw-landing .v-btn[data-slot="button"].-lg {
+  min-height: 48px;
+  height: 48px;
+  padding-inline: 22px;
+  font-size: 15px;
+}
+.cw-landing .v-btn[data-slot="button"].-icon {
+  width: 44px;
+  padding: 0;
+}
+.cw-landing .v-btn[data-slot="button"]:disabled,
+.cw-landing .v-btn[data-slot="button"][aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cw-landing .v-btn[data-slot="button"][aria-busy="true"] {
+  cursor: progress;
+}
+.cw-landing .v-btn__loading {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+}
+.cw-landing .v-btn svg {
+  flex-shrink: 0;
+}
+.cw-landing
+  :is(
+    .v-btn,
+    .v-tab,
+    [data-slot="accordion-trigger"],
+    button.v-item
+  ):focus-visible {
+  outline: 2px solid rgb(var(--fg));
+  outline-offset: 4px;
+}
+
+.cw-landing .v-card[data-slot="card"] {
+  min-width: 0;
+  padding: 0;
+  border: 1px solid rgb(var(--border));
+  border-radius: 12px;
+  background: rgb(var(--surface));
+  color: rgb(var(--fg));
+  box-shadow: none;
+}
+.cw-landing [data-slot="card-header"] {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 0;
+  margin: 0;
+}
+.cw-landing [data-slot="card-title"] {
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 550;
+}
+.cw-landing [data-slot="card-description"] {
+  color: rgb(var(--fg-muted));
+  font-size: 14px;
+  line-height: 1.6;
+}
+.cw-landing [data-slot="card-content"] {
+  min-width: 0;
+  padding: 20px;
+}
+.cw-landing [data-slot="card-footer"] {
+  margin: 0;
+  padding: 0 20px 20px;
+  gap: 12px;
+}
+
+.cw-landing .v-badge[data-slot="badge"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 25px;
+  padding: 0 8px;
+  border: 1px solid rgb(var(--border));
+  border-radius: 6px;
+  background: rgb(var(--fg) / 0.035);
+  color: rgb(var(--fg-muted));
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+.cw-landing .v-badge[data-slot="badge"].-sm {
+  height: 22px;
+  padding-inline: 7px;
+  font-size: 11px;
+}
+.cw-landing .v-badge[data-slot="badge"].-lg {
+  height: 30px;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+.cw-landing [data-slot="badge-indicator"] {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.cw-landing .v-item[data-slot="item-item"] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: rgb(var(--fg));
+  text-align: left;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease;
+}
+.cw-landing button.v-item:hover {
+  background: rgb(var(--fg) / 0.04);
+}
+.cw-landing .v-item:is(.-selected, [aria-pressed="true"]) {
+  background: rgb(var(--fg) / 0.045);
+  border-color: rgb(var(--border));
+  box-shadow: none;
+}
+.cw-landing [data-slot="item-content"] {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+.cw-landing [data-slot="item-title"] {
+  display: block;
+  overflow: visible;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.cw-landing [data-slot="item-description"] {
+  color: rgb(var(--fg-muted));
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cw-landing [data-slot="tabs"] {
+  min-width: 0;
+  gap: 0;
+}
+.cw-landing [data-slot="tabs-list"] {
+  display: flex;
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  gap: 20px;
+  border-bottom: 1px solid rgb(var(--border));
+  --glide-bg: rgb(var(--fg));
+  --glide-fg: rgb(var(--fg));
+}
+.cw-landing [data-slot="tabs-trigger"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 0 1px;
+  border-bottom: 2px solid transparent;
+  color: rgb(var(--fg-muted));
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cw-landing [data-slot="tabs-trigger"][aria-selected="true"] {
+  color: rgb(var(--fg));
+  border-bottom-color: rgb(var(--fg));
+}
+.cw-landing [data-slot="tabs-trigger"]:hover {
+  color: rgb(var(--fg));
+}
+.cw-landing [data-slot="tabs-trigger"][data-disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cw-landing [data-slot="tabs-content"] {
+  min-width: 0;
+  outline-offset: 4px;
+}
+
+/* The registry's flow hook owns geometry; these are its scoped paint layers. */
+.cw-landing [data-flow-owned].v-glide {
+  position: relative;
+  isolation: isolate;
+}
+.cw-landing
+  [data-flow-owned].v-glide
+  > :is(.v-glide__pill, .v-glide__hover, .v-glide__trail) {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: var(--glide-w, 0px);
+  height: var(--glide-h, 0px);
+  border-radius: var(--glide-r, 8px);
+  opacity: var(--glide-o, 0);
+  transform: translate3d(var(--glide-x, 0px), var(--glide-y, 0px), 0);
+  pointer-events: none;
+  z-index: 0;
+}
+.cw-landing [data-flow-owned].v-glide > .v-glide__hover {
+  width: var(--hov-w, 0px);
+  height: var(--hov-h, 0px);
+  border-radius: var(--hov-r, 8px);
+  opacity: var(--hov-o, 0);
+  transform: translate3d(var(--hov-x, 0px), var(--hov-y, 0px), 0);
+}
+.cw-landing [data-flow-owned].v-glide > .v-glide__trail {
+  display: none;
+}
+.cw-landing
+  [data-flow-owned].v-glide
+  > :is(.v-glide__pill, .v-glide__hover)
+  > i {
+  position: absolute;
+  display: block;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glide-bg);
+}
+.cw-landing [data-flow-owned].v-glide > .v-glide__hover > i {
+  background: rgb(var(--fg) / 0.04);
+}
+.cw-landing .cw-workflow-steps.v-glide > .v-glide__pill > i {
+  background: rgb(var(--fg) / 0.05);
+  border-radius: 0;
+}
+.cw-landing .cw-workflow-steps.v-glide > .v-glide__pill {
+  border-radius: 0;
+}
+.cw-landing .v-glide.-underline .v-tab[data-glide-active] {
+  border-bottom-color: transparent;
+}
+.cw-landing [data-flow-owned].v-glide > .v-tab {
+  z-index: 1;
+}
+
+.cw-landing [data-slot="progress"].v-track {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 12px;
+  color: rgb(var(--fg));
+}
+.cw-landing [data-slot="progress"].-sm {
+  height: 8px;
+}
+.cw-landing [data-slot="progress"].-lg {
+  height: 20px;
+}
+.cw-landing [data-slot="progress"] > [data-slot="progress-indicator"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.cw-landing .v-progress__paint {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.cw-landing .v-progress__track {
+  fill: rgb(var(--fg) / 0.1);
+}
+.cw-landing .v-progress__fill {
+  fill: currentColor;
+}
+.cw-landing
+  [data-slot="progress"][data-appearance="line"]
+  :is(.v-progress__track, .v-progress__fill) {
+  fill: none;
+  stroke: rgb(var(--fg) / 0.1);
+  stroke-width: 3px;
+  stroke-linecap: round;
+}
+.cw-landing [data-slot="progress"][data-appearance="line"] .v-progress__fill {
+  stroke: currentColor;
+}
+.cw-landing [data-slot="progress"].-unavail {
+  opacity: 0.4;
+}
+
+.cw-landing [data-slot="accordion"] {
+  display: grid;
+  gap: 0;
+}
+.cw-landing [data-slot="accordion-item"] {
+  border: 0;
+  border-bottom: 1px solid rgb(var(--border));
+  border-radius: 0;
+  background: transparent;
+  color: rgb(var(--fg));
+  overflow: hidden;
+}
+.cw-landing [data-slot="accordion-trigger"] {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  min-height: 72px;
+  padding: 22px 2px;
+  border-radius: 0;
+  color: rgb(var(--fg));
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+.cw-landing [data-slot="accordion-trigger"]:hover {
+  color: rgb(var(--fg-muted));
+}
+.cw-landing [data-slot="accordion-indicator"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: transform 180ms ease;
+}
+.cw-landing
+  [data-slot="accordion-trigger"][data-state="open"]
+  [data-slot="accordion-indicator"] {
+  transform: rotate(180deg);
+}
+.cw-landing
+  [data-slot="accordion"][data-appearance="faq"]
+  [data-slot="accordion-trigger"][data-state="open"]
+  [data-slot="accordion-indicator"] {
+  transform: rotate(45deg);
+}
+.cw-landing [data-slot="accordion-content"] {
+  min-height: 0;
+  overflow: hidden;
+  color: rgb(var(--fg-muted));
+  font-size: 14px;
+  line-height: 1.8;
+}
+.cw-landing [data-slot="accordion-content-inner"] {
+  padding: 0 36px 24px 2px;
+}
+.cw-landing [data-slot="accordion-content"][data-state="closed"] {
+  animation: cw-disclosure-presence var(--disclosure-exit-duration, 0.22s)
+    linear;
+}
+@keyframes cw-disclosure-presence {
+  from {
+    --cw-disclosure-beat: 0;
+  }
+  to {
+    --cw-disclosure-beat: 1;
+  }
+}
+
+/* Registry morph paint stays under content and cannot intercept interaction. */
+.cw-landing [data-slot].v-morph-host {
+  isolation: isolate;
+}
+.cw-landing [data-slot].v-morph-rel {
+  position: relative;
+}
+.cw-landing [data-slot].v-morph-host > svg.v-morph {
+  max-width: none;
+  max-height: none;
+}
+.cw-landing [data-slot].v-morph-host > svg.v-morph,
+.cw-landing [data-slot].v-morph-host > svg.v-morph * {
+  pointer-events: none;
+}
+.cw-landing
+  [data-slot].v-morph-host
+  > svg.v-morph
+  > [data-morph-body]:not([data-morph-colors]) {
+  fill: var(--mfill, transparent);
+}
+.cw-landing [data-slot].v-morph-host > svg.v-morph > [data-morph-body][stroke] {
+  stroke: var(--mstroke, transparent);
+}
+.cw-landing
+  [data-slot].v-morph-host[data-morph="stroke"]
+  > svg.v-morph
+  > [data-morph-body] {
+  fill: none;
+}
+.cw-landing [data-slot].v-morph-host > svg.v-morph > [data-morph-echo] {
+  fill: none;
+}
+/* Live theme tokens take precedence over colors sampled by the morph hook. */
+.cw-landing
+  .v-btn[data-slot="button"].v-morph-host
+  > svg.v-morph
+  > [data-morph-body] {
+  fill: rgb(var(--fg));
+}
+.cw-landing
+  .v-btn[data-slot="button"]:is(.-outline, .-ghost).v-morph-host
+  > svg.v-morph
+  > [data-morph-body] {
+  fill: none;
+  stroke: rgb(var(--border));
+}
+.cw-landing
+  .v-card[data-slot="card"].v-morph-host
+  > svg.v-morph
+  > [data-morph-body] {
+  fill: rgb(var(--surface));
+}
+
+@media (pointer: coarse) {
+  .cw-landing .v-btn[data-slot="button"].-sm {
+    min-height: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cw-landing
+    :is(
+      .v-btn,
+      .v-tab,
+      .v-item,
+      [data-slot="accordion-indicator"],
+      [data-slot="accordion-content"],
+      .v-glide__pill,
+      .v-glide__hover
+    ) {
+    animation: none;
+    transition: none;
+  }
+}

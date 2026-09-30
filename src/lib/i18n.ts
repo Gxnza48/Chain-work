@@ -1,5 +1,8 @@
 import { useLangStore, type Lang } from '@/store/lang';
 import { esV2 } from './i18n-v2';
+import { esLanding } from './i18n-landing';
+import { esPreview } from './i18n-preview';
+import { esMcpLanding } from './i18n-mcp-landing';
 
 export type { Lang };
 
@@ -17,6 +20,9 @@ export type { Lang };
  */
 const es: Record<string, string> = {
   ...esV2,
+  ...esLanding,
+  ...esPreview,
+  ...esMcpLanding,
   // ---- Navbar / shared nav ----
   'How it works': 'Cómo funciona',
   'Features': 'Funciones',

@@ -3,7 +3,22 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      name: "qa-motion-preference",
+      transformIndexHtml() {
+        return [
+          {
+            tag: "script",
+            attrs: { type: "module", src: "/tests/fixtures/motion.ts" },
+            injectTo: "head-prepend" as const,
+          },
+        ];
+      },
+    },
+  ],
   resolve: {
     alias: [
       {

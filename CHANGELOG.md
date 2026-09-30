@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.2 — 2026-09-30
+
+### Landing rebuilt with 000h / Cojeev
+
+- Rebuilt the landing in black and graphite with a responsive hero, workflow tabs, balanced Bento Grid, MCP walkthrough, FAQ and footer.
+- Adapted real registry Button, Card, Badge, Item, Tabs, Progress and Accordion sources to ChainWork, alongside existing Presence, Bento Grid and Agent State components. Styles are scoped to the landing and preserve dark/light themes.
+- Added a local interactive workspace sample with task completion, project filters, a project brief and milestone progress. Added user-controlled Codex / Claude Code selection and four accurate MCP example steps.
+- Completed English and Spanish copy, keyboard navigation, mobile dialog focus and reduced-motion behavior. Fixed retained inactive tab panels and morph colors after a theme change.
+- Preserved existing authentication destinations and all application, database and MCP behavior. Landing examples do not read or write user data.
+- Added regression coverage for guest/authenticated links, sample progress, exclusive tab panels, both assistants, Spanish and reduced motion.
+
 ## 2.0.1 — 2026-09-30
 
 ### 000h interaction layer
