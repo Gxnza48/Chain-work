@@ -176,7 +176,26 @@ function query(table: string) {
       if (operation === "update")
         rows.forEach((r) => Object.assign(r, mutation));
       if (operation === "insert") {
-        const row = { id: crypto.randomUUID(), created_at: now, ...mutation };
+        const defaults =
+          table === "todos"
+            ? {
+                status: "pending",
+                priority: "medium",
+                assignees: [],
+                order_index: 0,
+                due_date: null,
+                completed_at: null,
+                completed_by: null,
+                milestone_id: null,
+                last_nudged_at: null,
+              }
+            : {};
+        const row = {
+          id: crypto.randomUUID(),
+          created_at: now,
+          ...defaults,
+          ...mutation,
+        };
         (data[table] ??= []).push(row);
         rows = [row];
       }
