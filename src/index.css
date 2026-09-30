@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 /* ===========================================================================
-   ChainWork — Neo-brutalist tokens (rgb triplets so Tailwind alpha works)
+   ChainWork 2.0 — graphite design tokens (RGB for Tailwind alpha support)
    =========================================================================== */
 @layer base {
-  :root,
   .light {
-    --bg: 250 250 245;
+    color-scheme: light;
+    --bg: 250 250 250;
     --surface: 255 255 255;
-    --surface-2: 242 242 236;
+    --surface-2: 244 244 245;
     --fg: 10 10 10;
     --fg-muted: 85 85 85;
-    --border: 10 10 10;
+    --border: 228 228 231;
 
     --accent-blue: 37 99 235;
     --accent-violet: 124 58 237;
@@ -26,19 +26,20 @@
     --wordmark-fill: rgba(10, 10, 10, 0.05);
   }
 
-  .dark {
-    --bg: 10 10 10;
-    --surface: 20 20 20;
-    --surface-2: 28 28 28;
-    --fg: 255 255 255;
-    --fg-muted: 138 138 138;
-    --border: 255 255 255;
+  :root:not(.light), .dark {
+    color-scheme: dark;
+    --bg: 9 9 11;
+    --surface: 15 15 17;
+    --surface-2: 24 24 27;
+    --fg: 244 244 245;
+    --fg-muted: 161 161 170;
+    --border: 43 43 48;
 
-    --accent-blue: 37 99 235;
-    --accent-violet: 124 58 237;
-    --accent-emerald: 5 150 105;
-    --accent-amber: 217 119 6;
-    --accent-rose: 225 29 72;
+    --accent-blue: 113 113 122;
+    --accent-violet: 113 113 122;
+    --accent-emerald: 52 211 153;
+    --accent-amber: 251 191 36;
+    --accent-rose: 251 113 133;
 
     --wordmark-stroke: rgba(255, 255, 255, 0.42);
     --wordmark-fill: rgba(255, 255, 255, 0.06);
@@ -55,7 +56,7 @@
   #root {
     background-color: rgb(var(--bg));
     color: rgb(var(--fg));
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', system-ui, sans-serif;
     min-height: 100%;
   }
 
@@ -69,7 +70,7 @@
     overflow-x: hidden;
   }
 
-  /* Focus rings — brutalist hard square */
+  /* Visible keyboard focus */
   :focus-visible {
     outline: 2px solid rgb(var(--accent-blue));
     outline-offset: 2px;
@@ -81,7 +82,7 @@
     color: rgb(255 255 255);
   }
 
-  /* ====== Custom scrollbar — brutalist, matches the design tokens ====== */
+  /* ====== Custom scrollbar — matches the design tokens ====== */
   /* Firefox */
   html {
     scrollbar-width: thin;
@@ -90,12 +91,12 @@
 
   /* WebKit / Chromium / Safari */
   ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: rgb(var(--surface-2));
-    border-left: 2px solid rgb(var(--fg) / 0.12);
+    border-left: none;
   }
   ::-webkit-scrollbar-thumb {
     background: rgb(var(--fg) / 0.55);
@@ -115,24 +116,21 @@
    Utility helpers
    =========================================================================== */
 @layer utilities {
-  .brut-card {
-    @apply rounded-lg border-2 border-fg bg-surface shadow-brut;
+  .surface-card {
+    @apply rounded-lg border border-border bg-surface shadow-soft;
   }
 
-  .brut-press {
-    transition:
-      transform 150ms ease,
-      box-shadow 150ms ease;
+  .surface-hover {
+    transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
   }
 
-  .brut-press:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 0 rgb(var(--border));
+  .surface-hover:hover {
+    border-color: rgb(var(--fg-muted) / .5);
+    background-color: rgb(var(--surface-2));
   }
 
-  .brut-press:active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 0 rgb(var(--border));
+  .surface-hover:active {
+    background-color: rgb(var(--surface-2));
   }
 
   .grid-bg {
@@ -188,6 +186,13 @@
 }
 
 /* Lenis */
+.landing-glow { background-image: radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / .065), transparent 65%); }
+.product-preview { box-shadow: 0 0 0 8px rgb(255 255 255 / .015), 0 32px 100px rgb(0 0 0 / .45); }
+.landing-section { padding-block: clamp(5rem, 10vw, 9rem); }
+.text-balance { text-wrap: balance; }
+.skip-link { position: fixed; left: 1rem; top: -5rem; z-index: 100; padding: .75rem 1rem; border-radius: .5rem; background: rgb(var(--fg)); color: rgb(var(--bg)); }
+.skip-link:focus { top: 1rem; }
+
 html.lenis,
 html.lenis body {
   height: auto;

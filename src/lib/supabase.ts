@@ -11,7 +11,7 @@ if (!url || !anon) {
   );
 }
 
-export const supabase = createClient<Database>(url ?? 'http://localhost', anon ?? 'public-anon-key', {
+export const supabase = createClient<Database>(url || 'http://localhost:54321', anon || 'public-anon-key', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,

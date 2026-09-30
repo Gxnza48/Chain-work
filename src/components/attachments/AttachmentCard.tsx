@@ -46,8 +46,8 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
   }
 
   return (
-    <article className="overflow-hidden rounded-lg border-2 border-fg bg-surface shadow-brut-sm">
-      <div className="border-b-2 border-fg bg-surface-2">
+    <article className="overflow-hidden rounded-lg border border-border bg-surface shadow-soft">
+      <div className="border-b border-border bg-surface-2">
         {attachment.type === 'image' ? (
           <button
             type="button"
@@ -93,7 +93,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
               loading="lazy"
             />
             <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/40">
-              <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-brut-sm transition-opacity group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-soft transition-opacity group-hover:opacity-100">
                 <Maximize2 className="h-3.5 w-3.5" /> {t('View PDF')}
               </span>
             </span>
@@ -153,7 +153,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
           <img
             src={attachment.url}
             alt={attachment.title ?? t('Attachment')}
-            className="max-h-full max-w-full rounded-md border-2 border-white shadow-brut-lg"
+            className="max-h-full max-w-full rounded-md border border-white shadow-soft"
           />
         </button>
       ) : null}
@@ -166,7 +166,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
                 href={attachment.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
               >
                 <ExternalLink className="h-4 w-4" /> {t('Open')}
               </a>
@@ -174,7 +174,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
                 type="button"
                 onClick={() => setPdfOpen(false)}
                 aria-label={t('Close')}
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
               >
                 <X className="h-4 w-4" /> {t('Close')}
               </button>
@@ -183,7 +183,7 @@ export function AttachmentCard({ attachment, uploader, onChange }: Props) {
           <iframe
             src={attachment.url}
             title={attachment.title ?? t('PDF')}
-            className="min-h-0 flex-1 w-full rounded-md border-2 border-white bg-white shadow-brut-lg"
+            className="min-h-0 flex-1 w-full rounded-md border border-white bg-white shadow-soft"
           />
         </div>
       ) : null}
@@ -245,7 +245,7 @@ function LinkPreview({ attachment }: { attachment: AttachmentRow }) {
       rel="noreferrer"
       className="flex items-center gap-3 p-5 hover:bg-surface"
     >
-      <span className="grid h-12 w-12 place-items-center rounded-md border-2 border-fg bg-surface text-fg">
+      <span className="grid h-12 w-12 place-items-center rounded-md border border-border bg-surface text-fg">
         {favicon ? (
           <img src={favicon} alt="" className="h-6 w-6" />
         ) : attachment.type === 'repo' ? (
@@ -315,7 +315,7 @@ function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
           />
         ) : failed ? (
           <span className="flex h-full w-full items-center gap-3 p-5">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md border border-border bg-accent-emerald text-white">
               <FileCode className="h-5 w-5" />
             </span>
             <span className="min-w-0 text-left">
@@ -329,7 +329,7 @@ function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
           </span>
         )}
         <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/40">
-          <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-brut-sm transition-opacity group-hover:opacity-100">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-xs font-bold text-fg opacity-0 shadow-soft transition-opacity group-hover:opacity-100">
             <Maximize2 className="h-3.5 w-3.5" /> {t('View HTML')}
           </span>
         </span>
@@ -343,7 +343,7 @@ function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
                 href={attachment.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
               >
                 <ExternalLink className="h-4 w-4" /> {t('Open')}
               </a>
@@ -351,7 +351,7 @@ function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={t('Close')}
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
               >
                 <X className="h-4 w-4" /> {t('Close')}
               </button>
@@ -362,10 +362,10 @@ function HtmlPreview({ attachment }: { attachment: AttachmentRow }) {
               srcDoc={html}
               title={attachment.title ?? t('HTML')}
               sandbox={sandbox}
-              className="min-h-0 flex-1 w-full rounded-md border-2 border-white bg-white shadow-brut-lg"
+              className="min-h-0 flex-1 w-full rounded-md border border-white bg-white shadow-soft"
             />
           ) : (
-            <div className="grid min-h-0 flex-1 place-items-center rounded-md border-2 border-white bg-white">
+            <div className="grid min-h-0 flex-1 place-items-center rounded-md border border-white bg-white">
               <p className="text-sm font-semibold text-fg-muted">{t('Loading…')}</p>
             </div>
           )}

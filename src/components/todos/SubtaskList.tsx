@@ -28,7 +28,7 @@ export function SubtaskList({ todoId, chainId }: Props) {
   }
 
   return (
-    <div className="mt-3 flex flex-col gap-2 rounded-md border-2 border-fg bg-surface-2 p-3">
+    <div className="mt-3 flex flex-col gap-2 rounded-md border border-border bg-surface-2 p-3">
       {total > 0 ? (
         <div className="flex items-center gap-2">
           <span className="shrink-0 text-xs font-bold tabular-nums text-fg-muted">
@@ -56,7 +56,7 @@ export function SubtaskList({ todoId, chainId }: Props) {
                 aria-checked={s.done}
                 aria-label={s.done ? t('Mark subtask not done') : t('Mark subtask done')}
                 className={cn(
-                  'grid h-5 w-5 shrink-0 place-items-center rounded border-2 border-fg shadow-brut-sm transition-colors',
+                  'grid h-5 w-5 shrink-0 place-items-center rounded border border-border shadow-soft transition-colors',
                   s.done ? 'bg-accent-emerald text-white' : 'bg-surface text-transparent hover:bg-surface',
                 )}
               >

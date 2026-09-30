@@ -149,7 +149,7 @@ export function TodoForm({
   return (
     <form
       onSubmit={submit}
-      className="rounded-lg border-2 border-fg bg-surface-2 p-4 shadow-brut-sm flex flex-col gap-3"
+      className="rounded-lg border border-border bg-surface-2 p-4 shadow-soft flex flex-col gap-3"
     >
       <Input
         autoFocus
@@ -174,7 +174,7 @@ export function TodoForm({
             {PRIORITY_ORDER.map((p) => (
               <SelectItem key={p} value={p}>
                 <span className="inline-flex items-center gap-2">
-                  <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
+                  <span className={cn('h-2.5 w-2.5 rounded-full border border-border', PRIORITY_META[p].dot)} />
                   {t(PRIORITY_META[p].label)}
                 </span>
               </SelectItem>
@@ -197,7 +197,7 @@ export function TodoForm({
                   onClick={() => toggleAssignee(m.id)}
                   aria-pressed={on}
                   className={cn(
-                    'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2.5 py-1 text-xs font-bold shadow-brut-sm transition-colors',
+                    'inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-bold shadow-soft transition-colors',
                     on ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
                   )}
                 >
@@ -256,14 +256,14 @@ export function TodoForm({
                     onClick={() => toggleLabel(l.id)}
                     aria-pressed={on}
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2.5 py-1 text-xs font-bold shadow-brut-sm transition-colors',
+                      'inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-bold shadow-soft transition-colors',
                       on ? labelColorMeta(l.color).chip : 'bg-surface text-fg hover:bg-surface-2',
                     )}
                   >
                     {on ? (
                       <Check className="h-3 w-3" />
                     ) : (
-                      <span className={cn('h-2 w-2 rounded-full border border-fg', labelColorMeta(l.color).dot)} />
+                      <span className={cn('h-2 w-2 rounded-full border border-border', labelColorMeta(l.color).dot)} />
                     )}
                     {l.name}
                   </button>
@@ -273,7 +273,7 @@ export function TodoForm({
                 <button
                   type="button"
                   onClick={onManageLabels}
-                  className="inline-flex items-center gap-1 rounded-md border-2 border-dashed border-fg/40 px-2 py-1 text-xs font-semibold text-fg-muted hover:text-fg"
+                  className="inline-flex items-center gap-1 rounded-md border border-dashed border-border/40 px-2 py-1 text-xs font-semibold text-fg-muted hover:text-fg"
                 >
                   <Tag className="h-3 w-3" /> {t('Manage labels')}
                 </button>

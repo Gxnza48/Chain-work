@@ -16,7 +16,7 @@ export const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[10rem] overflow-hidden rounded-lg border-2 border-fg bg-surface p-1 shadow-brut text-fg',
+        'z-50 min-w-[10rem] overflow-hidden rounded-lg border border-border bg-surface p-1 shadow-soft text-fg',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         className,
       )}

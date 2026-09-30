@@ -131,7 +131,7 @@ export function AttachmentUploader({ projectId, onCreated }: Props) {
   }
 
   return (
-    <div className="rounded-lg border-2 border-fg bg-surface-2 p-4 shadow-brut-sm">
+    <div className="rounded-lg border border-border bg-surface-2 p-4 shadow-soft">
       <div className="flex flex-wrap gap-2">
         <ModeButton active={mode === 'url'} onClick={() => setMode('url')} icon={<LinkIcon className="h-4 w-4" />}>
           {t('Link or repo')}
@@ -214,8 +214,8 @@ function ModeButton({ active, onClick, icon, children }: ModeButtonProps) {
       onClick={onClick}
       className={
         active
-          ? 'inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-accent-blue text-white px-3 py-1.5 text-xs font-bold shadow-brut-sm'
-          : 'inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-surface text-fg px-3 py-1.5 text-xs font-bold hover:bg-surface-2'
+          ? 'inline-flex items-center gap-1.5 rounded-md border border-border bg-accent-blue text-white px-3 py-1.5 text-xs font-bold shadow-soft'
+          : 'inline-flex items-center gap-1.5 rounded-md border border-border bg-surface text-fg px-3 py-1.5 text-xs font-bold hover:bg-surface-2'
       }
     >
       {icon}

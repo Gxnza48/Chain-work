@@ -101,7 +101,7 @@ export function IdeaList({ chainId, projectId, members }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-amber text-white shadow-brut-sm">
+          <span className="grid h-8 w-8 place-items-center rounded-md border border-border bg-accent-amber text-white shadow-soft">
             <Lightbulb className="h-4 w-4" />
           </span>
           <h3 className="font-display text-lg font-bold tracking-tight">{t('Ideas')}</h3>
@@ -121,7 +121,7 @@ export function IdeaList({ chainId, projectId, members }: Props) {
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-surface text-fg shadow-soft"
             aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function IdeaList({ chainId, projectId, members }: Props) {
       {loading ? (
         <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : sorted.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
           <p className="font-semibold">{t('No ideas yet.')}</p>
           <p className="mt-1 text-sm text-fg-muted">{t('Capture a loose thought — your team can vote it up.')}</p>
         </div>

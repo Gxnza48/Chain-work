@@ -82,7 +82,7 @@ export function TodoAttachments({ todoId, chainId, readOnly }: Props) {
                 <button
                   type="button"
                   onClick={() => setLightbox(att)}
-                  className="block aspect-video w-full cursor-zoom-in overflow-hidden rounded-md border-2 border-fg"
+                  className="block aspect-video w-full cursor-zoom-in overflow-hidden rounded-md border border-border"
                 >
                   <img src={att.url} alt={att.name} className="h-full w-full object-cover" />
                 </button>
@@ -91,7 +91,7 @@ export function TodoAttachments({ todoId, chainId, readOnly }: Props) {
                     type="button"
                     onClick={() => onRemove(att)}
                     aria-label={t('Remove this attachment?')}
-                    className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-md border-2 border-fg bg-surface text-fg-muted opacity-100 shadow-brut-sm hover:text-accent-rose sm:opacity-0 sm:group-hover:opacity-100"
+                    className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-md border border-border bg-surface text-fg-muted opacity-100 shadow-soft hover:text-accent-rose sm:opacity-0 sm:group-hover:opacity-100"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -100,7 +100,7 @@ export function TodoAttachments({ todoId, chainId, readOnly }: Props) {
             ) : (
               <div
                 key={att.id}
-                className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-2 py-1.5"
+                className="flex items-center gap-2 rounded-md border border-border bg-surface-2 px-2 py-1.5"
               >
                 <FileIcon className="h-5 w-5 shrink-0 text-accent-violet" />
                 <span className="min-w-0 flex-1">
@@ -145,14 +145,14 @@ export function TodoAttachments({ todoId, chainId, readOnly }: Props) {
               <img
                 src={lightbox.url}
                 alt={lightbox.name}
-                className="mx-auto max-h-[70vh] w-auto max-w-full rounded-md border-2 border-fg object-contain"
+                className="mx-auto max-h-[70vh] w-auto max-w-full rounded-md border border-border object-contain"
               />
               <a
                 href={lightbox.url}
                 download={lightbox.name}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 self-center rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm hover:bg-surface"
+                className="inline-flex items-center justify-center gap-2 self-center rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-soft hover:bg-surface"
               >
                 <Download className="h-4 w-4" />
                 {t('Download')}

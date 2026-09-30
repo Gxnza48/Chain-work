@@ -59,10 +59,10 @@ export function HowItWorks() {
                 key={step.title}
                 variants={popVariants}
                 whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 18 } }}
-                className="brut-card flex flex-col gap-4 p-6"
+                className="surface-card flex flex-col gap-4 p-6"
               >
                 <div className="flex items-center justify-between">
-                  <span className="grid h-12 w-12 place-items-center rounded-lg border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
+                  <span className="grid h-12 w-12 place-items-center rounded-lg border border-border bg-accent-blue text-white shadow-soft">
                     <Icon className="h-6 w-6" strokeWidth={2.4} />
                   </span>
                   <span className="font-mono text-3xl font-bold text-fg-muted">{String(i + 1).padStart(2, '0')}</span>

@@ -7,6 +7,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        background: 'rgb(var(--bg) / <alpha-value>)',
+        foreground: 'rgb(var(--fg) / <alpha-value>)',
+        primary: { DEFAULT: 'rgb(var(--fg) / <alpha-value>)', foreground: 'rgb(var(--bg) / <alpha-value>)' },
+        secondary: { DEFAULT: 'rgb(var(--surface-2) / <alpha-value>)', foreground: 'rgb(var(--fg) / <alpha-value>)' },
+        muted: { DEFAULT: 'rgb(var(--surface-2) / <alpha-value>)', foreground: 'rgb(var(--fg-muted) / <alpha-value>)' },
+        card: { DEFAULT: 'rgb(var(--surface) / <alpha-value>)', foreground: 'rgb(var(--fg) / <alpha-value>)' },
+        popover: { DEFAULT: 'rgb(var(--surface) / <alpha-value>)', foreground: 'rgb(var(--fg) / <alpha-value>)' },
+        destructive: { DEFAULT: 'rgb(var(--accent-rose) / <alpha-value>)', foreground: 'rgb(var(--bg) / <alpha-value>)' },
+        input: 'rgb(var(--border) / <alpha-value>)',
+        ring: 'rgb(var(--fg-muted) / <alpha-value>)',
         bg: 'rgb(var(--bg) / <alpha-value>)',
         surface: 'rgb(var(--surface) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2) / <alpha-value>)',
@@ -14,6 +24,8 @@ const config: Config = {
         'fg-muted': 'rgb(var(--fg-muted) / <alpha-value>)',
         border: 'rgb(var(--border) / <alpha-value>)',
         accent: {
+          DEFAULT: 'rgb(var(--surface-2) / <alpha-value>)',
+          foreground: 'rgb(var(--fg) / <alpha-value>)',
           blue: 'rgb(var(--accent-blue) / <alpha-value>)',
           violet: 'rgb(var(--accent-violet) / <alpha-value>)',
           emerald: 'rgb(var(--accent-emerald) / <alpha-value>)',
@@ -22,8 +34,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Geist', 'system-ui', 'sans-serif'],
+        sans: ['Geist', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
       },
       borderRadius: {
@@ -32,10 +44,7 @@ const config: Config = {
         sm: '4px',
       },
       boxShadow: {
-        brut: '4px 4px 0 0 rgb(var(--border))',
-        'brut-sm': '2px 2px 0 0 rgb(var(--border))',
-        'brut-lg': '6px 6px 0 0 rgb(var(--border))',
-        'brut-blue': '4px 4px 0 0 rgb(var(--accent-blue))',
+        soft: '0 1px 2px rgb(0 0 0 / .08)',
       },
       keyframes: {
         'accordion-down': {

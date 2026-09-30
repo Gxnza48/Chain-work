@@ -142,7 +142,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-surface text-fg shadow-soft"
             aria-label={t('Refresh')}
           >
             <RefreshCw className="h-4 w-4" />
@@ -211,7 +211,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
       ) : projects.length === 0 ? (
         <Card>
           <CardContent className="grid place-items-center gap-4 py-16 text-center">
-            <span className="grid h-16 w-16 place-items-center rounded-lg border-2 border-fg bg-accent-blue text-white shadow-brut">
+            <span className="grid h-16 w-16 place-items-center rounded-lg border border-border bg-accent-blue text-white shadow-soft">
               <Folder className="h-7 w-7" strokeWidth={2.4} />
             </span>
             <h3 className="font-display text-2xl font-bold tracking-tight">{t('Spin up your first project')}</h3>
@@ -224,7 +224,7 @@ export function ProjectListView({ chainId, members, canManage, onOpen }: Props) 
           </CardContent>
         </Card>
       ) : visible && visible.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
           <p className="font-semibold">{t('No projects match your search.')}</p>
         </div>
       ) : (

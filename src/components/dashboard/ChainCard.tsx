@@ -16,7 +16,7 @@ export function ChainCard({ chain }: Props) {
   const t = useT();
   return (
     <Link to={`/chain/${chain.id}`} className="block group focus:outline-none">
-      <Card className="brut-press transition-[transform,box-shadow] hover:shadow-brut-lg">
+      <Card className="surface-hover transition-[transform,box-shadow] hover:shadow-soft">
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">

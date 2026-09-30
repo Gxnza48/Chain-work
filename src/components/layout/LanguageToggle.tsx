@@ -26,8 +26,8 @@ export function LanguageToggle({ className }: Props) {
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex h-10 items-center gap-1.5 rounded-lg border-2 border-fg bg-surface px-2.5 text-fg shadow-brut-sm',
-        'transition-transform duration-150 hover:-translate-x-[1px] hover:-translate-y-[1px] active:translate-x-0 active:translate-y-0',
+        'inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-fg shadow-soft',
+        'transition-transform duration-150 active:translate-x-0 active:translate-y-0',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue',
         className,
       )}
@@ -35,7 +35,7 @@ export function LanguageToggle({ className }: Props) {
       <Flag
         code={isEs ? 'ar' : 'us'}
         alt={isEs ? 'Español' : 'English'}
-        className="h-3.5 w-5 rounded-[2px] border border-fg/40"
+        className="h-3.5 w-5 rounded-[2px] border border-border/40"
       />
       <span className="font-display text-xs font-bold tracking-tight">{isEs ? 'ES' : 'EN'}</span>
     </button>

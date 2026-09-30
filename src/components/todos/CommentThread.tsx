@@ -108,7 +108,7 @@ export function CommentThread({ chainId, todoId, members, onCountChange }: Props
   }
 
   return (
-    <div className="mt-3 flex flex-col gap-3 border-t-2 border-dashed border-fg/30 pt-3">
+    <div className="mt-3 flex flex-col gap-3 border-t border-dashed border-border/30 pt-3">
       {loading ? (
         <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : comments.length === 0 ? (

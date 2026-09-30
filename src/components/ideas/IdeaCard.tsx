@@ -76,7 +76,7 @@ export function IdeaCard({ idea, onChange }: Props) {
   }
 
   return (
-    <article className="flex gap-3 rounded-lg border-2 border-fg bg-surface p-4 shadow-brut-sm">
+    <article className="flex gap-3 rounded-lg border border-border bg-surface p-4 shadow-soft">
       <div className="flex flex-col items-center gap-1">
         <button
           type="button"
@@ -84,10 +84,10 @@ export function IdeaCard({ idea, onChange }: Props) {
           aria-pressed={idea.user_vote === 1}
           aria-label={t('Upvote')}
           className={cn(
-            'grid h-8 w-8 place-items-center rounded-md border-2 transition-colors',
+            'grid h-8 w-8 place-items-center rounded-md border transition-colors',
             idea.user_vote === 1
-              ? 'bg-accent-emerald text-white border-fg shadow-brut-sm'
-              : 'bg-surface-2 text-fg border-fg hover:bg-surface',
+              ? 'bg-accent-emerald text-white border-border shadow-soft'
+              : 'bg-surface-2 text-fg border-border hover:bg-surface',
           )}
         >
           <ThumbsUp className="h-4 w-4" />
@@ -106,10 +106,10 @@ export function IdeaCard({ idea, onChange }: Props) {
           aria-pressed={idea.user_vote === -1}
           aria-label={t('Downvote')}
           className={cn(
-            'grid h-8 w-8 place-items-center rounded-md border-2 transition-colors',
+            'grid h-8 w-8 place-items-center rounded-md border transition-colors',
             idea.user_vote === -1
-              ? 'bg-accent-rose text-white border-fg shadow-brut-sm'
-              : 'bg-surface-2 text-fg border-fg hover:bg-surface',
+              ? 'bg-accent-rose text-white border-border shadow-soft'
+              : 'bg-surface-2 text-fg border-border hover:bg-surface',
           )}
         >
           <ThumbsDown className="h-4 w-4" />

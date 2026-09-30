@@ -50,7 +50,7 @@ export function PasswordStrength({ password }: Props) {
           return (
             <div
               key={i}
-              className="h-1.5 overflow-hidden rounded-sm border-2 border-fg bg-surface-2"
+              className="h-1.5 overflow-hidden rounded-sm border border-border bg-surface-2"
             >
               <div
                 ref={(el) => {

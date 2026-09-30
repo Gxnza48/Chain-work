@@ -1,4 +1,5 @@
 import { useLangStore, type Lang } from '@/store/lang';
+import { esV2 } from './i18n-v2';
 
 export type { Lang };
 
@@ -15,6 +16,7 @@ export type { Lang };
  * Spanish strings: "ChainWork", "chain"/"chains", "Dashboard", "Roadmap".
  */
 const es: Record<string, string> = {
+  ...esV2,
   // ---- Navbar / shared nav ----
   'How it works': 'Cómo funciona',
   'Features': 'Funciones',

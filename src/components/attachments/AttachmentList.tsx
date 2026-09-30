@@ -50,7 +50,7 @@ export function AttachmentList({ projectId, members }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-rose text-white shadow-brut-sm">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-accent-rose text-white shadow-soft">
             <Paperclip className="h-4 w-4" />
           </span>
           <h3 className="truncate font-display text-lg font-bold tracking-tight">{t('Links & Media')}</h3>
@@ -76,7 +76,7 @@ export function AttachmentList({ projectId, members }: Props) {
       {loading ? (
         <p className="text-sm text-fg-muted">{t('Loading…')}</p>
       ) : items.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
           <p className="font-semibold">{t('Nothing attached yet.')}</p>
           <p className="mt-1 text-sm text-fg-muted">{t("Drop a repo link, an image, a YouTube URL — whatever's useful.")}</p>
         </div>

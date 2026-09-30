@@ -39,9 +39,9 @@ export function Footer() {
   const wordmarkOpacity = useTransform(scrollYProgress, [0, 0.6], [0.15, 1]);
 
   return (
-    <footer ref={rootRef} className="relative overflow-hidden border-t-2 border-fg bg-surface">
+    <footer ref={rootRef} className="relative overflow-hidden border-t border-border bg-surface">
       {/* CTA band */}
-      <div className="border-b-2 border-fg/30">
+      <div className="border-b border-border/30">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-12 md:flex-row md:items-center">
           <div>
             <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
@@ -73,7 +73,7 @@ export function Footer() {
             href="https://github.com/Gxnza48/Chain-work"
             target="_blank"
             rel="noreferrer"
-            className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm transition-colors hover:bg-surface"
+            className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-soft transition-colors hover:bg-surface"
           >
             <Github className="h-4 w-4" />
             {t('Star on GitHub')}
@@ -104,9 +104,9 @@ export function Footer() {
       </div>
 
       {/* Made-in-Argentina credit — flag via flagcdn (emoji flags don't render on desktop) */}
-      <div className="border-t-2 border-fg/30">
+      <div className="border-t border-border/30">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 px-6 py-5 text-center text-sm font-semibold text-fg-muted">
-          <Flag code="ar" alt="Argentina" className="h-3.5 w-5 shrink-0 rounded-[2px] border border-fg/40" />
+          <Flag code="ar" alt="Argentina" className="h-3.5 w-5 shrink-0 rounded-[2px] border border-border/40" />
           <span>{t('Made in Argentina by Gonzalo Bonadeo & Agustin Casal')}</span>
         </div>
       </div>

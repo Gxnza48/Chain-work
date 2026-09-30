@@ -42,6 +42,8 @@ coverage/
 
 # misc
 .turbo/
+supabase/.temp/
+test-results/
 # local workflow artifacts
 .wf-v02/
 .wf-*/
@@ -49,3 +51,5 @@ coverage/
 # python __pycache__ from installed skills
 **/__pycache__/
 *.pyc
+.vercel
+.env*

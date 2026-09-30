@@ -25,7 +25,7 @@ export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: 
       <DialogContent className="max-w-sm">
         {member ? (
           <div className="flex flex-col items-center gap-4 pt-2 text-center">
-            <Avatar className="h-24 w-24 border-2 border-fg shadow-brut">
+            <Avatar className="h-24 w-24 border border-border shadow-soft">
               {member.avatar_url ? (
                 <AvatarImage src={member.avatar_url} alt={member.display_name} />
               ) : null}
@@ -44,7 +44,7 @@ export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: 
               <p className="mt-0.5 font-mono text-sm text-fg-muted">@{member.username}</p>
             </div>
 
-            <div className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5">
+            <div className="flex items-center gap-2 rounded-md border border-border bg-surface-2 px-3 py-1.5">
               <PresenceBadge online={online} />
               <span className="text-xs font-semibold text-fg-muted">
                 {online ? t('Online now') : t('Last online {time}', { time: relativeTime(lastSeen) })}
@@ -62,7 +62,7 @@ export function MemberProfileDialog({ member, online, lastSeen, onOpenChange }: 
                 href={member.website}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex max-w-full items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold text-fg shadow-brut-sm transition-colors hover:bg-surface"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold text-fg shadow-soft transition-colors hover:bg-surface"
               >
                 <Link2 className="h-4 w-4 shrink-0 text-accent-blue" />
                 <span className="truncate">{prettyLink(member.website)}</span>

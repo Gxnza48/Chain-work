@@ -150,7 +150,7 @@ export function TodoDetailModal({
                       onClick={() => setStatus(s)}
                       aria-pressed={on}
                       className={cn(
-                        'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-3 py-1.5 text-sm font-bold shadow-brut-sm transition-colors',
+                        'inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-bold shadow-soft transition-colors',
                         on
                           ? s === 'done'
                             ? 'bg-accent-emerald text-white'
@@ -182,7 +182,7 @@ export function TodoDetailModal({
                       key={p}
                       onSelect={() => p !== todo.priority && void update({ priority: p }, 'Could not update priority')}
                     >
-                      <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
+                      <span className={cn('h-2.5 w-2.5 rounded-full border border-border', PRIORITY_META[p].dot)} />
                       {t(PRIORITY_META[p].label)}
                       {p === todo.priority ? <Check className="ml-auto h-3.5 w-3.5" /> : null}
                     </DropdownMenuItem>
@@ -220,7 +220,7 @@ export function TodoDetailModal({
                         onClick={() => toggleAssignee(m.id)}
                         aria-pressed={on}
                         className={cn(
-                          'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2 py-1 text-xs font-bold shadow-brut-sm transition-colors',
+                          'inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs font-bold shadow-soft transition-colors',
                           on ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
                         )}
                       >
@@ -274,7 +274,7 @@ export function TodoDetailModal({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap gap-2 border-t-2 border-dashed border-fg/20 pt-3">
+            <div className="flex flex-wrap gap-2 border-t border-dashed border-border/20 pt-3">
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                 <Pencil className="h-4 w-4" /> {t('Edit details')}
               </Button>

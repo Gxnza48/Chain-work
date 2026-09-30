@@ -46,7 +46,7 @@ export function ShortcutsDialog() {
                 {row.keys.map((k) => (
                   <kbd
                     key={k}
-                    className="min-w-[1.75rem] rounded-md border-2 border-fg bg-surface-2 px-1.5 py-0.5 text-center font-mono text-xs font-bold text-fg shadow-brut-sm"
+                    className="min-w-[1.75rem] rounded-md border border-border bg-surface-2 px-1.5 py-0.5 text-center font-mono text-xs font-bold text-fg shadow-soft"
                   >
                     {k}
                   </kbd>

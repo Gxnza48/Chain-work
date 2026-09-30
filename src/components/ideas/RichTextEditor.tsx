@@ -52,8 +52,8 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Prop
   if (!editor) return null;
 
   return (
-    <div className={cn('rounded-md border-2 border-fg overflow-hidden bg-surface-2', className)}>
-      <div className="flex items-center gap-1 border-b-2 border-fg bg-surface px-2 py-1">
+    <div className={cn('rounded-md border border-border overflow-hidden bg-surface-2', className)}>
+      <div className="flex items-center gap-1 border-b border-border bg-surface px-2 py-1">
         <ToolbarButton
           active={editor.isActive('bold')}
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -99,8 +99,8 @@ function ToolbarButton({
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        'inline-grid h-8 w-8 place-items-center rounded-md border-2 text-fg transition-colors',
-        active ? 'bg-accent-blue text-white border-fg' : 'bg-surface-2 border-transparent hover:bg-surface',
+        'inline-grid h-8 w-8 place-items-center rounded-md border text-fg transition-colors',
+        active ? 'bg-accent-blue text-white border-border' : 'bg-surface-2 border-transparent hover:bg-surface',
       )}
     >
       {children}

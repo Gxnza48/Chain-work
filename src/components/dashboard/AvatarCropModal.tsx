@@ -119,7 +119,7 @@ export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
 
         <div className="flex flex-col items-center gap-4 py-2">
           <div
-            className="relative cursor-grab touch-none overflow-hidden rounded-full border-2 border-fg bg-surface-2 shadow-brut active:cursor-grabbing"
+            className="relative cursor-grab touch-none overflow-hidden rounded-full border border-border bg-surface-2 shadow-soft active:cursor-grabbing"
             style={{ width: VIEW, height: VIEW }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
@@ -162,7 +162,7 @@ export function AvatarCropModal({ file, busy, onCancel, onCropped }: Props) {
               value={scale}
               onChange={(e) => onZoom(Number(e.target.value))}
               aria-label={t('Zoom')}
-              className="h-2 w-full cursor-pointer appearance-none rounded-full border-2 border-fg bg-surface-2 accent-accent-blue"
+              className="h-2 w-full cursor-pointer appearance-none rounded-full border border-border bg-surface-2 accent-accent-blue"
             />
           </div>
           <p className="flex items-center gap-1.5 text-xs text-fg-muted">

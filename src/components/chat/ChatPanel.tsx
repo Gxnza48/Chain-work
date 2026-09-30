@@ -121,7 +121,7 @@ function renderBody(
             key={k++}
             type="button"
             onClick={() => onProject(proj.id)}
-            className="inline-flex items-center gap-0.5 rounded-md border-2 border-current px-1 align-baseline text-xs font-bold underline decoration-2 hover:opacity-80"
+            className="inline-flex items-center gap-0.5 rounded-md border border-current px-1 align-baseline text-xs font-bold underline decoration-2 hover:opacity-80"
           >
             <Folder className="h-3 w-3" />
             {name}
@@ -471,9 +471,9 @@ export function ChatPanel({ chainId, members }: Props) {
   }
 
   return (
-    <section className="relative flex h-[calc(100dvh-8rem)] min-h-[22rem] flex-col overflow-hidden rounded-lg border-2 border-fg bg-surface shadow-brut">
-      <header className="flex items-center gap-2 border-b-2 border-fg px-4 py-2.5">
-        <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-violet text-white shadow-brut-sm">
+    <section className="relative flex h-[calc(100dvh-8rem)] min-h-[22rem] flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-soft">
+      <header className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+        <span className="grid h-8 w-8 place-items-center rounded-md border border-border bg-accent-violet text-white shadow-soft">
           <MessageSquare className="h-4 w-4" />
         </span>
         <h2 className="font-display text-lg font-bold tracking-tight">{t('Chat')}</h2>
@@ -527,7 +527,7 @@ export function ChatPanel({ chainId, members }: Props) {
             scrollToBottom('smooth');
             setNewCount(0);
           }}
-          className="absolute bottom-[4.5rem] left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border-2 border-fg bg-accent-blue px-3 py-1.5 text-xs font-bold text-white shadow-brut-sm transition-transform hover:-translate-y-0.5"
+          className="absolute bottom-[4.5rem] left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-accent-blue px-3 py-1.5 text-xs font-bold text-white shadow-soft transition-transform hover:-translate-y-0.5"
         >
           <ArrowDown className="h-3.5 w-3.5" />
           {t('{n} new messages', { n: newCount })}
@@ -539,7 +539,7 @@ export function ChatPanel({ chainId, members }: Props) {
           {activeMembers.slice(0, 5).map((mem) => (
             <Avatar
               key={mem.id}
-              className="pointer-events-auto h-7 w-7 border-2 border-fg shadow-brut-sm ring-2 ring-surface"
+              className="pointer-events-auto h-7 w-7 border border-border shadow-soft ring-2 ring-surface"
               title={mem.display_name}
             >
               {mem.avatar_url ? <AvatarImage src={mem.avatar_url} alt={mem.display_name} /> : null}
@@ -550,7 +550,7 @@ export function ChatPanel({ chainId, members }: Props) {
       ) : null}
 
       {replyTo ? (
-        <div className="flex items-center gap-2 border-t-2 border-dashed border-fg/30 bg-surface-2 px-3 py-1.5 sm:px-4">
+        <div className="flex items-center gap-2 border-t border-dashed border-border/30 bg-surface-2 px-3 py-1.5 sm:px-4">
           <CornerUpLeft className="h-4 w-4 shrink-0 text-accent-violet" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-fg">
@@ -570,7 +570,7 @@ export function ChatPanel({ chainId, members }: Props) {
       ) : null}
 
       {mention && suggestions.length > 0 ? (
-        <div className="absolute inset-x-2 bottom-[4.5rem] z-20 overflow-hidden rounded-lg border-2 border-fg bg-surface shadow-brut">
+        <div className="absolute inset-x-2 bottom-[4.5rem] z-20 overflow-hidden rounded-lg border border-border bg-surface shadow-soft">
           {suggestions.map((s, i) => (
             <button
               key={`${s.kind}-${s.id}`}
@@ -614,7 +614,7 @@ export function ChatPanel({ chainId, members }: Props) {
           e.preventDefault();
           void onSend();
         }}
-        className="flex items-end gap-2 border-t-2 border-fg p-2.5 sm:p-3"
+        className="flex items-end gap-2 border-t border-border p-2.5 sm:p-3"
       >
         <input
           ref={fileRef}
@@ -711,14 +711,14 @@ export function ChatPanel({ chainId, members }: Props) {
               <img
                 src={lightbox.url}
                 alt={lightbox.name}
-                className="mx-auto max-h-[70vh] w-auto max-w-full rounded-md border-2 border-fg object-contain"
+                className="mx-auto max-h-[70vh] w-auto max-w-full rounded-md border border-border object-contain"
               />
               <a
                 href={lightbox.url}
                 download={lightbox.name || true}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 self-center rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-brut-sm hover:bg-surface"
+                className="inline-flex items-center justify-center gap-2 self-center rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold shadow-soft hover:bg-surface"
               >
                 <Download className="h-4 w-4" />
                 {t('Download')}
@@ -734,7 +734,7 @@ export function ChatPanel({ chainId, members }: Props) {
 function MemberProfile({ member }: { member: UserRow }) {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
-      <Avatar className="h-20 w-20 border-2 border-fg shadow-brut-sm">
+      <Avatar className="h-20 w-20 border border-border shadow-soft">
         {member.avatar_url ? <AvatarImage src={member.avatar_url} alt={member.display_name} /> : null}
         <AvatarFallback className="text-xl">{initials(member.display_name)}</AvatarFallback>
       </Avatar>
@@ -784,7 +784,7 @@ function MessageInfo({
   return (
     <ul className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
       {rows.map(({ member, seen, at }) => (
-        <li key={member.id} className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface p-2">
+        <li key={member.id} className="flex items-center gap-2 rounded-md border border-border bg-surface p-2">
           <Avatar className="h-7 w-7">
             {member.avatar_url ? <AvatarImage src={member.avatar_url} alt={member.display_name} /> : null}
             <AvatarFallback className="text-[10px]">{initials(member.display_name)}</AvatarFallback>
@@ -833,7 +833,7 @@ function PollCard({
             key={i}
             type="button"
             onClick={() => onVote(i)}
-            className="relative overflow-hidden rounded-md border-2 border-current px-2 py-1 text-left text-xs"
+            className="relative overflow-hidden rounded-md border border-current px-2 py-1 text-left text-xs"
           >
             <span className="absolute inset-y-0 left-0 bg-current opacity-15" style={{ width: `${pct}%` }} />
             <span className="relative flex items-center justify-between gap-2">
@@ -997,7 +997,7 @@ function MessageRow({
   if (message.deleted_at) {
     return (
       <li className={cn('flex px-1', isOwn ? 'justify-end' : 'justify-start')}>
-        <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-dashed border-fg/40 bg-surface-2 px-3 py-1.5 text-xs italic text-fg-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border/40 bg-surface-2 px-3 py-1.5 text-xs italic text-fg-muted">
           <Ban className="h-3.5 w-3.5" />
           {t('deleted message')}
         </span>
@@ -1040,7 +1040,7 @@ function MessageRow({
       <div className={cn('flex max-w-[78%] flex-col', isOwn ? 'items-end' : 'items-start')}>
         <div
           className={cn(
-            'select-text rounded-lg border-2 border-fg px-3 py-2 shadow-brut-sm [-webkit-user-select:text]',
+            'select-text rounded-lg border border-border px-3 py-2 shadow-soft [-webkit-user-select:text]',
             isOwn ? 'bg-accent-blue text-white' : 'bg-surface-2 text-fg',
           )}
         >
@@ -1074,7 +1074,7 @@ function MessageRow({
                 <img
                   src={message.file_url}
                   alt={message.file_name ?? ''}
-                  className="max-h-64 max-w-full rounded-md border-2 border-fg object-cover"
+                  className="max-h-64 max-w-full rounded-md border border-border object-cover"
                 />
               </button>
             ) : (
@@ -1082,7 +1082,7 @@ function MessageRow({
                 href={message.file_url}
                 target="_blank"
                 rel="noreferrer"
-                className="mb-1 flex items-center gap-2 rounded-md border-2 border-fg bg-surface px-2 py-1.5 text-fg"
+                className="mb-1 flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-fg"
               >
                 <FileIcon className="h-5 w-5 shrink-0 text-accent-violet" />
                 <span className="min-w-0 flex-1">
@@ -1148,7 +1148,7 @@ function MessageRow({
                 type="button"
                 onClick={() => onReact(emoji)}
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-full border-2 border-fg px-1.5 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
+                  'inline-flex items-center gap-1 rounded-full border border-border px-1.5 py-0.5 text-xs font-bold shadow-soft transition-colors',
                   mine ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
                 )}
               >

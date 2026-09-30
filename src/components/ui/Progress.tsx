@@ -14,7 +14,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     return (
       <div
         ref={ref}
-        className={cn('h-2 w-full overflow-hidden rounded-md border-2 border-fg bg-surface-2', trackClassName, className)}
+        className={cn('h-2 w-full overflow-hidden rounded-md border border-border bg-surface-2', trackClassName, className)}
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}

@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
+  KeyboardSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import {
   Check,
   CheckSquare,
@@ -23,50 +29,69 @@ import {
   Target,
   Trash2,
   X,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Input } from '@/components/ui/Input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+} from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Input } from "@/components/ui/Input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/DropdownMenu';
-import { TodoForm } from './TodoForm';
-import { TodoItem } from './TodoItem';
-import { LabelManager } from './LabelManager';
-import { labelColorMeta } from './labelColors';
-import { PRIORITY_META, PRIORITY_ORDER } from './priority';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useAuth } from '@/hooks/useAuth';
-import { useLabels } from '@/hooks/useLabels';
-import { useMilestones } from '@/hooks/useMilestones';
-import { useUIStore } from '@/store/ui';
-import { cn, isTypingTarget } from '@/lib/utils';
-import { useT } from '@/lib/i18n';
-import type { TodoPriority, TodoRow, UserRow } from '@/types';
+} from "@/components/ui/DropdownMenu";
+import { TodoForm } from "./TodoForm";
+import { TodoItem } from "./TodoItem";
+import { LabelManager } from "./LabelManager";
+import { labelColorMeta } from "./labelColors";
+import { PRIORITY_META, PRIORITY_ORDER } from "./priority";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useAuth } from "@/hooks/useAuth";
+import { useLabels } from "@/hooks/useLabels";
+import { useMilestones } from "@/hooks/useMilestones";
+import { useUIStore } from "@/store/ui";
+import { cn, isTypingTarget } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
+import type { TodoPriority, TodoRow, UserRow } from "@/types";
 
-type SortMode = 'manual' | 'priority' | 'due' | 'recent';
+type SortMode = "manual" | "priority" | "due" | "recent";
 
-const PRIORITY_RANK: Record<TodoPriority, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+const PRIORITY_RANK: Record<TodoPriority, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+};
 
 function sortList(list: TodoRow[], mode: SortMode): TodoRow[] {
   const arr = [...list];
   switch (mode) {
-    case 'priority':
-      return arr.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]);
-    case 'due':
+    case "priority":
+      return arr.sort(
+        (a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority],
+      );
+    case "due":
       return arr.sort((a, b) => {
-        const da = a.due_date ? new Date(a.due_date).getTime() : Number.POSITIVE_INFINITY;
-        const db = b.due_date ? new Date(b.due_date).getTime() : Number.POSITIVE_INFINITY;
+        const da = a.due_date
+          ? new Date(a.due_date).getTime()
+          : Number.POSITIVE_INFINITY;
+        const db = b.due_date
+          ? new Date(b.due_date).getTime()
+          : Number.POSITIVE_INFINITY;
         return da - db;
       });
-    case 'recent':
-      return arr.sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''));
+    case "recent":
+      return arr.sort((a, b) =>
+        (b.created_at ?? "").localeCompare(a.created_at ?? ""),
+      );
     default:
       return arr;
   }
@@ -75,6 +100,7 @@ function sortList(list: TodoRow[], mode: SortMode): TodoRow[] {
 interface Props {
   chainId: string;
   projectId?: string | null;
+  scope?: "project" | "all";
   members: UserRow[];
   heading?: string;
   /** Called whenever the todo set is (re)loaded — lets a sibling Roadmap refresh. */
@@ -87,8 +113,9 @@ interface Props {
 export function TodoList({
   chainId,
   projectId,
+  scope = "project",
   members,
-  heading = 'Todos',
+  heading = "Todos",
   onChanged,
   milestoneFilter,
   onClearMilestoneFilter,
@@ -98,13 +125,24 @@ export function TodoList({
   const [todos, setTodos] = useState<TodoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [projectFilter, setProjectFilter] = useState("all");
+  const [newProject, setNewProject] = useState("unassigned");
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
+  const [loadError, setLoadError] = useState(false);
 
   // Toolbar state
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState<TodoPriority[]>([]);
   const [onlyMine, setOnlyMine] = useState(false);
-  const [sort, setSort] = useLocalStorage<SortMode>('chainwork-todo-sort', 'manual');
-  const [doneCollapsed, setDoneCollapsed] = useLocalStorage('chainwork-todos-done-collapsed', false);
+  const [sort, setSort] = useLocalStorage<SortMode>(
+    "chainwork-todo-sort",
+    "manual",
+  );
+  const [doneCollapsed, setDoneCollapsed] = useLocalStorage(
+    "chainwork-todos-done-collapsed",
+    true,
+  );
 
   // Bulk selection
   const [selectionMode, setSelectionMode] = useState(false);
@@ -114,42 +152,61 @@ export function TodoList({
   const labels = useLabels(chainId);
   const [labelFilter, setLabelFilter] = useState<string[]>([]);
   const [managerOpen, setManagerOpen] = useState(false);
-  const { milestones } = useMilestones(projectId ?? '');
+  const { milestones } = useMilestones(projectId ?? "");
   const milestoneTitle = new Map(milestones.map((m) => [m.id, m.title]));
 
   const searchRef = useRef<HTMLInputElement | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   async function load() {
     setLoading(true);
+    setLoadError(false);
     const query2 = supabase
-      .from('todos')
-      .select('*')
-      .eq('chain_id', chainId)
-      .order('status', { ascending: true })
-      .order('order_index', { ascending: true })
-      .order('created_at', { ascending: false });
-    if (projectId) query2.eq('project_id', projectId);
-    else query2.is('project_id', null);
+      .from("todos")
+      .select("*")
+      .eq("chain_id", chainId)
+      .order("status", { ascending: true })
+      .order("order_index", { ascending: true })
+      .order("created_at", { ascending: false });
+    if (projectId) query2.eq("project_id", projectId);
+    else if (scope !== "all") query2.is("project_id", null);
     const { data, error } = await query2;
     if (error) {
-      toast.error(t('Could not load todos'), { description: error.message });
-      setTodos([]);
+      toast.error(t("Could not load todos"), { description: error.message });
+      setLoadError(true);
     } else {
       setTodos(data ?? []);
     }
     setLoading(false);
+    if (scope === "all") {
+      const { data: projectRows } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("chain_id", chainId)
+        .order("name");
+      setProjects(projectRows ?? []);
+    }
     onChanged?.();
   }
 
   useEffect(() => {
     load();
     const ch = supabase
-      .channel(`todos:${chainId}:${projectId ?? 'chain'}`)
+      .channel(`todos:${chainId}:${projectId ?? "chain"}`)
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'todos', filter: `chain_id=eq.${chainId}` },
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "todos",
+          filter: `chain_id=eq.${chainId}`,
+        },
         () => load(),
       )
       .subscribe();
@@ -157,35 +214,54 @@ export function TodoList({
       supabase.removeChannel(ch).catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, projectId]);
+  }, [chainId, projectId, scope]);
 
   // Project-scoped hotkeys: "n" adds a todo, "/" focuses the search box.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (isTypingTarget(e.target) || useUIStore.getState().paletteOpen) return;
-      if (e.key === 'n' || e.key === 'N') {
+      if (e.key === "n" || e.key === "N") {
         e.preventDefault();
         setAdding(true);
-      } else if (e.key === '/') {
+      } else if (e.key === "/") {
         e.preventDefault();
         searchRef.current?.focus();
       }
     }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const me = user?.id ?? null;
   const q = query.trim().toLowerCase();
   const filtersActive =
-    Boolean(q) || priorityFilter.length > 0 || onlyMine || labelFilter.length > 0 || Boolean(milestoneFilter);
+    Boolean(q) ||
+    priorityFilter.length > 0 ||
+    onlyMine ||
+    labelFilter.length > 0 ||
+    Boolean(milestoneFilter) ||
+    projectFilter !== "all";
 
   function matches(todo: TodoRow): boolean {
+    if (scope === "all" && projectFilter === "unassigned" && todo.project_id)
+      return false;
+    if (
+      scope === "all" &&
+      !["all", "unassigned"].includes(projectFilter) &&
+      todo.project_id !== projectFilter
+    )
+      return false;
     if (milestoneFilter && todo.milestone_id !== milestoneFilter) return false;
-    if (q && !`${todo.title} ${todo.description ?? ''}`.toLowerCase().includes(q)) return false;
-    if (priorityFilter.length > 0 && !priorityFilter.includes(todo.priority)) return false;
+    if (
+      q &&
+      !`${todo.title} ${todo.description ?? ""}`.toLowerCase().includes(q)
+    )
+      return false;
+    if (priorityFilter.length > 0 && !priorityFilter.includes(todo.priority))
+      return false;
     if (onlyMine) {
-      const assigned = todo.assignees ?? (todo.assigned_to ? [todo.assigned_to] : []);
+      const assigned =
+        todo.assignees ?? (todo.assigned_to ? [todo.assigned_to] : []);
       if (!me || !assigned.includes(me)) return false;
     }
     if (labelFilter.length > 0) {
@@ -196,11 +272,21 @@ export function TodoList({
   }
 
   const filtered = todos.filter(matches);
-  const pending = sortList(filtered.filter((x) => x.status === 'pending'), sort);
-  const inProgress = sortList(filtered.filter((x) => x.status === 'in_progress'), sort);
-  const done = sortList(filtered.filter((x) => x.status === 'done'), sort);
+  const pending = sortList(
+    filtered.filter((x) => x.status === "pending"),
+    sort,
+  );
+  const inProgress = sortList(
+    filtered.filter((x) => x.status === "in_progress"),
+    sort,
+  );
+  const done = sortList(
+    filtered.filter((x) => x.status === "done"),
+    sort,
+  );
   const anyVisible = pending.length + inProgress.length + done.length > 0;
-  const canDrag = !filtersActive && sort === 'manual' && !selectionMode;
+  const canDrag =
+    scope !== "all" && !filtersActive && sort === "manual" && !selectionMode;
 
   async function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -210,22 +296,27 @@ export function TodoList({
     if (oldIndex < 0 || newIndex < 0) return;
     const reordered = arrayMove(pending, oldIndex, newIndex);
     const updated = todos.map((x) => {
-      if (x.status !== 'pending') return x;
+      if (x.status !== "pending") return x;
       const pos = reordered.findIndex((r) => r.id === x.id);
       return pos >= 0 ? { ...x, order_index: pos } : x;
     });
     setTodos(updated);
     await Promise.all(
-      reordered.map((x, idx) => supabase.from('todos').update({ order_index: idx }).eq('id', x.id)),
+      reordered.map((x, idx) =>
+        supabase.from("todos").update({ order_index: idx }).eq("id", x.id),
+      ),
     );
   }
 
   function togglePriorityFilter(p: TodoPriority) {
-    setPriorityFilter((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+    setPriorityFilter((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
+    );
   }
 
   function clearFilters() {
-    setQuery('');
+    setProjectFilter("all");
+    setQuery("");
     setPriorityFilter([]);
     setOnlyMine(false);
     setLabelFilter([]);
@@ -251,7 +342,7 @@ export function TodoList({
   ) {
     const { error } = await fn();
     if (error) {
-      toast.error(t('Bulk action failed'), { description: error.message });
+      toast.error(t("Bulk action failed"), { description: error.message });
       return;
     }
     toast.success(label);
@@ -263,44 +354,53 @@ export function TodoList({
 
   async function bulkComplete() {
     if (!user || selectedIds.length === 0) return;
-    await runBulk(t('Marked as done'), () =>
+    await runBulk(t("Marked as done"), () =>
       supabase
-        .from('todos')
-        .update({ status: 'done', completed_at: new Date().toISOString(), completed_by: user.id })
-        .in('id', selectedIds),
+        .from("todos")
+        .update({
+          status: "done",
+          completed_at: new Date().toISOString(),
+          completed_by: user.id,
+        })
+        .in("id", selectedIds),
     );
   }
 
   async function bulkReopen() {
     if (selectedIds.length === 0) return;
-    await runBulk(t('Re-opened'), () =>
+    await runBulk(t("Re-opened"), () =>
       supabase
-        .from('todos')
-        .update({ status: 'pending', completed_at: null, completed_by: null })
-        .in('id', selectedIds),
+        .from("todos")
+        .update({ status: "pending", completed_at: null, completed_by: null })
+        .in("id", selectedIds),
     );
   }
 
   async function bulkSetPriority(p: TodoPriority) {
     if (selectedIds.length === 0) return;
-    await runBulk(t('Priority updated'), () =>
-      supabase.from('todos').update({ priority: p }).in('id', selectedIds),
+    await runBulk(t("Priority updated"), () =>
+      supabase.from("todos").update({ priority: p }).in("id", selectedIds),
     );
   }
 
   async function bulkDelete() {
     // Mirror the single-item rule: completed todos feed the Roadmap, so they're
     // protected from deletion — skip them and tell the user.
-    const deletable = todos.filter((x) => selected.has(x.id) && x.status !== 'done').map((x) => x.id);
+    const deletable = todos
+      .filter((x) => selected.has(x.id) && x.status !== "done")
+      .map((x) => x.id);
     const skipped = selectedIds.length - deletable.length;
     if (deletable.length === 0) {
-      toast.error(t('Completed todos cannot be deleted — re-open them first.'));
+      toast.error(t("Completed todos cannot be deleted — re-open them first."));
       return;
     }
-    if (!window.confirm(t('Delete {n} todos?', { n: deletable.length }))) return;
+    if (!window.confirm(t("Delete {n} todos?", { n: deletable.length })))
+      return;
     await runBulk(
-      skipped > 0 ? t('Deleted ({n} completed skipped)', { n: skipped }) : t('Todos deleted'),
-      () => supabase.from('todos').delete().in('id', deletable),
+      skipped > 0
+        ? t("Deleted ({n} completed skipped)", { n: skipped })
+        : t("Todos deleted"),
+      () => supabase.from("todos").delete().in("id", deletable),
     );
   }
 
@@ -309,15 +409,17 @@ export function TodoList({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-accent-blue text-white shadow-soft">
             <ListTodo className="h-4 w-4" />
           </span>
-          <h3 className="truncate font-display text-lg font-bold tracking-tight">{t(heading)}</h3>
+          <h2 className="truncate font-display text-lg font-semibold tracking-tight">
+            {t(heading)}
+          </h2>
           <Badge variant="neutral" className="shrink-0">
-            {t('{active} active · {done} done', {
-              active: todos.filter((x) => x.status !== 'done').length,
-              done: todos.filter((x) => x.status === 'done').length,
+            {t("{active} active · {done} done", {
+              active: todos.filter((x) => x.status !== "done").length,
+              done: todos.filter((x) => x.status === "done").length,
             })}
           </Badge>
         </div>
@@ -325,58 +427,135 @@ export function TodoList({
           <button
             type="button"
             onClick={load}
-            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
-            aria-label={t('Refresh')}
+            className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-surface text-fg shadow-soft"
+            aria-label={t("Refresh")}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {!adding ? (
-            <Button size="sm" onClick={() => setAdding(true)} className="flex-1 sm:flex-none">
-              <Plus className="h-4 w-4" /> {t('Add todo')}
+            <Button
+              size="sm"
+              onClick={() => {
+                setNewProject(
+                  projectFilter === "all" ? "unassigned" : projectFilter,
+                );
+                setAdding(true);
+              }}
+              className="flex-1 sm:flex-none"
+            >
+              <Plus className="h-4 w-4" /> {t("Add todo")}
             </Button>
           ) : null}
         </div>
       </div>
 
+      {scope === "all" ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <Select value={projectFilter} onValueChange={setProjectFilter}>
+            <SelectTrigger
+              aria-label={t("Filter by project")}
+              className="h-9 w-full sm:w-60"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("All projects")}</SelectItem>
+              <SelectItem value="unassigned">
+                {t("Without a project")}
+              </SelectItem>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-fg-muted">
+            {t("Every task in this chain, in one place.")}
+          </p>
+        </div>
+      ) : null}
+
       {showToolbar ? (
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2">
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-muted" />
               <Input
                 ref={searchRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('Search todos…')}
+                placeholder={t("Search todos…")}
                 className="h-9 pl-9"
-                aria-label={t('Search todos…')}
+                aria-label={t("Search todos…")}
               />
             </div>
+            <Button
+              size="sm"
+              variant="outline"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((v) => !v)}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {t("Filters")}
+              {filtersActive && (
+                <span className="h-1.5 w-1.5 rounded-full bg-fg" />
+              )}
+            </Button>
+            {filtersActive && !filtersOpen ? (
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={t("Clear filters")}
+                onClick={clearFilters}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-2",
+              !filtersOpen && "hidden",
+            )}
+          >
             <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
               <SelectTrigger className="h-9 w-full sm:w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="manual">{t('Sort: Manual')}</SelectItem>
-                <SelectItem value="priority">{t('Sort: Priority')}</SelectItem>
-                <SelectItem value="due">{t('Sort: Due date')}</SelectItem>
-                <SelectItem value="recent">{t('Sort: Newest')}</SelectItem>
+                <SelectItem value="manual">{t("Sort: Manual")}</SelectItem>
+                <SelectItem value="priority">{t("Sort: Priority")}</SelectItem>
+                <SelectItem value="due">{t("Sort: Due date")}</SelectItem>
+                <SelectItem value="recent">{t("Sort: Newest")}</SelectItem>
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline" onClick={() => setManagerOpen(true)} className="shrink-0">
-              <Tag className="h-4 w-4" /> {t('Labels')}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setManagerOpen(true)}
+              className="shrink-0"
+            >
+              <Tag className="h-4 w-4" /> {t("Labels")}
             </Button>
             <Button
               size="sm"
-              variant={selectionMode ? 'primary' : 'outline'}
-              onClick={() => (selectionMode ? exitSelection() : setSelectionMode(true))}
+              variant={selectionMode ? "primary" : "outline"}
+              onClick={() =>
+                selectionMode ? exitSelection() : setSelectionMode(true)
+              }
               className="shrink-0"
             >
-              <CheckSquare className="h-4 w-4" /> {t('Select')}
+              <CheckSquare className="h-4 w-4" /> {t("Select")}
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-1.5",
+              !filtersOpen && "hidden",
+            )}
+          >
             <SlidersHorizontal className="h-3.5 w-3.5 text-fg-muted" />
             {PRIORITY_ORDER.map((p) => {
               const on = priorityFilter.includes(p);
@@ -388,11 +567,18 @@ export function TodoList({
                   onClick={() => togglePriorityFilter(p)}
                   aria-pressed={on}
                   className={cn(
-                    'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
-                    on ? 'bg-fg text-bg' : 'bg-surface text-fg hover:bg-surface-2',
+                    "inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-0.5 text-xs font-bold shadow-soft transition-colors",
+                    on
+                      ? "bg-fg text-bg"
+                      : "bg-surface text-fg hover:bg-surface-2",
                   )}
                 >
-                  <span className={cn('h-2 w-2 rounded-full border border-fg', meta.dot)} />
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full border border-border",
+                      meta.dot,
+                    )}
+                  />
                   {t(meta.label)}
                 </button>
               );
@@ -402,11 +588,13 @@ export function TodoList({
               onClick={() => setOnlyMine((v) => !v)}
               aria-pressed={onlyMine}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
-                onlyMine ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
+                "inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-0.5 text-xs font-bold shadow-soft transition-colors",
+                onlyMine
+                  ? "bg-accent-blue text-white"
+                  : "bg-surface text-fg hover:bg-surface-2",
               )}
             >
-              {t('Only mine')}
+              {t("Only mine")}
             </button>
             {filtersActive ? (
               <button
@@ -414,12 +602,12 @@ export function TodoList({
                 onClick={clearFilters}
                 className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold text-fg-muted hover:text-fg"
               >
-                <X className="h-3.5 w-3.5" /> {t('Clear')}
+                <X className="h-3.5 w-3.5" /> {t("Clear")}
               </button>
             ) : null}
           </div>
 
-          {labels.labels.length > 0 ? (
+          {filtersOpen && labels.labels.length > 0 ? (
             <div className="flex flex-wrap items-center gap-1.5">
               <Tag className="h-3.5 w-3.5 text-fg-muted" />
               {labels.labels.map((l) => {
@@ -430,17 +618,26 @@ export function TodoList({
                     type="button"
                     onClick={() =>
                       setLabelFilter((prev) =>
-                        prev.includes(l.id) ? prev.filter((x) => x !== l.id) : [...prev, l.id],
+                        prev.includes(l.id)
+                          ? prev.filter((x) => x !== l.id)
+                          : [...prev, l.id],
                       )
                     }
                     aria-pressed={on}
-                    title={t('Filter by label')}
+                    title={t("Filter by label")}
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-md border-2 border-fg px-2 py-0.5 text-xs font-bold shadow-brut-sm transition-colors',
-                      on ? 'bg-fg text-bg' : 'bg-surface text-fg hover:bg-surface-2',
+                      "inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-0.5 text-xs font-bold shadow-soft transition-colors",
+                      on
+                        ? "bg-fg text-bg"
+                        : "bg-surface text-fg hover:bg-surface-2",
                     )}
                   >
-                    <span className={cn('h-2 w-2 rounded-full border border-fg', labelColorMeta(l.color).dot)} />
+                    <span
+                      className={cn(
+                        "h-2 w-2 rounded-full border border-border",
+                        labelColorMeta(l.color).dot,
+                      )}
+                    />
                     {l.name}
                   </button>
                 );
@@ -451,11 +648,11 @@ export function TodoList({
       ) : null}
 
       {milestoneFilter ? (
-        <div className="flex items-center gap-2 rounded-md border-2 border-fg bg-accent-violet/10 px-3 py-2 text-sm">
+        <div className="flex items-center gap-2 rounded-md border border-border bg-accent-violet/10 px-3 py-2 text-sm">
           <Target className="h-4 w-4 shrink-0 text-accent-violet" />
           <span className="min-w-0 flex-1 truncate font-semibold">
-            {t('Showing todos in milestone: {name}', {
-              name: milestoneTitle.get(milestoneFilter) ?? t('Milestone'),
+            {t("Showing todos in milestone: {name}", {
+              name: milestoneTitle.get(milestoneFilter) ?? t("Milestone"),
             })}
           </span>
           <button
@@ -463,7 +660,7 @@ export function TodoList({
             onClick={onClearMilestoneFilter}
             className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold text-fg-muted hover:text-fg"
           >
-            <X className="h-3.5 w-3.5" /> {t('Clear')}
+            <X className="h-3.5 w-3.5" /> {t("Clear")}
           </button>
         </div>
       ) : null}
@@ -479,83 +676,158 @@ export function TodoList({
       />
 
       {selectionMode ? (
-        <div className="sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-lg border-2 border-fg bg-surface p-2 shadow-brut lg:top-2">
+        <div className="sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-2 shadow-soft lg:top-2">
           <span className="px-1 text-sm font-bold">
-            {t('{n} selected', { n: selected.size })}
+            {t("{n} selected", { n: selected.size })}
           </span>
           <div className="ml-auto flex flex-wrap items-center gap-1.5">
-            <Button size="sm" variant="secondary" onClick={bulkComplete} disabled={selected.size === 0}>
-              <Check className="h-4 w-4" /> {t('Complete')}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={bulkComplete}
+              disabled={selected.size === 0}
+            >
+              <Check className="h-4 w-4" /> {t("Complete")}
             </Button>
-            <Button size="sm" variant="secondary" onClick={bulkReopen} disabled={selected.size === 0}>
-              <RotateCcw className="h-4 w-4" /> {t('Reopen')}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={bulkReopen}
+              disabled={selected.size === 0}
+            >
+              <RotateCcw className="h-4 w-4" /> {t("Reopen")}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="secondary" disabled={selected.size === 0}>
-                  <SlidersHorizontal className="h-4 w-4" /> {t('Priority')}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={selected.size === 0}
+                >
+                  <SlidersHorizontal className="h-4 w-4" /> {t("Priority")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {PRIORITY_ORDER.map((p) => (
                   <DropdownMenuItem key={p} onSelect={() => bulkSetPriority(p)}>
-                    <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', PRIORITY_META[p].dot)} />
+                    <span
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full border border-border",
+                        PRIORITY_META[p].dot,
+                      )}
+                    />
                     {t(PRIORITY_META[p].label)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size="sm" variant="danger" onClick={bulkDelete} disabled={selected.size === 0}>
-              <Trash2 className="h-4 w-4" /> {t('Delete')}
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={bulkDelete}
+              disabled={selected.size === 0}
+            >
+              <Trash2 className="h-4 w-4" /> {t("Delete")}
             </Button>
             <Button size="sm" variant="ghost" onClick={exitSelection}>
-              <X className="h-4 w-4" /> {t('Done')}
+              <X className="h-4 w-4" /> {t("Done")}
             </Button>
           </div>
         </div>
       ) : null}
 
       {adding ? (
-        <TodoForm
-          chainId={chainId}
-          projectId={projectId}
-          members={members}
-          allLabels={labels.labels}
-          onManageLabels={() => setManagerOpen(true)}
-          onCancel={() => setAdding(false)}
-          onCreated={() => {
-            setAdding(false);
-            load();
-          }}
-        />
+        <div className="space-y-3">
+          {scope === "all" && (
+            <div className="rounded-lg border border-border bg-surface p-3">
+              <p className="mb-2 text-xs text-fg-muted">
+                {t("Create task in")}
+              </p>
+              <Select value={newProject} onValueChange={setNewProject}>
+                <SelectTrigger aria-label={t("Create task in")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">
+                    {t("Without a project")}
+                  </SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <TodoForm
+            chainId={chainId}
+            projectId={
+              scope === "all"
+                ? newProject === "unassigned"
+                  ? null
+                  : newProject
+                : projectId
+            }
+            members={members}
+            allLabels={labels.labels}
+            onManageLabels={() => setManagerOpen(true)}
+            onCancel={() => setAdding(false)}
+            onCreated={() => {
+              setAdding(false);
+              if (scope === "all") setProjectFilter(newProject);
+              load();
+            }}
+          />
+        </div>
       ) : null}
 
-      {loading ? (
-        <p className="text-sm text-fg-muted">{t('Loading…')}</p>
+      {loadError ? (
+        <div role="alert" className="rounded-lg border border-border p-6">
+          <p className="text-sm text-fg-muted">{t("Could not load todos")}</p>
+          <Button variant="outline" size="sm" onClick={load} className="mt-3">
+            {t("Try again")}
+          </Button>
+        </div>
+      ) : loading ? (
+        <p className="text-sm text-fg-muted">{t("Loading…")}</p>
       ) : todos.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
-          <p className="font-semibold">{t('No todos here yet.')}</p>
-          <p className="mt-1 text-sm text-fg-muted">{t('Add the first one to kick this off.')}</p>
+        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
+          <p className="font-semibold">{t("No todos here yet.")}</p>
+          <p className="mt-1 text-sm text-fg-muted">
+            {t("Add the first one to kick this off.")}
+          </p>
         </div>
       ) : !anyVisible ? (
-        <div className="rounded-lg border-2 border-dashed border-fg bg-surface-2 p-8 text-center">
-          <p className="font-semibold">{t('No todos match your filters.')}</p>
+        <div className="rounded-lg border border-dashed border-border bg-surface-2 p-8 text-center">
+          <p className="font-semibold">{t("No todos match your filters.")}</p>
           <button
             type="button"
             onClick={clearFilters}
             className="mt-1 text-sm font-semibold text-accent-blue hover:underline"
           >
-            {t('Clear filters')}
+            {t("Clear filters")}
           </button>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
           {pending.length > 0 ? (
             <section>
-              <SectionHeader label={t('Pending')} count={pending.length} variant="neutral" />
+              <SectionHeader
+                label={t("Pending")}
+                count={pending.length}
+                variant="neutral"
+              />
               {canDrag ? (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-                  <SortableContext items={pending.map((x) => x.id)} strategy={verticalListSortingStrategy}>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={onDragEnd}
+                >
+                  <SortableContext
+                    items={pending.map((x) => x.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
                     <ul className="flex flex-col gap-2">
                       {pending.map((x) => (
                         <TodoItem
@@ -566,9 +838,15 @@ export function TodoList({
                           onChanged={load}
                           allLabels={labels.labels}
                           todoLabels={labels.labelsForTodo(x.id)}
-                          onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                          onToggleLabel={(lid, on) =>
+                            labels.toggleOnTodo(x.id, lid, on)
+                          }
                           onManageLabels={() => setManagerOpen(true)}
-                          milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
+                          milestoneTitle={
+                            x.milestone_id
+                              ? milestoneTitle.get(x.milestone_id)
+                              : undefined
+                          }
                         />
                       ))}
                     </ul>
@@ -580,6 +858,12 @@ export function TodoList({
                     <TodoItem
                       key={x.id}
                       todo={x}
+                      projectName={
+                        scope === "all"
+                          ? (projects.find((p) => p.id === x.project_id)
+                              ?.name ?? t("Without a project"))
+                          : undefined
+                      }
                       members={members}
                       onChanged={load}
                       selectable={selectionMode}
@@ -587,9 +871,15 @@ export function TodoList({
                       onToggleSelected={() => toggleSelected(x.id)}
                       allLabels={labels.labels}
                       todoLabels={labels.labelsForTodo(x.id)}
-                      onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                      onToggleLabel={(lid, on) =>
+                        labels.toggleOnTodo(x.id, lid, on)
+                      }
                       onManageLabels={() => setManagerOpen(true)}
-                      milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
+                      milestoneTitle={
+                        x.milestone_id
+                          ? milestoneTitle.get(x.milestone_id)
+                          : undefined
+                      }
                     />
                   ))}
                 </ul>
@@ -599,12 +889,22 @@ export function TodoList({
 
           {inProgress.length > 0 ? (
             <section>
-              <SectionHeader label={t('In progress')} count={inProgress.length} variant="amber" />
+              <SectionHeader
+                label={t("In progress")}
+                count={inProgress.length}
+                variant="amber"
+              />
               <ul className="flex flex-col gap-2">
                 {inProgress.map((x) => (
                   <TodoItem
                     key={x.id}
                     todo={x}
+                    projectName={
+                      scope === "all"
+                        ? (projects.find((p) => p.id === x.project_id)?.name ??
+                          t("Without a project"))
+                        : undefined
+                    }
                     members={members}
                     onChanged={load}
                     selectable={selectionMode}
@@ -612,9 +912,15 @@ export function TodoList({
                     onToggleSelected={() => toggleSelected(x.id)}
                     allLabels={labels.labels}
                     todoLabels={labels.labelsForTodo(x.id)}
-                    onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                    onToggleLabel={(lid, on) =>
+                      labels.toggleOnTodo(x.id, lid, on)
+                    }
                     onManageLabels={() => setManagerOpen(true)}
-                    milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
+                    milestoneTitle={
+                      x.milestone_id
+                        ? milestoneTitle.get(x.milestone_id)
+                        : undefined
+                    }
                   />
                 ))}
               </ul>
@@ -633,9 +939,9 @@ export function TodoList({
                 ) : (
                   <ChevronDown className="h-3.5 w-3.5 text-fg-muted" />
                 )}
-                <h4 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
-                  {t('Done (section)')}
-                </h4>
+                <h3 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
+                  {t("Done (section)")}
+                </h3>
                 <Badge variant="emerald">{done.length}</Badge>
               </button>
               {!doneCollapsed ? (
@@ -644,6 +950,12 @@ export function TodoList({
                     <TodoItem
                       key={x.id}
                       todo={x}
+                      projectName={
+                        scope === "all"
+                          ? (projects.find((p) => p.id === x.project_id)
+                              ?.name ?? t("Without a project"))
+                          : undefined
+                      }
                       members={members}
                       onChanged={load}
                       selectable={selectionMode}
@@ -651,9 +963,15 @@ export function TodoList({
                       onToggleSelected={() => toggleSelected(x.id)}
                       allLabels={labels.labels}
                       todoLabels={labels.labelsForTodo(x.id)}
-                      onToggleLabel={(lid, on) => labels.toggleOnTodo(x.id, lid, on)}
+                      onToggleLabel={(lid, on) =>
+                        labels.toggleOnTodo(x.id, lid, on)
+                      }
                       onManageLabels={() => setManagerOpen(true)}
-                      milestoneTitle={x.milestone_id ? milestoneTitle.get(x.milestone_id) : undefined}
+                      milestoneTitle={
+                        x.milestone_id
+                          ? milestoneTitle.get(x.milestone_id)
+                          : undefined
+                      }
                     />
                   ))}
                 </ul>
@@ -673,11 +991,13 @@ function SectionHeader({
 }: {
   label: string;
   count: number;
-  variant: 'neutral' | 'amber' | 'emerald';
+  variant: "neutral" | "amber" | "emerald";
 }) {
   return (
     <div className="mb-2 flex items-center gap-2">
-      <h4 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">{label}</h4>
+      <h3 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
+        {label}
+      </h3>
       <Badge variant={variant}>{count}</Badge>
     </div>
   );

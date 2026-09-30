@@ -5,7 +5,7 @@ export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEleme
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-lg border-2 border-fg bg-surface shadow-brut text-fg', className)}
+      className={cn('rounded-lg border border-border bg-surface shadow-soft text-fg', className)}
       {...props}
     />
   ),
@@ -14,7 +14,7 @@ Card.displayName = 'Card';
 
 export const CardHeader = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-col gap-2 p-6 border-b-2 border-fg', className)} {...props} />
+    <div ref={ref} className={cn('flex flex-col gap-2 p-6 border-b border-border', className)} {...props} />
   ),
 );
 CardHeader.displayName = 'CardHeader';
@@ -23,7 +23,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTM
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('font-display text-2xl font-bold tracking-tight text-fg', className)}
+      className={cn('font-display text-lg font-semibold tracking-tight text-fg', className)}
       {...props}
     />
   ),
@@ -44,7 +44,7 @@ CardContent.displayName = 'CardContent';
 
 export const CardFooter = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('p-6 border-t-2 border-fg flex items-center gap-3', className)} {...props} />
+    <div ref={ref} className={cn('p-6 border-t border-border flex items-center gap-3', className)} {...props} />
   ),
 );
 CardFooter.displayName = 'CardFooter';

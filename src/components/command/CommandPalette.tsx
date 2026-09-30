@@ -217,8 +217,8 @@ export function CommandPalette() {
         if (e.target === e.currentTarget) setOpen(false);
       }}
     >
-      <div className="w-full max-w-xl overflow-hidden rounded-lg border-2 border-fg bg-surface shadow-brut-lg">
-        <div className="flex items-center gap-2 border-b-2 border-fg px-3">
+      <div className="w-full max-w-xl overflow-hidden rounded-lg border border-border bg-surface shadow-soft">
+        <div className="flex items-center gap-2 border-b border-border px-3">
           <Search className="h-4 w-4 shrink-0 text-fg-muted" />
           <input
             ref={inputRef}
@@ -232,7 +232,7 @@ export function CommandPalette() {
             className="h-12 w-full bg-transparent text-base font-medium text-fg outline-none placeholder:text-fg-muted"
             aria-label={t('Command palette')}
           />
-          <kbd className="hidden shrink-0 rounded border-2 border-fg bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] font-bold text-fg-muted sm:block">
+          <kbd className="hidden shrink-0 rounded border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] font-bold text-fg-muted sm:block">
             ESC
           </kbd>
         </div>
@@ -257,9 +257,9 @@ export function CommandPalette() {
                     onMouseMove={() => setSelected(i)}
                     onClick={() => runAt(i)}
                     className={cn(
-                      'flex w-full items-center gap-2.5 rounded-md border-2 px-2.5 py-2 text-left text-sm font-semibold transition-colors',
+                      'flex w-full items-center gap-2.5 rounded-md border px-2.5 py-2 text-left text-sm font-semibold transition-colors',
                       i === selected
-                        ? 'border-fg bg-accent-blue text-white shadow-brut-sm'
+                        ? 'border-border bg-accent-blue text-white shadow-soft'
                         : 'border-transparent text-fg hover:bg-surface-2',
                     )}
                   >

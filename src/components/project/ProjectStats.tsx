@@ -88,7 +88,7 @@ export function ProjectStats({ projectId, refreshSignal }: Props) {
   const seg = (n: number) => (total === 0 ? 0 : (n / total) * 100);
 
   return (
-    <div className="rounded-lg border-2 border-fg bg-surface p-4 shadow-brut-sm">
+    <div className="rounded-lg border border-border bg-surface p-4 shadow-soft">
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
@@ -100,7 +100,7 @@ export function ProjectStats({ projectId, refreshSignal }: Props) {
           </p>
         </div>
         {overdue > 0 ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-accent-rose px-2.5 py-1 text-xs font-bold text-white shadow-brut-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-accent-rose/10 px-2.5 py-1 text-xs font-medium text-accent-rose shadow-soft">
             <AlertTriangle className="h-3.5 w-3.5" />
             {t('{n} overdue', { n: overdue })}
           </span>
@@ -108,12 +108,12 @@ export function ProjectStats({ projectId, refreshSignal }: Props) {
       </div>
 
       {/* segmented progress bar */}
-      <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full border-2 border-fg bg-surface-2">
+      <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full border border-border bg-surface-2">
         <div className="h-full bg-accent-emerald" style={{ width: `${seg(done)}%` }} />
         <div className="h-full bg-accent-amber" style={{ width: `${seg(inProgress)}%` }} />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-4 grid grid-cols-3 gap-2 lg:grid-cols-6">
         <Tile icon={<CheckCircle2 className="h-4 w-4" />} label={t('Done')} value={done} tone="emerald" />
         <Tile icon={<Clock className="h-4 w-4" />} label={t('In progress')} value={inProgress} tone="amber" />
         <Tile icon={<Circle className="h-4 w-4" />} label={t('Pending')} value={pending} tone="neutral" />
@@ -158,7 +158,7 @@ function Tile({
   tone: keyof typeof TONE;
 }) {
   return (
-    <div className="rounded-md border-2 border-fg bg-surface-2 p-2.5">
+    <div className="rounded-md border border-border bg-surface-2 p-2.5">
       <div className={cn('flex items-center gap-1.5', TONE[tone])}>
         {icon}
         <span className="font-display text-xl font-bold tracking-tight">{value}</span>
@@ -172,8 +172,8 @@ function PriorityChip({ priority, count }: { priority: TodoPriority; count: numb
   const t = useT();
   const meta = PRIORITY_META[priority];
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-surface px-2 py-0.5 text-xs font-bold">
-      <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', meta.dot)} />
+    <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-0.5 text-xs font-bold">
+      <span className={cn('h-2.5 w-2.5 rounded-full border border-border', meta.dot)} />
       {t(meta.label)}
       <span className="font-mono text-fg-muted">{count}</span>
     </span>

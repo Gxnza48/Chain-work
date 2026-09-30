@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import './index.css';
+import './styles/presence.css';
 
 // Register the service worker (PWA install + push). Auto-updates in the background.
 registerSW({ immediate: true });

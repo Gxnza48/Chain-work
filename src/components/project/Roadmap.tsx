@@ -70,9 +70,9 @@ export function Roadmap({ projectId, members, onChange, refreshSignal }: Props) 
   const memberMap = new Map(members.map((m) => [m.id, m]));
 
   return (
-    <section className="rounded-lg border-2 border-fg bg-surface shadow-brut p-5">
+    <section className="rounded-lg border border-border bg-surface shadow-soft p-5">
       <div className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm">
+        <span className="grid h-8 w-8 place-items-center rounded-md border border-border bg-accent-emerald text-white shadow-soft">
           <CheckCircle2 className="h-4 w-4" />
         </span>
         <h3 className="font-display text-lg font-bold tracking-tight">Roadmap</h3>
@@ -87,8 +87,8 @@ export function Roadmap({ projectId, members, onChange, refreshSignal }: Props) 
           items.map((item) => {
             const completedBy = item.completed_by ? memberMap.get(item.completed_by) : null;
             return (
-              <li key={item.id} className="flex items-start gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
-                <span className="mt-1 grid h-5 w-5 place-items-center rounded-full border-2 border-fg bg-accent-emerald text-white">
+              <li key={item.id} className="flex items-start gap-3 rounded-md border border-border bg-surface-2 p-3">
+                <span className="mt-1 grid h-5 w-5 place-items-center rounded-full border border-border bg-accent-emerald text-white">
                   <CheckCircle2 className="h-3 w-3" />
                 </span>
                 <div className="min-w-0 flex-1">

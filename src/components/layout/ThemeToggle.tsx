@@ -42,8 +42,8 @@ export function ThemeToggle({ className }: Props) {
         theme: t(theme === 'dark' ? 'light' : 'dark'),
       })}
       className={cn(
-        'relative inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm',
-        'transition-transform duration-150 hover:-translate-x-[1px] hover:-translate-y-[1px] active:translate-x-0 active:translate-y-0',
+        'relative inline-grid h-10 w-10 place-items-center rounded-lg border border-border bg-surface text-fg shadow-soft',
+        'transition-transform duration-150 active:translate-x-0 active:translate-y-0',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue',
         className,
       )}

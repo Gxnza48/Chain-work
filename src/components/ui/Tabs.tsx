@@ -11,7 +11,7 @@ export const TabsList = forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'flex w-full items-stretch gap-2 rounded-lg border-2 border-fg bg-surface p-1 shadow-brut-sm sm:inline-flex sm:w-auto',
+      'flex w-full flex-wrap items-center gap-1 rounded-lg bg-surface-2 p-1 sm:inline-flex sm:w-auto',
       className,
     )}
     {...props}
@@ -26,11 +26,10 @@ export const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex min-w-0 flex-1 items-center justify-center rounded-md px-3 py-1.5 text-center sm:flex-none',
-      'text-sm font-bold font-display tracking-tight text-fg-muted',
+      'inline-flex min-w-0 flex-none whitespace-nowrap items-center justify-center rounded-md px-3 py-1.5 text-center sm:flex-none',
+      'text-sm font-medium text-fg-muted',
       'transition-colors duration-150 ease-out',
-      'data-[state=active]:bg-accent-blue data-[state=active]:text-white',
-      'data-[state=active]:border-2 data-[state=active]:border-fg',
+      'data-[state=active]:bg-surface data-[state=active]:text-fg data-[state=active]:shadow-sm',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue',
       className,
     )}

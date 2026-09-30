@@ -37,14 +37,14 @@ export function NotificationBell({ className }: { className?: string }) {
           type="button"
           aria-label={t('Notifications')}
           className={cn(
-            'relative inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm',
-            'active:translate-x-[2px] active:translate-y-[2px] transition-transform',
+            'relative inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-fg shadow-soft',
+            'transition-transform',
             className,
           )}
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 ? (
-            <span className="absolute -right-1.5 -top-1.5 grid min-w-[1.15rem] place-items-center rounded-full border-2 border-fg bg-accent-rose px-1 text-[10px] font-bold leading-none text-white font-mono">
+            <span className="absolute -right-1.5 -top-1.5 grid min-w-[1.15rem] place-items-center rounded-full border border-border bg-accent-rose px-1 text-[10px] font-bold leading-none text-white font-mono">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           ) : null}
@@ -52,7 +52,7 @@ export function NotificationBell({ className }: { className?: string }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-1.5rem))] p-0">
-        <div className="flex items-center justify-between gap-2 border-b-2 border-fg px-3 py-2">
+        <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
           <p className="font-display text-sm font-bold text-fg">{t('Notifications')}</p>
           {unreadCount > 0 ? (
             <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => void markAllRead()}>
@@ -86,7 +86,7 @@ export function NotificationBell({ className }: { className?: string }) {
                       ) : null}
                       <AvatarFallback>{initials(n.actor?.display_name ?? '?')}</AvatarFallback>
                     </Avatar>
-                    <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full border-2 border-fg bg-surface">
+                    <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full border border-border bg-surface">
                       <TypeIcon type={n.type} className="h-2.5 w-2.5 text-fg" />
                     </span>
                   </span>

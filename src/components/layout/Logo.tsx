@@ -27,7 +27,7 @@ export function Logo({ className, to = '/', size = 'md' }: LogoProps) {
       <span
         aria-hidden
         className={cn(
-          'inline-grid place-items-center rounded-md border-2 border-fg bg-white shadow-brut-sm',
+          'inline-grid place-items-center rounded-md border border-border bg-white shadow-soft',
           s.mark,
         )}
       >

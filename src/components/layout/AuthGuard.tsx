@@ -45,7 +45,7 @@ function ConfirmEmailGate({ email }: { email: string }) {
     <div className="grid min-h-screen place-items-center bg-bg p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="inline-grid h-12 w-12 place-items-center rounded-lg border-2 border-fg bg-accent-blue text-white shadow-brut-sm">
+          <div className="inline-grid h-12 w-12 place-items-center rounded-lg border border-border bg-accent-blue text-white shadow-soft">
             <Mail className="h-6 w-6" />
           </div>
           <CardTitle>Confirm your email</CardTitle>

@@ -76,7 +76,7 @@ export function MilestoneForm({ chainId, projectId, milestone, onSaved, onCancel
   return (
     <form
       onSubmit={submit}
-      className="rounded-lg border-2 border-fg bg-surface p-4 shadow-brut-sm flex flex-col gap-3"
+      className="rounded-lg border border-border bg-surface p-4 shadow-soft flex flex-col gap-3"
     >
       <Input
         autoFocus

@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { LanguageToggle } from '@/components/layout/LanguageToggle';
+import { useLangStore } from '@/store/lang';
+import { useThemeStore } from '@/store/theme';
 import { cn, copyToClipboard } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -103,7 +105,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
     : [];
 
   return (
-    <header className="sticky top-0 z-20 border-b-2 border-fg bg-bg/90 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur-md">
       <div className="flex h-14 items-center gap-1.5 px-3 sm:gap-3 sm:px-6">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link to="/dashboard" aria-label={t('Back to dashboard')}>
@@ -140,7 +142,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                 type="submit"
                 disabled={saving}
                 aria-label={t('Save name')}
-                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-accent-emerald text-white shadow-brut-sm disabled:opacity-50"
+                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-accent-emerald text-white shadow-soft disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               </button>
@@ -151,7 +153,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                   setEditing(false);
                 }}
                 aria-label={t('Cancel rename')}
-                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border-2 border-fg bg-surface text-fg shadow-brut-sm"
+                className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-surface text-fg shadow-soft"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -179,7 +181,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                 ) : null}
-                <Badge variant="neutral">
+                <Badge variant="neutral" className="hidden sm:inline-flex">
                   <Users className="h-3 w-3" /> {memberCount}
                 </Badge>
               </div>
@@ -190,7 +192,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
         <button
           type="button"
           onClick={copyCode}
-          className="hidden shrink-0 items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 font-mono text-sm font-bold tracking-widest text-fg shadow-brut-sm hover:bg-surface md:inline-flex"
+          className="hidden shrink-0 items-center gap-2 rounded-md border border-border bg-surface-2 px-3 py-1.5 font-mono text-sm font-bold tracking-widest text-fg shadow-soft hover:bg-surface md:inline-flex"
         >
           {copied ? <Check className="h-4 w-4 text-accent-emerald" /> : <Copy className="h-4 w-4" />}
           {chain.code}
@@ -201,15 +203,15 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
           <button
             type="button"
             onClick={onOpenMembers}
-            className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm lg:hidden"
+            className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-fg shadow-soft"
             aria-label={t('Open members')}
           >
             <Users className="h-5 w-5" />
           </button>
 
-          <LanguageToggle className="shrink-0" />
+          <LanguageToggle className="hidden shrink-0 sm:inline-grid" />
 
-          <ThemeToggle className="shrink-0" />
+          <ThemeToggle className="hidden shrink-0 sm:inline-grid" />
         </div>
 
         <DropdownMenu>
@@ -217,7 +219,7 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
             <button
               type="button"
               aria-label={t('Chain settings')}
-              className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
+              className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-fg shadow-soft"
             >
               <Settings className="h-5 w-5" />
             </button>
@@ -234,6 +236,8 @@ export function ChainHeader({ chain, memberCount, canEdit, onRenamed, onOpenMemb
               {t('Copy chain code')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem className="sm:hidden" onSelect={() => useLangStore.getState().toggle()}>{t('Language')}: ES / EN</DropdownMenuItem>
+            <DropdownMenuItem className="sm:hidden" onSelect={() => useThemeStore.getState().toggle()}>{t('Toggle theme')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={leaveChain} className="text-accent-rose">
               <LogOut className="h-4 w-4" />
               {t('Leave chain')}

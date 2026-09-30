@@ -58,7 +58,7 @@ export function IdeaForm({ chainId, projectId, onCreated, onCancel }: Props) {
   return (
     <form
       onSubmit={submit}
-      className="rounded-lg border-2 border-fg bg-surface-2 p-4 shadow-brut-sm flex flex-col gap-3"
+      className="rounded-lg border border-border bg-surface-2 p-4 shadow-soft flex flex-col gap-3"
     >
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="idea-title">{t('Title')}</Label>

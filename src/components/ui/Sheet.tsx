@@ -10,7 +10,7 @@ export const SheetClose = DialogPrimitive.Close;
 export const SheetPortal = DialogPrimitive.Portal;
 
 const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-surface border-2 border-fg shadow-brut-lg p-4 sm:p-6 transition ease-in-out',
+  'fixed z-50 gap-4 bg-surface border border-border shadow-soft p-4 sm:p-6 transition ease-in-out',
   {
     variants: {
       side: {
@@ -44,7 +44,7 @@ export const SheetContent = forwardRef<React.ElementRef<typeof DialogPrimitive.C
   ({ side = 'right', className, children, ...props }, ref) => (
     <SheetPortal>
       <SheetOverlay />
-      <DialogPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+      <DialogPrimitive.Content aria-describedby={undefined} ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
         {children}
         <DialogPrimitive.Close
           className="absolute right-4 top-4 rounded-md p-1 text-fg-muted hover:bg-surface-2 hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue"

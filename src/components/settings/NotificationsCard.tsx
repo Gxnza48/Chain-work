@@ -47,7 +47,7 @@ export function NotificationsCard() {
             {t("This browser doesn't support push notifications.")}
           </p>
         ) : needsInstall ? (
-          <div className="rounded-md border-2 border-dashed border-fg bg-surface-2 p-4 text-sm">
+          <div className="rounded-md border border-dashed border-border bg-surface-2 p-4 text-sm">
             <p className="font-semibold">{t('Install the app to get notifications on iPhone')}</p>
             <p className="mt-1 flex items-center gap-1.5 text-fg-muted">
               {t('Tap')} <Share className="h-4 w-4" /> {t('then “Add to Home Screen”, open it from there, and come back.')}

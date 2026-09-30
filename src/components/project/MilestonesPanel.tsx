@@ -49,10 +49,10 @@ export function MilestonesPanel({ chainId, projectId, refreshSignal, selectedId,
   }
 
   return (
-    <section className="rounded-lg border-2 border-fg bg-surface shadow-brut p-5">
+    <section className="rounded-lg border border-border bg-surface shadow-soft p-5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-md border-2 border-fg bg-accent-violet text-white shadow-brut-sm">
+          <span className="grid h-8 w-8 place-items-center rounded-md border border-border bg-accent-violet text-white shadow-soft">
             <Target className="h-4 w-4" />
           </span>
           <h3 className="font-display text-lg font-bold tracking-tight">{t('Milestones')}</h3>
@@ -143,14 +143,14 @@ function MilestoneCard({
   return (
     <div
       className={cn(
-        'group rounded-md border-2 border-fg bg-surface-2 p-3 transition-shadow',
+        'group rounded-md border border-border bg-surface-2 p-3 transition-shadow',
         selected ? 'ring-2 ring-accent-violet' : '',
       )}
     >
       <div className="flex items-start gap-3">
         <span
           className={cn(
-            'mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-fg text-white shadow-brut-sm',
+            'mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-border text-white shadow-soft',
             done ? 'bg-accent-emerald' : 'bg-surface text-fg',
           )}
         >

@@ -31,13 +31,13 @@ function ColorPicker({ value, onPick }: { value: string; onPick: (c: LabelColor)
         <button
           type="button"
           aria-label={t('Pick a color')}
-          className={cn('h-7 w-7 shrink-0 rounded-md border-2 border-fg shadow-brut-sm', LABEL_COLORS[(value as LabelColor)]?.dot ?? LABEL_COLORS.blue.dot)}
+          className={cn('h-7 w-7 shrink-0 rounded-md border border-border shadow-soft', LABEL_COLORS[(value as LabelColor)]?.dot ?? LABEL_COLORS.blue.dot)}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         {LABEL_COLOR_ORDER.map((c) => (
           <DropdownMenuItem key={c} onSelect={() => onPick(c)}>
-            <span className={cn('h-3.5 w-3.5 rounded-full border border-fg', LABEL_COLORS[c].dot)} />
+            <span className={cn('h-3.5 w-3.5 rounded-full border border-border', LABEL_COLORS[c].dot)} />
             {t(c)}
             {c === value ? <Check className="ml-auto h-3.5 w-3.5" /> : null}
           </DropdownMenuItem>
@@ -105,11 +105,11 @@ export function LabelManager({ open, onOpenChange, labels, createLabel, renameLa
 
         <ul className="mt-3 flex max-h-80 flex-col gap-2 overflow-y-auto">
           {labels.length === 0 ? (
-            <li className="rounded-md border-2 border-dashed border-fg bg-surface-2 p-4 text-center text-sm text-fg-muted">
+            <li className="rounded-md border border-dashed border-border bg-surface-2 p-4 text-center text-sm text-fg-muted">
               {t('No labels yet. Create your first one above.')}
             </li>
           ) : labels.map((l) => (
-            <li key={l.id} className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface p-2 shadow-brut-sm">
+            <li key={l.id} className="flex items-center gap-2 rounded-md border border-border bg-surface p-2 shadow-soft">
               <ColorPicker value={l.color} onPick={(c) => recolorLabel(l.id, c)} />
               {editingId === l.id ? (
                 <Input

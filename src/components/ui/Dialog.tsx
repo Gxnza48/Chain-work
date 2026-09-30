@@ -34,7 +34,7 @@ export const DialogContent = forwardRef<
       ref={ref}
       className={cn(
         'fixed left-1/2 top-1/2 z-50 w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 sm:max-w-lg',
-        'rounded-lg border-2 border-fg bg-surface shadow-brut-lg',
+        'rounded-lg border border-border bg-surface shadow-soft',
         'p-4 outline-none sm:p-6',
         'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
         'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',

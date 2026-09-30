@@ -56,7 +56,7 @@ const ACCENT_BG: Record<FeatureCard['accent'], string> = {
 export function Features() {
   const t = useT();
   return (
-    <section id="features" className="relative scroll-mt-28 py-24 md:py-32 bg-surface border-y-2 border-fg">
+    <section id="features" className="relative scroll-mt-28 py-24 md:py-32 bg-surface border-y border-border">
       <div className="mx-auto max-w-7xl px-6">
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="font-display font-bold text-xs uppercase tracking-[0.2em] text-accent-violet">
@@ -86,11 +86,11 @@ export function Features() {
                 key={f.title}
                 variants={popVariants}
                 whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 18 } }}
-                className={cn('brut-card p-6 flex flex-col gap-4', f.span ? 'md:col-span-2' : '')}
+                className={cn('surface-card p-6 flex flex-col gap-4', f.span ? 'md:col-span-2' : '')}
               >
                 <span
                   className={cn(
-                    'grid h-12 w-12 place-items-center rounded-lg border-2 border-fg text-white shadow-brut-sm',
+                    'grid h-12 w-12 place-items-center rounded-lg border border-border text-white shadow-soft',
                     ACCENT_BG[f.accent],
                   )}
                 >

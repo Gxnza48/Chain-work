@@ -139,7 +139,7 @@ export function CreateChainModal({ open, onOpenChange, onCreated }: Props) {
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center gap-3 py-4">
-              <div className="flex items-center gap-2 rounded-lg border-2 border-fg bg-surface-2 px-6 py-4 shadow-brut">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-surface-2 px-6 py-4 shadow-soft">
                 <code className="font-mono text-3xl font-bold tracking-[0.25em] text-fg sm:text-4xl">
                   {created.code}
                 </code>

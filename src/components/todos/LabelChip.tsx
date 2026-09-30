@@ -14,7 +14,7 @@ export function LabelChip({ label, onRemove, className }: Props) {
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center gap-1 rounded-md border-2 border-fg px-2 py-0.5 text-xs font-bold uppercase tracking-wide font-mono shadow-brut-sm',
+        'inline-flex max-w-full items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs font-bold uppercase tracking-wide font-mono shadow-soft',
         meta.chip,
         className,
       )}

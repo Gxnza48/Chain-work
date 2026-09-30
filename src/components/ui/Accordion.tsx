@@ -12,7 +12,7 @@ export const AccordionItem = forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      'mb-3 rounded-lg border-2 border-fg bg-surface shadow-brut-sm overflow-hidden',
+      'mb-3 rounded-lg border border-border bg-surface shadow-soft overflow-hidden',
       className,
     )}
     {...props}
@@ -50,7 +50,7 @@ export const AccordionContent = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-base text-fg-muted data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down border-t-2 border-fg"
+    className="overflow-hidden text-base text-fg-muted data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down border-t border-border"
     {...props}
   >
     <div className={cn('px-5 py-4 leading-relaxed', className)}>{children}</div>

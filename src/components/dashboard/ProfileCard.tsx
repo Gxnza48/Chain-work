@@ -136,7 +136,7 @@ export function ProfileCard() {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="absolute -bottom-1 -right-1 inline-grid h-8 w-8 place-items-center rounded-full border-2 border-fg bg-accent-blue text-white shadow-brut-sm disabled:opacity-50"
+            className="absolute -bottom-1 -right-1 inline-grid h-8 w-8 place-items-center rounded-full border border-border bg-accent-blue text-white shadow-soft disabled:opacity-50"
             aria-label={t('Change avatar')}
           >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin-slow" /> : <Camera className="h-4 w-4" />}
@@ -192,7 +192,7 @@ export function ProfileCard() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="font-display text-3xl font-bold tracking-tight">{profile.display_name}</h1>
+                  <h3 className="font-display text-3xl font-bold tracking-tight">{profile.display_name}</h3>
                   <p className="font-mono text-sm text-fg-muted">@{profile.username}</p>
                 </div>
                 <Button size="sm" variant="outline" onClick={startEdit}>
@@ -208,7 +208,7 @@ export function ProfileCard() {
                   href={profile.website}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-3 py-1.5 text-sm font-semibold text-fg shadow-brut-sm transition-colors hover:bg-surface"
+                  className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-surface-2 px-3 py-1.5 text-sm font-semibold text-fg shadow-soft transition-colors hover:bg-surface"
                 >
                   <Link2 className="h-4 w-4 shrink-0 text-accent-blue" />
                   <span className="truncate">{prettyLink(profile.website)}</span>

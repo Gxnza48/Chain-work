@@ -59,11 +59,11 @@ export function GoogleButton({ label = 'Continue with Google' }: { label?: strin
       disabled={loading}
       className={cn(
         'inline-flex h-12 w-full items-center justify-center gap-3 select-none',
-        'rounded-lg border-2 border-fg bg-surface text-fg shadow-brut',
+        'rounded-lg border border-border bg-surface text-fg shadow-soft',
         'font-display font-bold tracking-tight',
         'transition-[transform,box-shadow] duration-150 ease-out',
-        'hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brut-lg',
-        'active:translate-x-[2px] active:translate-y-[2px] active:shadow-brut-sm',
+        'hover:shadow-soft',
+        'active:shadow-soft',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
         'disabled:pointer-events-none disabled:opacity-50',
       )}

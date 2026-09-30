@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, LayoutDashboard, Menu, X } from 'lucide-react';
 import { Logo } from './Logo';
-import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import { Button } from '@/components/ui/Button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
@@ -19,7 +18,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '#how-it-works', label: 'How it works' },
   { href: '#features', label: 'Features' },
-  { href: '#developers', label: 'Developers' },
+  { href: '#developers', label: 'MCP & AI' },
   { href: '#faq', label: 'FAQ' },
 ];
 
@@ -48,8 +47,8 @@ export function Navbar() {
         className={cn(
           'flex h-16 items-center justify-between gap-4 rounded-xl px-3 sm:px-5 transition-all duration-300',
           scrolled
-            ? 'border-2 border-fg bg-bg/85 backdrop-blur-md shadow-brut'
-            : 'border-2 border-transparent bg-transparent',
+            ? 'border border-border bg-bg/85 backdrop-blur-md shadow-soft'
+            : 'border border-transparent bg-transparent',
         )}
       >
         <Logo size="md" to="/" />
@@ -69,15 +68,14 @@ export function Navbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           <LanguageToggle />
-          <ThemeToggle />
           {loading ? (
             <Skeleton className="h-11 w-32 rounded-lg" />
           ) : authed ? (
             <Link
               to="/dashboard"
-              className="group flex items-center gap-2.5 rounded-lg border-2 border-fg bg-surface py-1.5 pl-1.5 pr-3 shadow-brut-sm transition-all duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brut"
+              className="group flex items-center gap-2.5 rounded-lg border border-border bg-surface py-1.5 pl-1.5 pr-3 shadow-soft transition-all duration-150 hover:shadow-soft"
             >
-              <Avatar className="h-8 w-8 border-2 border-fg">
+              <Avatar className="h-8 w-8 border border-border">
                 {profile?.avatar_url ? (
                   <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
                 ) : null}
@@ -104,12 +102,11 @@ export function Navbar() {
 
         <div className="flex items-center gap-2 md:hidden">
           <LanguageToggle />
-          <ThemeToggle />
           <button
             type="button"
             aria-label={open ? t('Close menu') : t('Open menu')}
             onClick={() => setOpen((v) => !v)}
-            className="inline-grid h-10 w-10 place-items-center rounded-lg border-2 border-fg bg-surface text-fg shadow-brut-sm"
+            className="inline-grid h-10 w-10 place-items-center rounded-lg border border-border bg-surface text-fg shadow-soft"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -117,7 +114,7 @@ export function Navbar() {
       </div>
 
       {open ? (
-        <div className="mt-2 rounded-xl border-2 border-fg bg-surface shadow-brut p-3 md:hidden">
+        <div className="mt-2 rounded-xl border border-border bg-surface shadow-soft p-3 md:hidden">
           <nav className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (
               <a

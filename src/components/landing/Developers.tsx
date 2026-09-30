@@ -60,9 +60,9 @@ const TOOLS = [
 function Terminal({ promptText }: { promptText: string }) {
   const reduce = useReducedMotion();
   return (
-    <div className="overflow-hidden rounded-lg border-2 border-fg shadow-brut">
+    <div className="overflow-hidden rounded-lg border border-border shadow-soft">
       {/* title bar */}
-      <div className="flex items-center gap-2 border-b-2 border-fg bg-[#161b22] px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-border bg-[#161b22] px-4 py-3">
         <span aria-hidden className="h-3 w-3 rounded-full border border-black/40 bg-accent-rose" />
         <span aria-hidden className="h-3 w-3 rounded-full border border-black/40 bg-accent-amber" />
         <span aria-hidden className="h-3 w-3 rounded-full border border-black/40 bg-accent-emerald" />
@@ -153,11 +153,11 @@ export function Developers() {
                   key={step.title}
                   variants={popVariants}
                   whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 18 } }}
-                  className="brut-card flex items-start gap-4 p-5"
+                  className="surface-card flex items-start gap-4 p-5"
                 >
                   <span
                     className={cn(
-                      'grid h-11 w-11 shrink-0 place-items-center rounded-lg border-2 border-fg text-white shadow-brut-sm',
+                      'grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-border text-white shadow-soft',
                       ACCENT_BG[step.accent],
                     )}
                   >
@@ -180,7 +180,7 @@ export function Developers() {
 
         {/* Tool cloud */}
         <Reveal className="mt-6">
-          <div className="brut-card p-6">
+          <div className="surface-card p-6">
             <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-fg-muted">
               {t('Tools your agent gets')}
             </p>
@@ -188,7 +188,7 @@ export function Developers() {
               {TOOLS.map((tool) => (
                 <span
                   key={tool}
-                  className="inline-flex items-center gap-1.5 rounded-md border-2 border-fg bg-surface-2 px-2.5 py-1 font-mono text-xs font-semibold text-fg shadow-brut-sm"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-2 px-2.5 py-1 font-mono text-xs font-semibold text-fg shadow-soft"
                 >
                   <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-emerald" />
                   {tool}

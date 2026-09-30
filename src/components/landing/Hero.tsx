@@ -49,7 +49,7 @@ export function Hero() {
         animate="show"
       >
         <motion.div variants={rise} className="mb-6 inline-flex">
-          <Badge variant="blue" className="border-fg shadow-brut-sm">
+          <Badge variant="blue" className="border-border shadow-soft">
             <Sparkles className="h-3 w-3" />
             {t('Now in beta · realtime collaboration')}
           </Badge>
@@ -104,36 +104,36 @@ function HeroMockup() {
   const t = useT();
   return (
     <div className="relative mx-auto max-w-5xl">
-      <div className="rounded-lg border-2 border-fg bg-surface shadow-brut-lg overflow-hidden">
-        <div className="flex items-center gap-2 border-b-2 border-fg bg-surface-2 px-4 py-2">
-          <span className="h-3 w-3 rounded-full border-2 border-fg bg-accent-rose" />
-          <span className="h-3 w-3 rounded-full border-2 border-fg bg-accent-amber" />
-          <span className="h-3 w-3 rounded-full border-2 border-fg bg-accent-emerald" />
+      <div className="rounded-lg border border-border bg-surface shadow-soft overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border bg-surface-2 px-4 py-2">
+          <span className="h-3 w-3 rounded-full border border-border bg-accent-rose" />
+          <span className="h-3 w-3 rounded-full border border-border bg-accent-amber" />
+          <span className="h-3 w-3 rounded-full border border-border bg-accent-emerald" />
           <span className="ml-3 truncate font-mono text-xs text-fg-muted">chainwork.app / chain / 7K2NPQXA</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr_220px]">
-          <div className="hidden md:flex flex-col gap-2 p-4 border-r-2 border-fg/30">
+          <div className="hidden md:flex flex-col gap-2 p-4 border-r border-border/30">
             <p className="font-display font-bold text-xs uppercase tracking-wider text-fg-muted">{t('Workspace')}</p>
-            <div className="rounded-md border-2 border-fg bg-accent-blue px-3 py-1.5 text-xs font-bold text-white shadow-brut-sm">
+            <div className="rounded-md border border-border bg-accent-blue px-3 py-1.5 text-xs font-bold text-white shadow-soft">
               {t('Projects')}
             </div>
             <div className="rounded-md px-3 py-1.5 text-xs font-semibold text-fg-muted">{t('Ideas')}</div>
             <div className="rounded-md px-3 py-1.5 text-xs font-semibold text-fg-muted">{t('All Todos')}</div>
           </div>
-          <div className="p-5 space-y-3 border-t-2 md:border-t-0 md:border-r-2 border-fg/30">
+          <div className="p-5 space-y-3 border-t md:border-t-0 md:border-r border-border/30">
             <p className="font-display font-bold text-lg">Launchpad</p>
-            <div className="flex items-center gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
-              <span className="h-3 w-3 rounded-full bg-accent-amber border-2 border-fg" />
+            <div className="flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3">
+              <span className="h-3 w-3 rounded-full bg-accent-amber border border-border" />
               <span className="text-sm font-medium">{t('Wire up auth guard')}</span>
               <span className="ml-auto font-mono text-xs text-fg-muted">in_progress</span>
             </div>
-            <div className="flex items-center gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
-              <span className="h-3 w-3 rounded-full bg-accent-emerald border-2 border-fg" />
+            <div className="flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3">
+              <span className="h-3 w-3 rounded-full bg-accent-emerald border border-border" />
               <span className="text-sm font-medium line-through opacity-60">{t('Design members panel')}</span>
               <span className="ml-auto font-mono text-xs text-fg-muted">done</span>
             </div>
-            <div className="flex items-center gap-3 rounded-md border-2 border-fg bg-surface-2 p-3">
-              <span className="h-3 w-3 rounded-full bg-fg-muted border-2 border-fg" />
+            <div className="flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3">
+              <span className="h-3 w-3 rounded-full bg-fg-muted border border-border" />
               <span className="text-sm font-medium">{t('Plan launch tweet')}</span>
               <span className="ml-auto font-mono text-xs text-fg-muted">pending</span>
             </div>
@@ -152,8 +152,8 @@ function HeroMockup() {
 
 function Member({ name, role, color }: { name: string; role: string; color: 'emerald' | 'muted' }) {
   return (
-    <div className="flex items-center gap-2 rounded-md border-2 border-fg bg-surface-2 px-2 py-1.5">
-      <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-fg bg-accent-blue text-[10px] font-bold text-white">
+    <div className="flex items-center gap-2 rounded-md border border-border bg-surface-2 px-2 py-1.5">
+      <span className="grid h-7 w-7 place-items-center rounded-full border border-border bg-accent-blue text-[10px] font-bold text-white">
         {name[0]}
       </span>
       <div className="flex-1">

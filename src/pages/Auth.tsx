@@ -62,7 +62,7 @@ export default function AuthPage() {
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-24 sm:px-6">
         <Card className="p-2 sm:p-3">
-          <div className="grid grid-cols-2 gap-1 rounded-md border-2 border-fg bg-surface-2 p-1">
+          <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-surface-2 p-1">
             <TabButton active={mode === 'login'} onClick={() => changeMode('login')}>
               {t('Login')}
             </TabButton>
@@ -134,7 +134,7 @@ function TabButton({
       aria-pressed={active}
       className={cn(
         'rounded-md px-3 py-2 text-sm font-bold font-display tracking-tight transition-colors',
-        active ? 'bg-accent-blue text-white border-2 border-fg' : 'text-fg-muted hover:text-fg',
+        active ? 'bg-accent-blue text-white border border-border' : 'text-fg-muted hover:text-fg',
       )}
     >
       {children}

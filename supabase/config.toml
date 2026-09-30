@@ -1,0 +1,7 @@
+[functions.dynamic-task]
+verify_jwt = false
+entrypoint = "./functions/mcp/index.ts"
+
+[functions.mcp]
+verify_jwt = false
+entrypoint = "./functions/mcp/index.ts"

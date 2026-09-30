@@ -88,7 +88,7 @@ export function ContextMenu({ items, children, disabled, className }: Props) {
               ref={menuRef}
               role="menu"
               style={{ position: 'fixed', top: pos.y, left: pos.x }}
-              className="z-[80] min-w-[12rem] animate-fade-rise overflow-hidden rounded-lg border-2 border-fg bg-surface p-1 text-fg shadow-brut"
+              className="z-[80] min-w-[12rem] animate-fade-rise overflow-hidden rounded-lg border border-border bg-surface p-1 text-fg shadow-soft"
             >
               {items.map((item) => (
                 <button

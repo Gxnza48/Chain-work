@@ -130,7 +130,7 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
                   </div>
                   {online && device ? (
                     <span
-                      className="grid h-5 w-5 place-items-center rounded border border-fg/30 bg-surface-2 text-accent-emerald"
+                      className="grid h-5 w-5 place-items-center rounded border border-border/30 bg-surface-2 text-accent-emerald"
                       title={device === 'mobile' ? t('Online from a phone') : t('Online from a computer')}
                       aria-label={device === 'mobile' ? t('Online from a phone') : t('Online from a computer')}
                     >
@@ -170,7 +170,7 @@ export function MembersPanel({ chainId, members, myRole, onChanged }: Props) {
         ) : null}
       </ul>
       {isOwner ? (
-        <div className="border-t-2 border-fg/20 px-4 py-2 text-[11px] text-fg-muted">
+        <div className="border-t border-border/20 px-4 py-2 text-[11px] text-fg-muted">
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3.5 w-3.5" /> {t('You manage this chain')}
           </span>

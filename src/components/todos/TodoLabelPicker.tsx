@@ -31,7 +31,7 @@ export function TodoLabelPicker({ allLabels, assignedIds, onToggle, onManage }: 
             const on = assignedIds.includes(l.id);
             return (
               <DropdownMenuItem key={l.id} onSelect={(e) => { e.preventDefault(); onToggle(l.id, on); }}>
-                <span className={cn('h-2.5 w-2.5 rounded-full border border-fg', labelColorMeta(l.color).dot)} />
+                <span className={cn('h-2.5 w-2.5 rounded-full border border-border', labelColorMeta(l.color).dot)} />
                 <span className="truncate">{l.name}</span>
                 {on ? <Check className="ml-auto h-3.5 w-3.5" /> : null}
               </DropdownMenuItem>

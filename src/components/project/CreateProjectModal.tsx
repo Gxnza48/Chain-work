@@ -169,7 +169,7 @@ export function CreateProjectModal({ chainId, open, onOpenChange, onCreated }: P
                       onClick={() => setTemplate(tpl.id)}
                       aria-pressed={active}
                       className={cn(
-                        'flex items-center gap-2 rounded-lg border-2 border-fg px-3 py-2 text-left shadow-brut-sm transition-colors',
+                        'flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-left shadow-soft transition-colors',
                         active ? 'bg-accent-blue text-white' : 'bg-surface text-fg hover:bg-surface-2',
                       )}
                     >
