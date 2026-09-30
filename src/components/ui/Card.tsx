@@ -1,11 +1,12 @@
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
+import { Card as CojeevCard } from '@/components/cojeev/card';
 
 export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
+    <CojeevCard
       ref={ref}
-      className={cn('rounded-lg border border-border bg-surface shadow-soft text-fg', className)}
+      className={cn('cw-app-card rounded-lg border border-border bg-surface p-0 shadow-soft text-fg', className)}
       {...props}
     />
   ),

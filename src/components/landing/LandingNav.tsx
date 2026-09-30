@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowUpRight, Menu, Moon, Sun, X } from "lucide-react";
-import { Button } from "./cojeev";
+import { Button } from "@/components/cojeev";
 import { Logo } from "@/components/layout/Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useThemeStore } from "@/store/theme";

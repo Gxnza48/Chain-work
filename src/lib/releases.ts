@@ -1,5 +1,21 @@
 export const releases = [
   {
+    version: "2.0.3",
+    date: "2026-09-30",
+    title: { es: "Movimiento que acompaña tu trabajo", en: "Motion that follows your work" },
+    summary: {
+      es: "Animaciones al recorrer la landing y componentes Cojeev en el dashboard, proyectos, tareas y formularios.",
+      en: "Scroll-triggered landing motion and Cojeev components across the dashboard, projects, tasks and forms.",
+    },
+    changes: [
+      { es: "Las secciones y tarjetas aparecen al entrar en pantalla, también en móvil.", en: "Sections and cards animate as they enter the viewport, including on mobile." },
+      { es: "Nuevos botones, tarjetas, pestañas, campos, avatares, badges, estados de carga y progreso en la app.", en: "Cojeev buttons, cards, tabs, inputs, avatars, badges, loading states and progress throughout the app." },
+      { es: "Checkboxes para tareas y subtareas, contadores animados y navegación por breadcrumbs.", en: "Checkboxes for task selection and subtasks, animated counters and breadcrumb navigation." },
+      { es: "Respuesta al toque, controles táctiles más cómodos y menor carga inicial de configuración.", en: "Touch feedback, larger touch controls and deferred appearance settings code." },
+      { es: "Se conservan formularios, navegación, preferencias de movimiento y todos tus datos.", en: "Existing forms, navigation, motion preferences and all your data are preserved." },
+    ],
+  },
+  {
     version: "2.0.2",
     date: "2026-09-30",
     title: {

@@ -1,3 +1,5 @@
+import { MotionSurface } from "@/components/ui/Presence";
+import { AnimatedNumber } from "@/components/cojeev/animated-number";
 import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
@@ -100,7 +102,7 @@ export function ProjectCard({
 
   return (
     <ContextMenu items={menuItems} disabled={!canManage}>
-      <div
+      <MotionSurface reveal preset="rise" asChild><div
         onClick={() => {
           if (!editing) onOpen?.(project.id);
         }}
@@ -224,7 +226,7 @@ export function ProjectCard({
                     total: project.total_todos,
                   })}
                 </span>
-                <span>{pct}%</span>
+                <span><AnimatedNumber value={pct} duration={450} />%</span>
               </div>
               <Progress
                 value={pct}
@@ -278,7 +280,7 @@ export function ProjectCard({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div></MotionSurface>
     </ContextMenu>
   );
 }

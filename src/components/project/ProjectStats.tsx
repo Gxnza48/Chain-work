@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Circle, Clock, Lightbulb, Paperclip } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { AnimatedNumber } from '@/components/cojeev/animated-number';
+import { Card } from '@/components/ui/Card';
 import { PRIORITY_META, PRIORITY_ORDER } from '@/components/todos/priority';
 import { cn, dueState } from '@/lib/utils';
 import { useT } from '@/lib/i18n';
@@ -88,14 +90,14 @@ export function ProjectStats({ projectId, refreshSignal }: Props) {
   const seg = (n: number) => (total === 0 ? 0 : (n / total) * 100);
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-4 shadow-soft">
+    <Card className="p-4">
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="font-display text-xs font-bold uppercase tracking-[0.18em] text-fg-muted">
             {t('Project overview')}
           </p>
           <p className="mt-1 font-display text-3xl font-bold tracking-tight">
-            {pct}
+            <AnimatedNumber value={pct} duration={450} />
             <span className="text-lg text-fg-muted">% {t('complete')}</span>
           </p>
         </div>
@@ -135,7 +137,7 @@ export function ProjectStats({ projectId, refreshSignal }: Props) {
           ))}
         </div>
       ) : null}
-    </div>
+    </Card>
   );
 }
 
@@ -161,7 +163,7 @@ function Tile({
     <div className="rounded-md border border-border bg-surface-2 p-2.5">
       <div className={cn('flex items-center gap-1.5', TONE[tone])}>
         {icon}
-        <span className="font-display text-xl font-bold tracking-tight">{value}</span>
+        <AnimatedNumber value={value} duration={450} className="font-display text-xl font-bold tracking-tight" />
       </div>
       <p className="mt-0.5 text-[11px] font-semibold text-fg-muted">{label}</p>
     </div>

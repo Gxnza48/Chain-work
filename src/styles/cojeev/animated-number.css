@@ -1,0 +1,13 @@
+@layer cojeev-states {
+.v-animated-number{display:inline-block;max-inline-size:100%;font-variant-numeric:tabular-nums;vertical-align:baseline;unicode-bidi:isolate}
+.v-animated-number__visual{white-space:pre-wrap;overflow-wrap:anywhere}
+.v-animated-number__accessible{position:absolute;inline-size:1px;block-size:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.v-animated-number__digit{display:inline-block;position:relative;inline-size:1ch;block-size:1.15em;overflow:hidden;vertical-align:-.15em;text-align:center;line-height:1.15}
+.v-animated-number__track{display:flex;flex-direction:column;block-size:2.3em;will-change:translate}
+.v-animated-number__track>span{display:block;flex:none;block-size:1.15em;line-height:1.15}
+.v-animated-number__pose{display:inline-block;white-space:pre}
+.v-animated-number[data-quiet="true"] .v-animated-number__track{will-change:auto}
+.v-animated-number__run{display:inline-flex;direction:ltr;unicode-bidi:isolate;flex-wrap:wrap;max-inline-size:100%;align-items:baseline;vertical-align:-.15em}
+.v-animated-number__run .v-animated-number__digit{flex:none;vertical-align:baseline}
+
+}

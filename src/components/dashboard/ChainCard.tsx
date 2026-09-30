@@ -1,3 +1,5 @@
+import { MotionSurface } from "@/components/ui/Presence";
+import { AnimatedNumber } from "@/components/cojeev/animated-number";
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -15,7 +17,7 @@ export function ChainCard({ chain }: Props) {
   useRelativeTimeTick();
   const t = useT();
   return (
-    <Link to={`/chain/${chain.id}`} className="block group focus:outline-none">
+    <MotionSurface reveal preset="rise" asChild><Link to={`/chain/${chain.id}`} className="block group focus:outline-none">
       <Card className="surface-hover transition-[transform,box-shadow] hover:shadow-soft">
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
@@ -27,7 +29,7 @@ export function ChainCard({ chain }: Props) {
           </div>
           <div className="flex items-center justify-between text-xs">
             <Badge variant="neutral">
-              <Users className="h-3 w-3" /> {chain.member_count}{' '}
+              <Users className="h-3 w-3" /> <AnimatedNumber value={chain.member_count} duration={400} />{' '}
               {chain.member_count === 1 ? t('member') : t('members')}
             </Badge>
             <span className="font-mono text-xs text-fg-muted">
@@ -38,6 +40,6 @@ export function ChainCard({ chain }: Props) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </Link></MotionSurface>
   );
 }

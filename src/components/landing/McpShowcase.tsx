@@ -14,7 +14,7 @@ import { AgentIcon } from "@/components/ui/AgentIcon";
 import { AgentState } from "@/components/ui/agent-state";
 import { MotionPresence, MotionSurface } from "@/components/ui/Presence";
 import { useChoreography } from "@/lib/cojeev-motion/choreography";
-import { Badge, Button, Card } from "@/components/landing/cojeev";
+import { Badge, Button, Card } from "@/components/cojeev";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
 import "./mcp-showcase.css";
@@ -71,6 +71,7 @@ export function McpShowcase() {
   const assistantName = assistant === "codex" ? "Codex" : "Claude Code";
 
   return (
+    <MotionSurface reveal preset="rise" asChild>
     <section
       id="developers"
       className="cw-mcp"
@@ -334,5 +335,6 @@ export function McpShowcase() {
         </Card>
       </div>
     </section>
+    </MotionSurface>
   );
 }

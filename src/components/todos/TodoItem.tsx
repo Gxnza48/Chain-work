@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/Button";
+import { Item } from "@/components/cojeev/item";
+import { Checkbox } from "@/components/cojeev/checkbox";
 import { useEffect, useState } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
@@ -273,7 +276,7 @@ export function TodoItem({
   }
 
   return (
-    <li
+    <Item as="li"
       ref={canDrag ? sortable.setNodeRef : undefined}
       style={style}
       className={cn(
@@ -283,21 +286,8 @@ export function TodoItem({
       )}
     >
       {selectable ? (
-        <button
-          type="button"
-          onClick={onToggleSelected}
-          role="checkbox"
-          aria-checked={selected}
-          aria-label={t("Select todo")}
-          className={cn(
-            "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-border shadow-soft transition-colors",
-            selected
-              ? "bg-accent-blue text-white"
-              : "bg-surface text-transparent hover:bg-surface-2",
-          )}
-        >
-          <Check className="h-4 w-4" />
-        </button>
+        <Checkbox checked={selected} onCheckedChange={() => onToggleSelected?.()}
+          aria-label={t("Select todo")} shape="rounded" indicator="check" className="cw-app-checkbox shrink-0" />
       ) : (
         <>
           {canDrag ? (
@@ -531,7 +521,7 @@ export function TodoItem({
           milestoneTitle={milestoneTitle}
         />
       ) : null}
-    </li>
+    </Item>
   );
 }
 
@@ -564,18 +554,22 @@ function StatusButton({ status, busy, onCycle, t }: StatusButtonProps) {
   );
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
+      data-status={status}
+      data-cw-variant="status"
       type="button"
       onClick={() => onCycle(next)}
       disabled={busy}
       aria-label={t("Mark as {status}", { status: t(STATUS_LABEL[next]) })}
-      className={className}
+      className={cn("cw-app-status-button", className)}
     >
       {busy ? (
         <Loader2 className="h-3 w-3 animate-spin text-fg" />
       ) : (
         <Check className="h-3 w-3" />
       )}
-    </button>
+    </Button>
   );
 }

@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback } from "@/components/cojeev/avatar";
 import { useState } from "react";
 import {
   Check,
@@ -19,7 +20,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "./cojeev";
+} from "@/components/cojeev";
 import { useT } from "@/lib/i18n";
 
 const steps = [
@@ -47,6 +48,7 @@ export function WorkflowSection() {
   const t = useT();
   const [step, setStep] = useState("team");
   return (
+    <MotionSurface reveal preset="rise" asChild>
     <section
       id="how-it-works"
       className="cw-container cw-section"
@@ -131,9 +133,9 @@ export function WorkflowSection() {
                     </p>
                     <div className="cw-workflow-items">
                       <Item as="div">
-                        <span className="cw-avatar">
+                        <Avatar className="cw-avatar"><AvatarFallback>
                           {id === "team" ? "GB" : "01"}
-                        </span>
+                        </AvatarFallback></Avatar>
                         <ItemContent>
                           <ItemTitle>
                             {t(
@@ -157,9 +159,9 @@ export function WorkflowSection() {
                         <Check size={15} aria-hidden="true" />
                       </Item>
                       <Item as="div">
-                        <span className="cw-avatar">
+                        <Avatar className="cw-avatar"><AvatarFallback>
                           {id === "team" ? "AC" : "02"}
-                        </span>
+                        </AvatarFallback></Avatar>
                         <ItemContent>
                           <ItemTitle>
                             {t(
@@ -194,5 +196,6 @@ export function WorkflowSection() {
         </div>
       </Tabs>
     </section>
+    </MotionSurface>
   );
 }

@@ -129,6 +129,9 @@ describe("Landing interaction and preservation", () => {
     expect(
       container.querySelector('[data-motion-quiet="true"]'),
     ).not.toBeNull();
+    expect([...container.querySelectorAll('[data-motion-surface]')].every(
+      (element) => element.getAttribute('data-motion-quiet') === 'true',
+    )).toBe(true);
     fireEvent.click(
       screen.getByRole("button", { name: "Claude Code", exact: true }),
     );

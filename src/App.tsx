@@ -17,7 +17,7 @@ import { useAuthStore } from "./store/auth";
 import { useThemeStore } from "./store/theme";
 import { useUIStore } from "./store/ui";
 import { isTypingTarget } from "./lib/utils";
-import { AppearanceProvider } from "./components/ui/appearance";
+import { AppearanceProvider } from "./components/ui/appearance-provider";
 
 export default function App() {
   const initialize = useAuthStore((s) => s.initialize);

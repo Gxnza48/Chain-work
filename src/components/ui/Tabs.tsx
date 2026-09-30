@@ -1,14 +1,15 @@
 import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as CojeevTabs from '@/components/cojeev/tabs';
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-export const Tabs = TabsPrimitive.Root;
+export const Tabs = CojeevTabs.Tabs;
 
 export const TabsList = forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
+  <CojeevTabs.TabsList
     ref={ref}
     className={cn(
       'flex w-full flex-wrap items-center gap-1 rounded-lg bg-surface-2 p-1 sm:inline-flex sm:w-auto',
@@ -23,7 +24,7 @@ export const TabsTrigger = forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
+  <CojeevTabs.TabsTrigger
     ref={ref}
     className={cn(
       'inline-flex min-w-0 flex-none whitespace-nowrap items-center justify-center rounded-md px-3 py-1.5 text-center sm:flex-none',
@@ -42,6 +43,6 @@ export const TabsContent = forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content ref={ref} className={cn('mt-4 focus-visible:outline-none', className)} {...props} />
+  <CojeevTabs.TabsContent ref={ref} className={cn('mt-4 focus-visible:outline-none', className)} {...props} />
 ));
 TabsContent.displayName = 'TabsContent';

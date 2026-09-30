@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Badge as CojeevBadge } from '@/components/cojeev/badge';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
@@ -24,6 +25,6 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(({ className, variant, ...props }, ref) => (
-  <span ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />
+  <CojeevBadge ref={ref} className={cn('cw-app-badge', badgeVariants({ variant }), className)} {...props} />
 ));
 Badge.displayName = 'Badge';

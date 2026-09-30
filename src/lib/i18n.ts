@@ -1,4 +1,5 @@
 import { useLangStore, type Lang } from '@/store/lang';
+import { useCallback } from 'react';
 import { esV2 } from './i18n-v2';
 import { esLanding } from './i18n-landing';
 import { esPreview } from './i18n-preview';
@@ -847,5 +848,5 @@ export type TFn = (key: string, vars?: Record<string, string | number>) => strin
  */
 export function useT(): TFn {
   const lang = useLangStore((s) => s.lang);
-  return (key, vars) => translate(lang, key, vars);
+  return useCallback<TFn>((key, vars) => translate(lang, key, vars), [lang]);
 }

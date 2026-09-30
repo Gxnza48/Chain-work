@@ -1,3 +1,4 @@
+import { HeroButton } from "@/components/cojeev/hero-button";
 import { Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, Check, ChevronRight } from "lucide-react";
 import { MotionSurface } from "@/components/ui/Presence";
@@ -8,7 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "./cojeev";
+} from "@/components/cojeev";
 import { ProductPreview } from "./ProductPreview";
 import { WorkflowSection } from "./WorkflowSection";
 import { FeatureSection } from "./FeatureSection";
@@ -65,12 +66,12 @@ export function LandingExperience() {
                 )}
               </p>
               <div className="cw-actions">
-                <Button asChild size="lg">
+                <HeroButton asChild size="lg" appearance="split-arrow" shape="capsule">
                   <Link to={destination}>
                     {t(user ? "Open dashboard" : "Start building free")}
                     <ArrowRight size={17} aria-hidden="true" />
                   </Link>
-                </Button>
+                </HeroButton>
                 <Button asChild variant="ghost" size="sm">
                   <a href="#workspace-preview">
                     {t("Take a look inside")}
@@ -87,6 +88,7 @@ export function LandingExperience() {
         <MotionSurface
           preset="rise"
           delay={0.12}
+          reveal
           className="cw-hero-preview"
           id="workspace-preview"
         >
@@ -114,6 +116,7 @@ export function LandingExperience() {
       <WorkflowSection />
       <FeatureSection />
       <McpShowcase />
+      <MotionSurface reveal preset="rise" asChild>
       <section
         id="faq"
         className="cw-section cw-container cw-faq"
@@ -135,6 +138,8 @@ export function LandingExperience() {
           ))}
         </Accordion>
       </section>
+      </MotionSurface>
+      <MotionSurface reveal preset="rise" asChild>
       <section
         className="cw-container cw-closing"
         aria-labelledby="closing-title"
@@ -144,13 +149,13 @@ export function LandingExperience() {
           <h2 id="closing-title">{t("Make room for great work.")}</h2>
           <p>{t("Start a chain. Bring your team. Build what is next.")}</p>
         </div>
-        <Button asChild size="lg">
+        <HeroButton asChild size="lg" appearance="split-arrow" shape="capsule">
           <Link to={destination}>
             {t(user ? "Open dashboard" : "Start building free")}
-            <ArrowRight size={18} aria-hidden="true" />
           </Link>
-        </Button>
+        </HeroButton>
       </section>
+      </MotionSurface>
     </>
   );
 }

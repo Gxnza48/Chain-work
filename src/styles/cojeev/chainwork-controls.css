@@ -1,0 +1,61 @@
+/* ChainWork adapters preserve caller sizing and semantic status colors. */
+@layer components {
+  .cw-app-button { border-radius: 10px; --primary: rgb(var(--fg)); --primary-foreground: rgb(var(--bg)); --v-text: rgb(var(--fg)); --v-beige: rgb(var(--surface-2)); --v-edge: rgb(var(--border)); }
+  .cw-app-card { --card: rgb(var(--surface)); --card-foreground: rgb(var(--fg)); --r-card: 14px; --card-pad: 0px; }
+  .cw-app-input { --input: rgb(var(--surface-2)); --foreground: rgb(var(--fg)); --ring: rgb(var(--fg)); --v-text: rgb(var(--fg)); --v-text-3: rgb(var(--fg-muted)); --v-beige: rgb(var(--surface-2)); --v-edge: rgb(var(--border)); }
+  .cw-app-avatar { --v-canvas: rgb(var(--surface)); --v-beige: rgb(var(--surface-2)); --v-text: rgb(var(--fg)); }
+  .cw-app-badge { --v-beige: rgb(var(--surface-2)); --v-text: rgb(var(--fg)); }
+  .cw-app-skeleton { --v-skel-face: rgb(var(--surface-2)); --v-skel-sheen: rgb(var(--fg) / .08); --v-skel-edge: rgb(var(--border)); border-radius: 10px; }
+  .cw-app-checkbox { min-width: 44px; min-height: 44px; justify-content: center; --v-pink: rgb(var(--fg)); --v-on-accent: rgb(var(--bg)); --v-text: rgb(var(--fg)); --v-beige: rgb(var(--surface-2)); --v-edge: rgb(var(--border)); }
+}
+/* Keep press feedback visible on touch devices, which never fire hover. */
+/* The registry's dark palette selector is more specific than utility classes. */
+.cw-app-button[data-slot] { background: var(--cw-button-fill, rgb(var(--fg))) !important; color: var(--cw-button-ink, rgb(var(--bg))) !important; border-radius: 10px; }
+.cw-app-button[data-cw-variant="secondary"] { --cw-button-fill: rgb(var(--surface-2)); --cw-button-ink: rgb(var(--fg)); }
+.cw-app-button:is([data-cw-variant="ghost"], [data-cw-variant="outline"]) { --cw-button-fill: transparent; --cw-button-ink: rgb(var(--fg)); }
+.cw-app-button[data-cw-variant="danger"] { --cw-button-fill: rgb(var(--accent-rose) / .1); --cw-button-ink: rgb(var(--accent-rose)); }
+@media (hover: hover) {
+  .cw-app-button:is([data-cw-variant="ghost"], [data-cw-variant="outline"]):hover:not(:disabled) { --cw-button-fill: rgb(var(--surface-2)); }
+  .cw-app-button:is([data-cw-variant="primary"], [data-cw-variant="accent"]):hover:not(:disabled) { --cw-button-fill: rgb(var(--fg) / .9); }
+}
+.cw-app-button[data-slot] > svg.v-morph > [data-morph-body] { fill: var(--cw-button-fill, rgb(var(--fg))); }
+.cw-app-status-button[data-slot] { border-radius: 50%; }
+.cw-app-status-button[data-status="pending"] { --cw-button-fill: rgb(var(--surface-2)); --cw-button-ink: transparent; }
+.cw-app-status-button[data-status="in_progress"] { --cw-button-fill: rgb(var(--accent-amber)); --cw-button-ink: rgb(var(--bg)); }
+.cw-app-status-button[data-status="done"] { --cw-button-fill: rgb(var(--accent-emerald)); --cw-button-ink: rgb(var(--bg)); }
+.cw-app-card[data-slot] > svg.v-morph > [data-morph-body] { fill: rgb(var(--surface)); }
+[data-slot="tabs-list"].v-glide { position: relative; isolation: isolate; --glide-bg: rgb(var(--surface)); }
+[data-slot="tabs-list"].v-glide > :is(.v-glide__pill, .v-glide__hover, .v-glide__trail) { position: absolute; inset: 0 auto auto 0; width: var(--glide-w, 0px); height: var(--glide-h, 0px); border-radius: var(--glide-r, 8px); opacity: var(--glide-o, 0); transform: translate3d(var(--glide-x, 0px), var(--glide-y, 0px), 0); pointer-events: none; z-index: 0; }
+[data-slot="tabs-list"].v-glide > .v-glide__hover, [data-slot="tabs-list"].v-glide > .v-glide__trail { display: none; }
+[data-slot="tabs-list"].v-glide > .v-glide__pill > i { position: absolute; inset: 0; border-radius: inherit; background: var(--glide-bg); }
+[data-slot="tabs-trigger"] { position: relative; z-index: 1; }
+.cw-app-progress .v-progress__paint { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cw-app-progress .v-progress__track { fill: rgb(var(--surface-2)); }
+.cw-app-progress .v-progress__fill { fill: rgb(var(--accent-blue)); }
+.cw-app-progress[data-complete] .v-progress__fill { fill: rgb(var(--accent-emerald)); }
+.cw-app-progress [data-slot="progress-indicator"] { display: none; }
+.cw-app-input:focus { --v-pink-soft: rgb(var(--surface)); --v-brand: rgb(var(--fg)); }
+.cw-landing .v-btn.v-hero-button[data-slot] { --hero-fill: rgb(var(--fg)); --hero-ink: rgb(var(--bg)); --hero-edge: rgb(var(--fg)); min-width: 0; height: 52px; font-size: 14px; }
+.cw-landing .v-hero-button > svg.v-morph > [data-morph-body] { fill: rgb(var(--fg)); stroke: rgb(var(--fg)); }
+html:has(.cw-landing) { scroll-padding-top: 88px; }
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.cw-landing):not([data-flow="off"]) { scroll-behavior: smooth; }
+}
+:root[data-flow="off"] :is(.cw-app-button, .cw-landing .v-btn):active { transform: none; }
+@media (max-width: 600px) {
+  .cw-landing .cw-feature { padding: 20px; }
+  .cw-landing .cw-feature-art { min-height: 140px; padding-block: 20px; }
+  .cw-landing .cw-workflow-step { min-height: 64px; }
+  .cw-landing .v-hero-button { width: 100%; }
+  .cw-landing .cw-hero-actions { align-items: stretch; }
+}
+@media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .cw-app-button:active:not(:disabled), .cw-landing .v-btn:active:not(:disabled) { transform: scale(.97); }
+}
+@media (pointer: coarse), (max-width: 640px) {
+  .cw-app-button[data-slot], .cw-app-checkbox { min-height: 44px; min-width: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cw-app-button { transition-duration: 0ms; }
+  .cw-app-skeleton { animation: none; }
+}

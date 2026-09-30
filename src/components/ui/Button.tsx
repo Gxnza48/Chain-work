@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Slot } from '@radix-ui/react-slot';
+import { Button as CojeevButton } from '@/components/cojeev/button';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
@@ -51,10 +51,14 @@ export interface ButtonProps
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, block, asChild, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+  ({ className, variant, size, block, asChild, type, ...props }, ref) => {
     return (
-      <Comp ref={ref} className={cn(buttonVariants({ variant, size, block }), className)} {...props} />
+      <CojeevButton ref={ref} asChild={asChild} shape="pill"
+        type={type ?? 'submit'}
+        data-cw-variant={variant ?? 'primary'}
+        variant={variant === 'ghost' || variant === 'outline' || variant === 'danger' ? variant : 'default'}
+        size={size === 'md' || !size ? 'default' : size}
+        className={cn('cw-app-button', buttonVariants({ variant, size, block }), className)} {...props} />
     );
   },
 );

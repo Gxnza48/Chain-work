@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.3 — 2026-09-30
+
+### Mobile motion and shared Cojeev application controls
+
+- Trigger landing section and individual feature-card entrances when they enter the viewport; off-screen entrances no longer finish during the initial load. Retain immediate content for reduced motion and disabled flow preferences.
+- Add native smooth anchor navigation, visible touch press feedback, compact mobile feature art and 44px application touch targets.
+- Promote the existing registry components to `src/components/cojeev/`; application Button, Card, Badge, Tabs and Progress now delegate to those actual sources while preserving their existing props, native form submission, handlers and semantic status colors.
+- Install real registry Input, Avatar, Checkbox, Skeleton, Animated Number, Breadcrumb and Hero Button components. Use fields, avatars and loading states throughout the app; native Item task rows and touch-friendly status buttons; checkboxes in bulk task selection and subtasks; counters in project statistics, project cards, chains and landing milestone progress; breadcrumbs in chains; Hero Button and avatars in the landing.
+- Separate the appearance provider from the settings UI so settings controls and their icon dependencies can load on demand. Keep persisted preferences and portalled controls working.
+- Stabilize the translation hook between language changes to prevent translation-dependent loaders, especially subtasks, from repeatedly reloading and blocking the view.
+- Preserve task status cycles, drag-and-drop, filters, permissions, authentication and database/API behavior. No migrations or production data mutations.
+- Add integration coverage for keyboard tab selection, checkboxes, native inputs, disabled slotted links and existing form submission semantics.
+
 ## 2.0.2 — 2026-09-30
 
 ### Landing rebuilt with 000h / Cojeev

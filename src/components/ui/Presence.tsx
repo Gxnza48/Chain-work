@@ -117,6 +117,8 @@ export type MotionSurfaceProps = HTMLMotionProps<"div"> & {
   /** Merge onto exactly one ref-capable child, preserving its native element. */
   asChild?: boolean;
   preset?: PresencePreset;
+  /** Start the entrance when the user reaches this surface, including touch scrolling. */
+  reveal?: boolean;
   /** Seconds; use motionTokens.stagger for a coordinated sibling sequence. */
   delay?: number;
   /** Seconds before exit; cap sibling staggering yourself to a short total window. */
@@ -129,6 +131,7 @@ export type MotionSurfaceProps = HTMLMotionProps<"div"> & {
 export function MotionSurface({
   asChild = false,
   preset = "rise",
+  reveal = false,
   delay = 0,
   exitDelay = 0,
   exitDuration,
@@ -187,7 +190,9 @@ export function MotionSurface({
       aria-hidden={!isPresent ? true : props["aria-hidden"]}
       className={cn("v-motion-surface", className)}
       initial={quiet ? false : (initial ?? states.initial)}
-      animate={quiet ? states.animate : (animate ?? states.animate)}
+      animate={quiet ? states.animate : reveal ? undefined : (animate ?? states.animate)}
+      whileInView={!quiet && reveal ? states.animate : undefined}
+      viewport={reveal ? { once: true, amount: 0.08 } : undefined}
       exit={
         quiet
           ? { ...states.animate, transition: { duration: 0, delay: 0 } }

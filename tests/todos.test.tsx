@@ -9,6 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { TodoList } from "../src/components/todos/TodoList";
+import { installMotionEnvironment } from './helpers/motion';
 
 const records = [
   {
@@ -106,6 +107,7 @@ vi.mock("@/components/todos/LabelManager", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 beforeEach(() => {
+  installMotionEnvironment();
   state.fail = false;
   localStorage.clear();
 });

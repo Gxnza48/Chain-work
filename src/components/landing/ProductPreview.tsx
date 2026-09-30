@@ -1,3 +1,4 @@
+import { AnimatedNumber } from "@/components/cojeev/animated-number";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -31,7 +32,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@/components/landing/cojeev";
+} from "@/components/cojeev";
 import "./product-preview.css";
 
 const tasks = [
@@ -370,7 +371,7 @@ export function ProductPreview() {
             <div className="cw-preview__milestone-copy">
               <Flag size={15} aria-hidden="true" />
               <span>{t("Launch milestone")}</span>
-              <strong>{progress}%</strong>
+              <strong><AnimatedNumber value={progress} duration={450} />%</strong>
             </div>
             <Progress
               value={completed.length}

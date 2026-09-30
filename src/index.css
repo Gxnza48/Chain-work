@@ -4,6 +4,7 @@
 @import "@/styles/cojeev/scroll-reveal.css";
 @import "@/styles/cojeev/spinner.css";
 @import "@/styles/cojeev/presence.css";
+@import "@/styles/cojeev/morph.css";
 @import "@/styles/cojeev/button.css";
 @import "@/styles/cojeev/control-appearance.css";
 @import "@/styles/cojeev/card.css";
@@ -20,6 +21,15 @@
 @import "@/styles/cojeev/item-adornment.css";
 @import "@/styles/cojeev/select.css";
 @import "@/styles/cojeev/appearance.css";
+@import "@/styles/cojeev/input.css";
+@import "@/styles/cojeev/avatar.css";
+@import "@/styles/cojeev/skeleton.css";
+@import "@/styles/cojeev/checkbox.css";
+@import "@/styles/cojeev/choice-foundations.css";
+@import "@/styles/cojeev/animated-number.css";
+@import "@/styles/cojeev/hero-button.css";
+@import "@/styles/cojeev/breadcrumb.css";
+@import "@/styles/cojeev/chainwork-controls.css";
 
 @custom-variant dark (&:is(.dark *));
 @config "../tailwind.config.ts";

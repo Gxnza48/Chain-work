@@ -1,3 +1,4 @@
+import { MotionSurface } from "@/components/ui/Presence";
 import {
   Check,
   FileText,
@@ -10,7 +11,7 @@ import {
 } from "lucide-react";
 import { BentoGrid, type BentoLayout } from "@/components/ui/bento-grid";
 import { AgentIcon } from "@/components/ui/AgentIcon";
-import { Badge, Item, ItemContent, ItemTitle, Progress } from "./cojeev";
+import { Badge, Item, ItemContent, ItemTitle, Progress } from "@/components/cojeev";
 import { useT } from "@/lib/i18n";
 
 const layout: BentoLayout = {
@@ -50,6 +51,7 @@ const features = {
 export function FeatureSection() {
   const t = useT();
   return (
+    <MotionSurface reveal preset="rise" asChild>
     <section
       id="features"
       className="cw-container cw-section"
@@ -79,7 +81,7 @@ export function FeatureSection() {
           const feature = features[key];
           const Icon = feature.icon;
           return (
-            <article className="cw-feature">
+            <MotionSurface reveal preset="rise" asChild><article className="cw-feature">
               <div className="cw-feature-heading">
                 <Icon size={19} aria-hidden="true" />
                 <span>
@@ -180,10 +182,11 @@ export function FeatureSection() {
                   <ArrowUpRight size={15} aria-hidden="true" />
                 </a>
               )}
-            </article>
+            </article></MotionSurface>
           );
         }}
       />
     </section>
+    </MotionSurface>
   );
 }

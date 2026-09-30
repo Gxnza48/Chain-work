@@ -1,3 +1,4 @@
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbLink } from "@/components/cojeev/breadcrumb";
 import { useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -167,20 +168,14 @@ export default function ChainPage() {
               >
                 <Menu className="h-4 w-4" />
               </Button>
-              <span className="max-w-40 truncate">{chain.name}</span>
-              <span>/</span>
-              <span className="text-fg">
-                {t(
-                  tabs.find((item) => item.id === activeTab)?.label ??
-                    "Projects",
-                )}
-              </span>
-              {openProject && (
-                <>
-                  <span>/</span>
-                  <span>{t("Project")}</span>
-                </>
-              )}
+              <Breadcrumb aria-label={t("Navigation")} className="min-w-0">
+                <BreadcrumbList className="flex flex-wrap items-center gap-2">
+                  <BreadcrumbItem><BreadcrumbLink asChild><Link to={`/chain/${chain.id}`}>{chain.name}</Link></BreadcrumbLink></BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>{openProject ? <BreadcrumbLink asChild><Link to={`/chain/${chain.id}`}>{t("Projects")}</Link></BreadcrumbLink> : <BreadcrumbPage>{t(tabs.find((item) => item.id === activeTab)?.label ?? "Projects")}</BreadcrumbPage>}</BreadcrumbItem>
+                  {openProject && <><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>{t("Project")}</BreadcrumbPage></BreadcrumbItem></>}
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
             <div
               key={`${chain.id}:${activeTab}:${openProject ?? ""}`}

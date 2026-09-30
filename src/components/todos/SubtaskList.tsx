@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Check, Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Checkbox } from '@/components/cojeev/checkbox';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Progress } from '@/components/ui/Progress';
@@ -49,19 +50,16 @@ export function SubtaskList({ todoId, chainId }: Props) {
         <ul className="flex flex-col gap-1">
           {items.map((s) => (
             <li key={s.id} className="group/sub flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => toggle(s.id, !s.done)}
-                role="checkbox"
-                aria-checked={s.done}
+              <Checkbox
+                checked={s.done}
+                onCheckedChange={(checked) => toggle(s.id, checked === true)}
+                shape="rounded"
+                indicator="check"
                 aria-label={s.done ? t('Mark subtask not done') : t('Mark subtask done')}
                 className={cn(
-                  'grid h-5 w-5 shrink-0 place-items-center rounded border border-border shadow-soft transition-colors',
-                  s.done ? 'bg-accent-emerald text-white' : 'bg-surface text-transparent hover:bg-surface',
+                  'cw-app-checkbox shrink-0',
                 )}
-              >
-                <Check className="h-3 w-3" />
-              </button>
+              />
               <span
                 className={cn(
                   'min-w-0 flex-1 break-words text-sm text-fg',

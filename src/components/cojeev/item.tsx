@@ -1,5 +1,5 @@
 // Adapted from 000h / Cojeev: https://000h.cojeev.com/r/item.json
-// See SOURCES.md for the upstream source and landing-only changes.
+// See SOURCES.md for the upstream source and ChainWork adaptations.
 "use client";
 import { useMorph } from "@/lib/cojeev-motion/use-morph";
 import * as React from "react";
@@ -27,8 +27,9 @@ const ItemVariants = cva(
     defaultVariants: { variant: "default", size: "default" },
   },
 );
-export type ItemProps = React.ComponentProps<"button"> &
+export type ItemProps = Omit<React.ComponentProps<"button">, "ref"> &
   VariantProps<typeof ItemVariants> & {
+    ref?: React.Ref<HTMLElement>;
     as?: React.ElementType;
     appearance?: "ledger" | "cover" | "detail";
     radius?: ControlRadius;
@@ -44,7 +45,7 @@ export function Item({
   style,
   ...props
 }: ItemProps) {
-  const ownedMorphRef = useMorph<HTMLButtonElement>("nav", externalMorphRef);
+  const ownedMorphRef = useMorph<HTMLElement>("nav", externalMorphRef);
   const pressRef = useFlowPress(ownedMorphRef);
   return (
     <Tag

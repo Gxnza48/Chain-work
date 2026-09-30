@@ -1,5 +1,5 @@
 // Adapted from 000h / Cojeev: https://000h.cojeev.com/r/accordion.json
-// See SOURCES.md for the upstream source and landing-only changes.
+// See SOURCES.md for the upstream source and ChainWork adaptations.
 "use client";
 
 import * as React from "react";
